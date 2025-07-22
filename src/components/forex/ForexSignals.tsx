@@ -8,7 +8,7 @@ import { TrendingUp, TrendingDown, Star } from 'lucide-react';
 interface ForexSignal {
   id: string;
   currency_pair: string;
-  signal_type: 'buy' | 'sell';
+  signal_type: string;
   entry_price: number;
   stop_loss: number;
   take_profit: number;
@@ -45,7 +45,7 @@ const ForexSignals: React.FC = () => {
 
   const formatPrice = (price: number) => price.toFixed(5);
 
-  const getSignalIcon = (type: 'buy' | 'sell') => {
+  const getSignalIcon = (type: string) => {
     return type === 'buy' ? (
       <TrendingUp className="h-4 w-4 text-green-600" />
     ) : (

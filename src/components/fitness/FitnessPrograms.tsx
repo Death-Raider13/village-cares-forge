@@ -10,8 +10,8 @@ import { Clock, Target, Activity } from 'lucide-react';
 interface FitnessProgram {
   id: string;
   name: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  program_type: 'strength' | 'cardio' | 'flexibility' | 'mixed';
+  level: string;
+  program_type: string;
   duration_weeks: number;
   description: string;
   created_at: string;
