@@ -5,7 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Calendar, Clock, TrendingUp, Award } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Award, Activity, BookOpen } from 'lucide-react';
+import StatsCards from './StatsCards';
+import ProgressChart from './ProgressChart';
 
 interface DashboardData {
   bookings: any[];
@@ -41,21 +43,21 @@ const UserDashboard: React.FC = () => {
           `)
           .eq('user_id', user.id)
           .order('booking_date', { ascending: true })
-          .limit(5),
+          .limit(10),
         
         supabase
           .from('training_sessions')
           .select('*')
           .eq('user_id', user.id)
           .order('session_date', { ascending: false })
-          .limit(5),
+          .limit(10),
         
         supabase
           .from('martial_arts_ranks')
           .select('*')
           .eq('user_id', user.id)
           .order('date_achieved', { ascending: false })
-          .limit(3),
+          .limit(5),
       ]);
 
       setData({
@@ -81,131 +83,252 @@ const UserDashboard: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">Please sign in to view your dashboard.</p>
+      <div className="min-h-screen bg-gradient-to-br from-vintage-warm-cream to-vintage-sage-green/10 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center py-12">
+            <Activity className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-2xl font-bold mb-4">Welcome to Andrew Cares Village</h2>
+            <p className="text-muted-foreground mb-6">Please sign in to access your personalized dashboard and training programs.</p>
+            <Button className="w-full">Sign In to Continue</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="text-center py-8">Loading dashboard...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-vintage-warm-cream to-vintage-sage-green/10 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vintage-deep-blue mx-auto mb-4"></div>
+          <p className="text-vintage-dark-brown text-lg">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
-        <p className="text-muted-foreground">Here's your progress at Andrew Cares Village</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-vintage-warm-cream to-vintage-sage-green/10">
+      <div className="container mx-auto px-4 py-8">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <h1 className="font-playfair text-4xl font-bold text-vintage-deep-blue mb-2">
+            Welcome back, {user.email?.split('@')[0]}!
+          </h1>
+          <p className="font-crimson text-xl text-vintage-dark-brown/80">
+            Continue your journey of growth and excellence at Andrew Cares Village
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Upcoming Bookings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Upcoming Bookings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {data.bookings.length > 0 ? (
-              data.bookings.map((booking) => (
-                <div key={booking.id} className="flex items-center justify-between p-2 border rounded">
-                  <div>
-                    <p className="font-medium">{booking.services?.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(booking.booking_date).toLocaleDateString()}
-                    </p>
+        {/* Stats Cards */}
+        <StatsCards data={data} />
+
+        {/* Progress Charts */}
+        {data.recentSessions.length > 0 && <ProgressChart data={data} />}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Upcoming Bookings */}
+          <Card className="hover:shadow-xl transition-all duration-300 bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
+                <Calendar className="h-5 w-5" />
+                Upcoming Bookings
+              </CardTitle>
+              <CardDescription>Your scheduled training sessions and appointments</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {data.bookings.length > 0 ? (
+                data.bookings.slice(0, 5).map((booking) => (
+                  <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex-1">
+                      <p className="font-semibold text-vintage-deep-blue">{booking.services?.name || 'Training Session'}</p>
+                      <p className="text-sm text-vintage-dark-brown/70 font-crimson">
+                        {new Date(booking.booking_date).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                      <p className="text-xs text-vintage-dark-brown/50 capitalize">
+                        {booking.services?.category} Training
+                      </p>
+                    </div>
+                    <Badge className={getStatusColor(booking.status)}>
+                      {booking.status}
+                    </Badge>
                   </div>
-                  <Badge className={getStatusColor(booking.status)}>
-                    {booking.status}
-                  </Badge>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Calendar className="h-12 w-12 mx-auto mb-4 text-vintage-dark-brown/30" />
+                  <p className="text-vintage-dark-brown/60 font-crimson">No upcoming bookings</p>
+                  <p className="text-sm text-vintage-dark-brown/50">Book a session to get started</p>
                 </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground text-sm">No upcoming bookings</p>
-            )}
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Training Sessions */}
+          <Card className="hover:shadow-xl transition-all duration-300 bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
+                <Clock className="h-5 w-5" />
+                Recent Sessions
+              </CardTitle>
+              <CardDescription>Your latest training activities and progress</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {data.recentSessions.length > 0 ? (
+                data.recentSessions.slice(0, 5).map((session) => (
+                  <div key={session.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-semibold text-vintage-deep-blue">{session.title}</p>
+                      {session.completed && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          Completed
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-vintage-dark-brown/70 font-crimson capitalize mb-1">
+                      {session.session_type} • {session.duration_minutes}min
+                    </p>
+                    <p className="text-xs text-vintage-dark-brown/50">
+                      {new Date(session.session_date).toLocaleDateString()}
+                    </p>
+                    {session.description && (
+                      <p className="text-xs text-vintage-dark-brown/60 mt-2 line-clamp-2">
+                        {session.description}
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Activity className="h-12 w-12 mx-auto mb-4 text-vintage-dark-brown/30" />
+                  <p className="text-vintage-dark-brown/60 font-crimson">No recent sessions</p>
+                  <p className="text-sm text-vintage-dark-brown/50">Start your first training session</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Martial Arts Achievements */}
+          <Card className="hover:shadow-xl transition-all duration-300 bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
+                <Award className="h-5 w-5" />
+                Recent Achievements
+              </CardTitle>
+              <CardDescription>Your martial arts ranks and accomplishments</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {data.ranks.length > 0 ? (
+                data.ranks.map((rank) => (
+                  <div key={rank.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 bg-vintage-gold rounded-full flex items-center justify-center">
+                        <Award className="h-4 w-4 text-vintage-deep-blue" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-vintage-deep-blue">{rank.rank_name}</p>
+                        <p className="text-sm text-vintage-dark-brown/70 font-crimson capitalize">
+                          {rank.discipline}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-vintage-dark-brown/50">
+                      Achieved: {new Date(rank.date_achieved).toLocaleDateString()}
+                    </p>
+                    {rank.instructor && (
+                      <p className="text-xs text-vintage-dark-brown/60 mt-1">
+                        Instructor: {rank.instructor}
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Award className="h-12 w-12 mx-auto mb-4 text-vintage-dark-brown/30" />
+                  <p className="text-vintage-dark-brown/60 font-crimson">No achievements yet</p>
+                  <p className="text-sm text-vintage-dark-brown/50">Start training to earn your first rank</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Enhanced Quick Actions */}
+        <Card className="mt-8 hover:shadow-xl transition-all duration-300 bg-white/95 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="font-playfair text-vintage-deep-blue">Explore Your Training Programs</CardTitle>
+            <CardDescription>Access comprehensive training in forex, fitness, and martial arts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="group">
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-6 flex flex-col items-center gap-4 w-full hover:shadow-lg transition-all duration-300 hover:border-vintage-gold border-2"
+                  onClick={() => window.location.href = '/forex-trading'}
+                >
+                  <div className="p-4 rounded-full bg-vintage-deep-blue/5 group-hover:bg-vintage-deep-blue/10 transition-colors">
+                    <TrendingUp className="h-8 w-8 text-vintage-deep-blue" />
+                  </div>
+                  <div className="text-center">
+                    <span className="font-semibold text-vintage-deep-blue block mb-1">Professional Forex Trading</span>
+                    <span className="text-sm text-vintage-dark-brown/70">Live signals, analysis & education</span>
+                  </div>
+                </Button>
+              </div>
+              
+              <div className="group">
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-6 flex flex-col items-center gap-4 w-full hover:shadow-lg transition-all duration-300 hover:border-vintage-gold border-2"
+                  onClick={() => window.location.href = '/fitness-training'}
+                >
+                  <div className="p-4 rounded-full bg-vintage-burgundy/5 group-hover:bg-vintage-burgundy/10 transition-colors">
+                    <Activity className="h-8 w-8 text-vintage-burgundy" />
+                  </div>
+                  <div className="text-center">
+                    <span className="font-semibold text-vintage-burgundy block mb-1">Fitness Training</span>
+                    <span className="text-sm text-vintage-dark-brown/70">Personalized programs for all levels</span>
+                  </div>
+                </Button>
+              </div>
+              
+              <div className="group">
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-6 flex flex-col items-center gap-4 w-full hover:shadow-lg transition-all duration-300 hover:border-vintage-gold border-2"
+                  onClick={() => window.location.href = '/karate-training'}
+                >
+                  <div className="p-4 rounded-full bg-vintage-gold/10 group-hover:bg-vintage-gold/20 transition-colors">
+                    <Award className="h-8 w-8 text-vintage-gold" />
+                  </div>
+                  <div className="text-center">
+                    <span className="font-semibold text-vintage-gold block mb-1">Karate Training</span>
+                    <span className="text-sm text-vintage-dark-brown/70">Traditional martial arts & philosophy</span>
+                  </div>
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Recent Training Sessions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Recent Sessions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {data.recentSessions.length > 0 ? (
-              data.recentSessions.map((session) => (
-                <div key={session.id} className="p-2 border rounded">
-                  <p className="font-medium">{session.title}</p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {session.session_type} • {session.duration_minutes}min
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(session.session_date).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground text-sm">No recent sessions</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Martial Arts Achievements */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5" />
-              Recent Achievements
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {data.ranks.length > 0 ? (
-              data.ranks.map((rank) => (
-                <div key={rank.id} className="p-2 border rounded">
-                  <p className="font-medium">{rank.rank_name}</p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {rank.discipline}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(rank.date_achieved).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground text-sm">No achievements yet</p>
-            )}
+        {/* Motivational Quote */}
+        <Card className="mt-8 bg-gradient-to-r from-vintage-gold/10 to-vintage-burgundy/10 border-vintage-gold/30">
+          <CardContent className="text-center py-8">
+            <blockquote className="font-playfair text-2xl text-vintage-deep-blue italic mb-4">
+              "The journey of a thousand miles begins with one step."
+            </blockquote>
+            <p className="font-crimson text-vintage-dark-brown/70">
+              Ancient Chinese Proverb
+            </p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Get started with your training journey</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-              <TrendingUp className="h-6 w-6" />
-              <span>View Forex Signals</span>
-            </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-              <Clock className="h-6 w-6" />
-              <span>Book Training Session</span>
-            </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-              <Award className="h-6 w-6" />
-              <span>Track Progress</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

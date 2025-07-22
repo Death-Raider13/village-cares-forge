@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TrendingUp, TrendingDown, Star, Clock, Target, AlertCircle, BarChart3, Calculator, DollarSign, Activity } from 'lucide-react';
+import TradingSignalsModal from '@/components/forex/TradingSignalsModal';
+import TradingAcademyModal from '@/components/forex/TradingAcademyModal';
 
 interface ForexSignal {
   id: string;
@@ -35,6 +37,9 @@ const ForexTrading: React.FC = () => {
   const [stopLoss, setStopLoss] = useState(1.0800);
   const [takeProfit, setTakeProfit] = useState(1.0950);
   const [lotSize, setLotSize] = useState(0.1);
+
+  const [signalsModalOpen, setSignalsModalOpen] = useState(false);
+  const [academyModalOpen, setAcademyModalOpen] = useState(false);
 
   useEffect(() => {
     fetchSignals();
@@ -106,11 +111,11 @@ const ForexTrading: React.FC = () => {
               Master the global currency markets with institutional-grade tools, comprehensive education, and time-tested strategies from market professionals
             </p>
             <div className="flex flex-wrap justify-center gap-6">
-              <Button size="lg" className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3">
+              <Button size="lg" className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setSignalsModalOpen(true)}>
                 <BarChart3 className="mr-2 h-5 w-5" />
                 Live Trading Signals
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3">
+              <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setAcademyModalOpen(true)}>
                 <Target className="mr-2 h-5 w-5" />
                 Trading Academy
               </Button>
@@ -596,6 +601,10 @@ const ForexTrading: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modals */}
+      <TradingSignalsModal isOpen={signalsModalOpen} onClose={() => setSignalsModalOpen(false)} />
+      <TradingAcademyModal isOpen={academyModalOpen} onClose={() => setAcademyModalOpen(false)} />
     </div>
   );
 };
