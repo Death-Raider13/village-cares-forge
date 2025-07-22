@@ -14,7 +14,245 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_date: string
+          created_at: string
+          id: string
+          notes: string | null
+          service_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          booking_date: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          service_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          booking_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          service_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fitness_programs: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_weeks: number | null
+          id: string
+          level: string
+          name: string
+          program_type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_weeks?: number | null
+          id?: string
+          level: string
+          name: string
+          program_type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_weeks?: number | null
+          id?: string
+          level?: string
+          name?: string
+          program_type?: string
+        }
+        Relationships: []
+      }
+      forex_signals: {
+        Row: {
+          confidence_level: number | null
+          created_at: string
+          currency_pair: string
+          description: string | null
+          entry_price: number | null
+          id: string
+          signal_type: string
+          status: string
+          stop_loss: number | null
+          take_profit: number | null
+        }
+        Insert: {
+          confidence_level?: number | null
+          created_at?: string
+          currency_pair: string
+          description?: string | null
+          entry_price?: number | null
+          id?: string
+          signal_type: string
+          status?: string
+          stop_loss?: number | null
+          take_profit?: number | null
+        }
+        Update: {
+          confidence_level?: number | null
+          created_at?: string
+          currency_pair?: string
+          description?: string | null
+          entry_price?: number | null
+          id?: string
+          signal_type?: string
+          status?: string
+          stop_loss?: number | null
+          take_profit?: number | null
+        }
+        Relationships: []
+      }
+      martial_arts_ranks: {
+        Row: {
+          created_at: string
+          date_achieved: string | null
+          discipline: string
+          id: string
+          instructor: string | null
+          rank_level: number | null
+          rank_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_achieved?: string | null
+          discipline: string
+          id?: string
+          instructor?: string | null
+          rank_level?: number | null
+          rank_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_achieved?: string | null
+          discipline?: string
+          id?: string
+          instructor?: string | null
+          rank_level?: number | null
+          rank_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          max_participants: number | null
+          name: string
+          price: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          max_participants?: number | null
+          name: string
+          price?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          max_participants?: number | null
+          name?: string
+          price?: number | null
+        }
+        Relationships: []
+      }
+      training_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          session_date: string
+          session_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          session_date?: string
+          session_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          session_date?: string
+          session_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

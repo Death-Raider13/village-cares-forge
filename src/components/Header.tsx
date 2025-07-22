@@ -1,7 +1,15 @@
 
-import React from 'react';
-import { TrendingUp, Dumbbell, Zap, Menu } from 'lucide-react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/auth/AuthProvider';
+import AuthModal from '@/components/auth/AuthModal';
+import { User, LogOut } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   activeSection: string;
@@ -9,94 +17,99 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
-  const navItems = [
-    { id: 'home', label: 'Home', icon: null },
-    { id: 'forex', label: 'Forex Trading', icon: TrendingUp },
-    { id: 'fitness', label: 'Fitness Training', icon: Dumbbell },
-    { id: 'martial-arts', label: 'Martial Arts', icon: Zap },
-  ];
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   return (
-    <header className="bg-vintage-warm-cream shadow-lg border-b-4 border-vintage-gold sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-vintage-deep-blue rounded-full flex items-center justify-center">
-              <span className="text-vintage-gold font-playfair font-bold text-xl">AC</span>
-            </div>
-            <div>
-              <h1 className="font-playfair font-bold text-2xl text-vintage-deep-blue">
-                Andrew Cares Village
-              </h1>
-              <p className="text-sm text-vintage-dark-brown italic">
-                Master • Strengthen • Transform
-              </p>
-            </div>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-vintage-warm-cream/95 backdrop-blur-sm border-b border-vintage-gold/20">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="text-2xl font-bold text-vintage-forest-green">
+            Andrew Cares Village
           </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => onSectionChange(item.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 font-crimson text-lg ${
-                    activeSection === item.id
-                      ? 'bg-vintage-deep-blue text-vintage-gold shadow-md'
-                      : 'text-vintage-dark-brown hover:bg-vintage-gold hover:text-vintage-deep-blue'
-                  }`}
-                >
-                  {Icon && <Icon size={20} />}
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+          
+          <nav className="hidden md:flex items-center space-x-8">
+            <button 
+              onClick={() => onSectionChange('home')}
+              className={`text-lg font-medium transition-colors hover:text-vintage-forest-green ${
+                activeSection === 'home' ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
+              }`}
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => onSectionChange('forex')}
+              className={`text-lg font-medium transition-colors hover:text-vintage-forest-green ${
+                activeSection === 'forex' ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
+              }`}
+            >
+              Forex Trading
+            </button>
+            <button 
+              onClick={() => onSectionChange('fitness')}
+              className={`text-lg font-medium transition-colors hover:text-vintage-forest-green ${
+                activeSection === 'fitness' ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
+              }`}
+            >
+              Fitness Training
+            </button>
+            <button 
+              onClick={() => onSectionChange('martial-arts')}
+              className={`text-lg font-medium transition-colors hover:text-vintage-forest-green ${
+                activeSection === 'martial-arts' ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
+              }`}
+            >
+              Martial Arts
+            </button>
+            {user && (
+              <button 
+                onClick={() => onSectionChange('dashboard')}
+                className={`text-lg font-medium transition-colors hover:text-vintage-forest-green ${
+                  activeSection === 'dashboard' ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
+                }`}
+              >
+                Dashboard
+              </button>
+            )}
           </nav>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <Menu />
-          </Button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-vintage-gold animate-fade-in">
-            <nav className="flex flex-col space-y-2">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      onSectionChange(item.id);
-                      setIsMenuOpen(false);
-                    }}
-                    className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-300 font-crimson text-lg ${
-                      activeSection === item.id
-                        ? 'bg-vintage-deep-blue text-vintage-gold'
-                        : 'text-vintage-dark-brown hover:bg-vintage-gold hover:text-vintage-deep-blue'
-                    }`}
-                  >
-                    {Icon && <Icon size={20} />}
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">Profile</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onSectionChange('dashboard')}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => setAuthModalOpen(true)}>
+                Sign In
+              </Button>
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </header>
   );
 };
