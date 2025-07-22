@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { AuthProvider } from '@/components/auth/AuthProvider';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import ForexSection from '@/components/ForexSection';
@@ -89,18 +88,16 @@ const Index = () => {
   };
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-vintage-warm-cream">
-        <Header 
-          activeSection={activeSection} 
-          onSectionChange={handleSectionChange} 
-        />
-        
-        {renderContent()}
+    <div className="min-h-screen bg-vintage-warm-cream">
+      <Header 
+        activeSection={activeSection} 
+        onSectionChange={handleSectionChange} 
+      />
+      
+      {renderContent()}
 
-        {activeSection !== 'dashboard' && <Footer />}
-      </div>
-    </AuthProvider>
+      {activeSection !== 'dashboard' && <Footer />}
+    </div>
   );
 };
 
