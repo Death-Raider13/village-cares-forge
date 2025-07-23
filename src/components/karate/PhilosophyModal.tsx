@@ -3,7 +3,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Scroll, Heart, Shield, Mountain, Lotus, Sword } from 'lucide-react';
+import { Scroll, Heart, Shield, Mountain, Flower, Sword } from 'lucide-react';
 
 interface PhilosophyModalProps {
   isOpen: boolean;
@@ -40,7 +40,7 @@ const PhilosophyModal: React.FC<PhilosophyModalProps> = ({ isOpen, onClose }) =>
     },
     {
       title: 'Mind, Body, Spirit Unity',
-      icon: Lotus,
+      icon: Flower,
       principles: [
         'Mental discipline through focus',
         'Physical strength through practice',

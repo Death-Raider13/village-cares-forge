@@ -52,10 +52,11 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
     }));
   };
 
-  const handleEquipmentChange = (equipmentItem: string, checked: boolean) => {
+  const handleEquipmentChange = (equipmentItem: string, checked: boolean | string) => {
+    const isChecked = checked === true;
     setFormData(prev => ({
       ...prev,
-      available_equipment: checked 
+      available_equipment: isChecked 
         ? [...prev.available_equipment, equipmentItem]
         : prev.available_equipment.filter(e => e !== equipmentItem)
     }));
