@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
-import AuthModal from '@/components/auth/AuthModal';
 import { User, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -18,7 +17,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const location = useLocation();
 
@@ -73,15 +71,15 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             >
               Karate Training
             </Link>
-            {user && onSectionChange && (
-              <button 
-                onClick={() => onSectionChange('dashboard')}
+            {user && (
+              <Link 
+                to="/fitness-journey"
                 className={`text-lg font-medium transition-colors hover:text-vintage-forest-green ${
-                  activeSection === 'dashboard' ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
+                  isActive('/fitness-journey') ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
                 }`}
               >
-                Dashboard
-              </button>
+                My Journey
+              </Link>
             )}
           </nav>
 
@@ -95,11 +93,11 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {onSectionChange && (
-                    <DropdownMenuItem onClick={() => onSectionChange('dashboard')}>
-                      Dashboard
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem>
+                    <Link to="/fitness-journey" className="w-full">
+                      My Journey
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
@@ -107,15 +105,15 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={() => setAuthModalOpen(true)}>
-                Sign In
-              </Button>
+              <Link to="/auth">
+                <Button>
+                  Sign In
+                </Button>
+              </Link>
             )}
           </div>
         </div>
       </div>
-
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </header>
   );
 };
