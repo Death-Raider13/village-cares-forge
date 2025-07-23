@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { Dumbbell, Heart, Target, Zap, Clock, Trophy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface StartJourneyModalProps {
   isOpen: boolean;
@@ -28,6 +28,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
     health_conditions: '',
   });
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const fitnessGoals = [
     { id: 'weight_loss', label: 'Weight Loss', icon: Target },
@@ -74,7 +75,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
         .insert({
           user_id: user.id,
           title: 'Fitness Journey Begins',
-          description: `Starting fitness journey with ${formData.fitness_level} level. Goals: ${formData.goals.join(', ')}`,
+          description: `Starting fitness journey with ${formData.fitness_level} level. Goals: ${formData.goals.join(', ')}. Frequency: ${formData.workout_frequency}. Equipment: ${formData.available_equipment.join(', ')}`,
           session_type: 'fitness',
           duration_minutes: parseInt(formData.preferred_duration) || 30,
           completed: false,
@@ -82,8 +83,14 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
 
       if (error) throw error;
 
-      toast.success('Your fitness journey has started! Let\'s get moving.');
+      toast.success('Your fitness journey has started! Redirecting to your personalized dashboard...');
       onClose();
+      
+      // Redirect to fitness journey page
+      setTimeout(() => {
+        navigate('/fitness-journey');
+      }, 1000);
+      
     } catch (error) {
       console.error('Error starting journey:', error);
       toast.error('Failed to start journey. Please try again.');
@@ -232,6 +239,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
               <Button 
                 onClick={handleSubmit} 
                 disabled={!formData.fitness_level || !formData.workout_frequency}
+                className="bg-vintage-deep-blue hover:bg-vintage-forest-green"
               >
                 Start My Journey
               </Button>
