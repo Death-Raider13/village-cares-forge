@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,7 +13,7 @@ interface TradingAcademyModalProps {
 }
 
 const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClose }) => {
-  const [completedLessons, setCompletedLessons] = useState(new Set());
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set<string>());
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
 
   const courses = [
@@ -55,49 +54,170 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
           ]
         }
       ]
+    },
+    {
+      id: 'intermediate',
+      title: 'Technical Analysis Mastery',
+      level: 'Intermediate',
+      duration: '6 weeks',
+      icon: BarChart3,
+      color: 'bg-blue-500',
+      description: 'Advanced chart reading and technical indicators for professional trading',
+      modules: [
+        {
+          title: 'Advanced Chart Patterns',
+          lessons: [
+            { title: 'Head and Shoulders Pattern', duration: '25 min', completed: false, content: '' },
+            { title: 'Double Top/Bottom Patterns', duration: '20 min', completed: false, content: '' },
+            { title: 'Triangle Patterns', duration: '22 min', completed: false, content: '' },
+            { title: 'Flag and Pennant Patterns', duration: '18 min', completed: false, content: '' }
+          ]
+        },
+        {
+          title: 'Technical Indicators',
+          lessons: [
+            { title: 'Moving Averages Deep Dive', duration: '30 min', completed: false, content: '' },
+            { title: 'RSI and Stochastic Oscillators', duration: '25 min', completed: false, content: '' },
+            { title: 'MACD and Signal Lines', duration: '28 min', completed: false, content: '' },
+            { title: 'Bollinger Bands Strategy', duration: '22 min', completed: false, content: '' }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'advanced',
+      title: 'Institutional Trading Strategies',
+      level: 'Advanced',
+      duration: '8 weeks',
+      icon: Target,
+      color: 'bg-purple-500',
+      description: 'Professional-level strategies used by banks and hedge funds',
+      modules: [
+        {
+          title: 'Market Structure',
+          lessons: [
+            { title: 'Order Flow Analysis', duration: '35 min', completed: false, content: '' },
+            { title: 'Supply and Demand Zones', duration: '30 min', completed: false, content: '' },
+            { title: 'Smart Money Concepts', duration: '40 min', completed: false, content: '' },
+            { title: 'Liquidity Pool Trading', duration: '45 min', completed: false, content: '' }
+          ]
+        }
+      ]
     }
   ];
 
   const tools = [
-    { name: 'Position Size Calculator', description: 'Calculate optimal position sizes', available: true },
-    { name: 'Risk-Reward Calculator', description: 'Analyze potential trades', available: true },
-    { name: 'Pip Value Calculator', description: 'Calculate pip values for any pair', available: true },
-    { name: 'Economic Calendar', description: 'Track important economic events', available: true },
-    { name: 'Currency Correlation Matrix', description: 'Understand pair relationships', available: false },
-    { name: 'Volatility Calculator', description: 'Measure market volatility', available: false }
+    { name: 'Position Size Calculator', description: 'Calculate optimal position sizes based on risk', available: true, url: '/tools/position-calculator' },
+    { name: 'Risk-Reward Calculator', description: 'Analyze potential trades before execution', available: true, url: '/tools/risk-reward' },
+    { name: 'Pip Value Calculator', description: 'Calculate pip values for any currency pair', available: true, url: '/tools/pip-calculator' },
+    { name: 'Economic Calendar', description: 'Track important economic events and releases', available: true, url: '/tools/economic-calendar' },
+    { name: 'Currency Correlation Matrix', description: 'Understand relationships between currency pairs', available: true, url: '/tools/correlation-matrix' },
+    { name: 'Volatility Calculator', description: 'Measure market volatility for better timing', available: true, url: '/tools/volatility-calculator' },
+    { name: 'Fibonacci Calculator', description: 'Calculate key Fibonacci retracement levels', available: true, url: '/tools/fibonacci' },
+    { name: 'Support/Resistance Finder', description: 'Identify key price levels automatically', available: true, url: '/tools/support-resistance' }
   ];
 
   const resources = [
-    { name: 'Trading Plan Template', type: 'PDF', size: '1.2 MB' },
-    { name: 'Risk Management Checklist', type: 'PDF', size: '0.8 MB' },
-    { name: 'Chart Pattern Guide', type: 'PDF', size: '2.1 MB' },
-    { name: 'Economic Indicators Handbook', type: 'PDF', size: '1.5 MB' }
+    { 
+      name: 'Complete Trading Plan Template', 
+      type: 'PDF', 
+      size: '2.1 MB',
+      description: 'A comprehensive template to create your personal trading plan',
+      category: 'Planning'
+    },
+    { 
+      name: 'Risk Management Checklist', 
+      type: 'PDF', 
+      size: '0.8 MB',
+      description: 'Daily checklist to ensure proper risk management',
+      category: 'Risk Management'
+    },
+    { 
+      name: 'Chart Pattern Recognition Guide', 
+      type: 'PDF', 
+      size: '3.2 MB',
+      description: 'Visual guide to identifying profitable chart patterns',
+      category: 'Technical Analysis'
+    },
+    { 
+      name: 'Economic Indicators Handbook', 
+      type: 'PDF', 
+      size: '1.8 MB',
+      description: 'Understanding how economic news affects currency markets',
+      category: 'Fundamental Analysis'
+    },
+    { 
+      name: 'Trading Psychology Workbook', 
+      type: 'PDF', 
+      size: '1.5 MB',
+      description: 'Exercises to develop mental discipline and emotional control',
+      category: 'Psychology'
+    },
+    { 
+      name: 'MetaTrader 4/5 Setup Guide', 
+      type: 'PDF', 
+      size: '2.8 MB',
+      description: 'Complete guide to setting up and customizing MT4/MT5',
+      category: 'Platforms'
+    }
   ];
 
   const certifications = [
     {
       title: 'Forex Fundamentals Certificate',
-      description: 'Complete beginner course and pass final assessment',
+      description: 'Demonstrates mastery of basic forex trading concepts and risk management',
       icon: Award,
       color: 'text-green-600',
-      requirements: ['Complete all beginner modules', 'Pass final exam (80%+)', 'Submit trading plan'],
-      available: true
+      requirements: [
+        'Complete all Forex Fundamentals modules',
+        'Pass final examination with 85% or higher',
+        'Submit a detailed trading plan',
+        'Complete 10 demo trades with documented analysis'
+      ],
+      available: true,
+      estimatedTime: '40 hours'
     },
     {
       title: 'Technical Analysis Professional',
-      description: 'Master technical analysis and chart reading',
+      description: 'Advanced certification in chart reading and technical indicator analysis',
       icon: BarChart3,
       color: 'text-blue-600',
-      requirements: ['Complete intermediate course', 'Analyze 10 trade setups', 'Live trading demo'],
-      available: false
+      requirements: [
+        'Complete Technical Analysis Mastery course',
+        'Analyze and present 25 different chart setups',
+        'Pass advanced technical analysis exam (90%+)',
+        'Conduct live trading demonstration'
+      ],
+      available: true,
+      estimatedTime: '80 hours'
     },
     {
       title: 'Advanced Trading Strategist',
-      description: 'Professional-level trading competency',
+      description: 'Expert-level certification in institutional trading strategies',
       icon: Target,
       color: 'text-purple-600',
-      requirements: ['Complete advanced course', 'Maintain 3-month trading journal', 'Peer review session'],
-      available: false
+      requirements: [
+        'Complete Institutional Trading Strategies course',
+        'Maintain profitable trading journal for 6 months',
+        'Present advanced trading strategy to panel',
+        'Mentor junior traders for 3 months'
+      ],
+      available: true,
+      estimatedTime: '200 hours'
+    },
+    {
+      title: 'Certified Forex Educator',
+      description: 'Qualification to teach forex trading concepts to others',
+      icon: BookOpen,
+      color: 'text-orange-600',
+      requirements: [
+        'Hold all previous certifications',
+        'Complete educator training program',
+        'Demonstrate teaching abilities',
+        'Pass comprehensive final assessment'
+      ],
+      available: false,
+      estimatedTime: '120 hours'
     }
   ];
 
@@ -112,13 +232,28 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
   };
 
   const downloadResource = (resourceName: string) => {
-    // Simulate download
+    // Simulate download with more realistic behavior
     console.log(`Downloading ${resourceName}...`);
+    // In a real app, this would trigger an actual file download
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = resourceName.toLowerCase().replace(/\s+/g, '-') + '.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const openTool = (toolName: string) => {
-    // Simulate opening tool
+  const openTool = (toolName: string, url?: string) => {
     console.log(`Opening ${toolName}...`);
+    if (url) {
+      // In a real app, this would navigate to the tool page
+      window.open(url, '_blank');
+    }
+  };
+
+  const startCertification = (certTitle: string) => {
+    console.log(`Starting certification: ${certTitle}`);
+    // In a real app, this would begin the certification process
   };
 
   if (selectedCourse) {
@@ -214,7 +349,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                   <CardContent>
                     <Button 
                       className="w-full" 
-                      onClick={() => tool.available && openTool(tool.name)}
+                      onClick={() => tool.available && openTool(tool.name, tool.url)}
                       disabled={!tool.available}
                     >
                       {tool.available ? (
@@ -239,9 +374,16 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>{resource.name}</span>
-                      <Badge variant="outline">{resource.type}</Badge>
+                      <div className="flex gap-2">
+                        <Badge variant="outline">{resource.category}</Badge>
+                        <Badge variant="secondary">{resource.type}</Badge>
+                      </div>
                     </CardTitle>
-                    <CardDescription>Size: {resource.size}</CardDescription>
+                    <CardDescription>
+                      {resource.description}
+                      <br />
+                      <span className="text-xs text-muted-foreground">Size: {resource.size}</span>
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full" onClick={() => downloadResource(resource.name)}>
@@ -255,7 +397,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
           </TabsContent>
 
           <TabsContent value="certifications" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {certifications.map((cert, index) => (
                 <Card key={index} className={`hover:shadow-lg transition-shadow ${!cert.available ? 'opacity-50' : ''}`}>
                   <CardHeader className="text-center">
@@ -264,6 +406,12 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                     </div>
                     <CardTitle className="text-lg">{cert.title}</CardTitle>
                     <CardDescription>{cert.description}</CardDescription>
+                    {cert.estimatedTime && (
+                      <Badge variant="outline" className="mx-auto w-fit">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {cert.estimatedTime}
+                      </Badge>
+                    )}
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -276,7 +424,11 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                           </li>
                         ))}
                       </ul>
-                      <Button className="w-full" disabled={!cert.available}>
+                      <Button 
+                        className="w-full" 
+                        disabled={!cert.available}
+                        onClick={() => cert.available && startCertification(cert.title)}
+                      >
                         {cert.available ? 'Start Certification' : 'Coming Soon'}
                       </Button>
                     </div>
