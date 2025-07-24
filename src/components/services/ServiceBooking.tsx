@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { sanitizeInput } from '@/lib/security';
 
 interface Service {
   id: string;
@@ -32,20 +33,49 @@ const ServiceBooking: React.FC<ServiceBookingProps> = ({ service, onBookingCompl
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to book this service.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!bookingDate) {
+      toast({
+        title: "Date required",
+        description: "Please select a booking date.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
+
     try {
+      // Sanitize user input before storing
+      const sanitizedNotes = notes ? sanitizeInput(notes) : null;
+
       const { error } = await supabase
         .from('bookings')
         .insert({
           user_id: user.id,
           service_id: service.id,
           booking_date: new Date(bookingDate).toISOString(),
-          notes,
+          notes: sanitizedNotes,
         });
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Booking failed",
+          description: "Unable to process your booking. Please try again.",
+          variant: "destructive",
+        });
+        console.error('Booking error:', error);
+        return;
+      }
 
       toast({
         title: "Booking confirmed!",
@@ -53,10 +83,13 @@ const ServiceBooking: React.FC<ServiceBookingProps> = ({ service, onBookingCompl
       });
 
       onBookingComplete();
-    } catch (error: any) {
+      setBookingDate('');
+      setNotes('');
+    } catch (error) {
+      console.error('Booking error:', error);
       toast({
         title: "Booking failed",
-        description: error.message,
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
