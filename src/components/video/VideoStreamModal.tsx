@@ -11,7 +11,7 @@ interface VideoStreamModalProps {
   isOpen: boolean;
   onClose: () => void;
   category: 'fitness' | 'karate' | 'forex';
-  defaultTab?: 'live' | 'library' | 'conference';
+  defaultTab?: 'live' | 'library' | 'conference' | 'schedule';
 }
 
 const VideoStreamModal: React.FC<VideoStreamModalProps> = ({
@@ -61,7 +61,7 @@ const VideoStreamModal: React.FC<VideoStreamModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl h-[90vh] flex flex-col p-0">
         <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle className="flex items-center gap-3 font-playfair text-2xl text-vintage-deep-blue">
+          <DialogTitle className="flex items-center gap-3 font-playfair text-2xl text-blue-800">
             <Video className="h-6 w-6" />
             {categoryTitles[category]}
           </DialogTitle>
@@ -102,34 +102,34 @@ const VideoStreamModal: React.FC<VideoStreamModalProps> = ({
               <TabsContent value="conference" className="mt-0 h-full">
                 <div className="max-w-2xl mx-auto space-y-6">
                   <div className="text-center space-y-4">
-                    <div className="w-24 h-24 bg-vintage-deep-blue/10 rounded-full flex items-center justify-center mx-auto">
-                      <Users className="w-12 h-12 text-vintage-deep-blue" />
+                    <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                      <Users className="w-12 h-12 text-blue-600" />
                     </div>
-                    <h3 className="font-playfair text-2xl font-semibold text-vintage-deep-blue">
+                    <h3 className="font-playfair text-2xl font-semibold text-blue-800">
                       Personal Training Session
                     </h3>
-                    <p className="text-vintage-dark-brown/70 font-crimson">
+                    <p className="text-gray-600 font-crimson">
                       Start a one-on-one video session with your instructor for personalized guidance and real-time feedback.
                     </p>
                   </div>
 
                   <div className="bg-white/80 rounded-lg p-6 space-y-4">
-                    <h4 className="font-semibold text-vintage-deep-blue">Session Features:</h4>
-                    <ul className="space-y-2 text-sm text-vintage-dark-brown/80">
+                    <h4 className="font-semibold text-blue-800">Session Features:</h4>
+                    <ul className="space-y-2 text-sm text-gray-600">
                       <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-vintage-gold rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         High-quality video and audio streaming
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-vintage-gold rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         Screen sharing for technique demonstrations
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-vintage-gold rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         Real-time chat and messaging
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-vintage-gold rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         Session recording for review
                       </li>
                     </ul>
@@ -139,7 +139,7 @@ const VideoStreamModal: React.FC<VideoStreamModalProps> = ({
                     <Button
                       size="lg"
                       onClick={handleStartVideoCall}
-                      className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3"
                     >
                       <Video className="w-5 h-5 mr-2" />
                       Start Video Session

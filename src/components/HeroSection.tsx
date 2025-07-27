@@ -40,7 +40,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onExploreServices }) => {
                 Master the Markets
               </h3>
               <p className="font-crimson text-vintage-dark-brown text-center">
-                Learn the ancient art of reading financial patterns with modern precision
+                Learn and master candle sticks pattern, market structure, and a tested strategy to build consistency in the market
               </p>
             </div>
 
