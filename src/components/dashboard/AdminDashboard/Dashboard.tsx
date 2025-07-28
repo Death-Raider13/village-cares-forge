@@ -22,6 +22,7 @@ import LiveStreamManager from './LiveStreamGrid';
 import VideoLibraryManager from './VideoLibrary';
 import ConferenceManager from './VideoConference';
 import AdminNotes from './AdminNotes';
+import { AdminAnalytics } from "AdminAnalytics";
 
 interface AdminDashboardProps {
   isOpen: boolean;

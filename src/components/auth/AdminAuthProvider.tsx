@@ -500,3 +500,22 @@ const Auth: React.FC = () => {
 };
 
 export default Auth;
+
+const handleTempAdminAccess = () => {
+  setUserRole('admin');
+  setIsAdminDashboardOpen(true);
+  
+  localStorage.setItem('userRole', 'admin');
+  localStorage.setItem('adminSession', JSON.stringify({
+    email: 'admin@andrewcaresvillage.com',
+    name: 'Admin User',
+    loginTime: new Date().toISOString()
+  }));
+};
+
+<Button
+  onClick={handleTempAdminAccess}
+  className="mb-4 bg-red-500 hover:bg-red-600"
+>
+  🚨 TEMP: Access Admin Dashboard (Remove this in production)
+</Button>
