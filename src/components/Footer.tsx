@@ -34,11 +34,11 @@ const Footer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail size={18} className="text-vintage-gold" />
-                <span className="font-crimson">info@andrewcaresvillage.com</span>
+                <span className="font-crimson">Andrewcares556@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone size={18} className="text-vintage-gold" />
-                <span className="font-crimson">1-800-VILLAGE</span>
+                <span className="font-crimson">08061507380</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin size={18} className="text-vintage-gold" />
@@ -96,9 +96,6 @@ const Footer: React.FC = () => {
               </h5>
               <ul className="space-y-2 font-crimson text-sm">
                 <li>Traditional Karate</li>
-                <li>Taekwondo</li>
-                <li>Kung Fu</li>
-                <li>Mixed Martial Arts</li>
               </ul>
             </div>
           </div>
@@ -107,7 +104,7 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="border-t border-vintage-gold/30 pt-6 text-center">
           <p className="font-crimson text-vintage-warm-cream/60">
-            © 2024 Andrew Cares Village. All rights reserved. | Honoring tradition, embracing excellence.
+            © 2025 Andrew Cares Village. All rights reserved. | Honoring tradition, embracing excellence.
           </p>
         </div>
       </div>
