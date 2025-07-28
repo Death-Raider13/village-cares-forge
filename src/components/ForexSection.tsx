@@ -117,7 +117,6 @@ const ForexSection: React.FC = () => {
         </div>
 
         {/* Call to Action */}
-        <Link  to="/TradingAcademyModal">
         <div className="text-center">
           <Button 
             size="lg"
@@ -126,7 +125,6 @@ const ForexSection: React.FC = () => {
             Start Your Trading Journey
           </Button>
         </div>
-        </Link>
       </div>
     </section>
   );
