@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TrendingUp, BarChart3, PieChart, Calculator, BookOpen, Users, Link } from 'lucide-react';
+import { TrendingUp, BarChart3, PieChart, Calculator, BookOpen, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -118,16 +118,12 @@ const ForexSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center">
-          ) : (
-          <Link to="/TradingAcademyModal">
           <Button 
             size="lg"
             className="bg-vintage-deep-blue hover:bg-vintage-burgundy text-vintage-gold font-playfair font-semibold text-lg px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             Start Your Trading Journey
           </Button>
-          </Link>
-          )
         </div>
       </div>
     </section>

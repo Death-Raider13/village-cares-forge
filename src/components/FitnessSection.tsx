@@ -3,7 +3,6 @@ import React from 'react';
 import { Dumbbell, Timer, Target, Award, Activity, Users2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link } from '@radix-ui/react-navigation-menu';
 
 const FitnessSection: React.FC = () => {
   const programs = [
@@ -155,16 +154,12 @@ const FitnessSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center">
-           ) : (
-                        <Link to="/StartJourneyModal">
           <Button 
             size="lg"
             className="bg-vintage-burgundy hover:bg-vintage-deep-blue text-vintage-warm-cream font-playfair font-semibold text-lg px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             Begin Your Transformation
           </Button>
-          </Link>
-           )
         </div>
       </div>
     </section>

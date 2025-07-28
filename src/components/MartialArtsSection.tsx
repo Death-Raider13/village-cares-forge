@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Zap, Shield, Swords, Mountain, Flame, TreePine, Link } from 'lucide-react';
+import { Zap, Shield, Swords, Mountain, Flame, TreePine } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -180,16 +180,12 @@ const MartialArtsSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center">
-          ) : (
-           <Link to="/BeginJourneyModal"> 
           <Button 
             size="lg"
             className="bg-vintage-sage-green hover:bg-vintage-deep-blue text-vintage-warm-cream font-playfair font-semibold text-lg px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             Begin Your Martial Journey
           </Button>
-          </Link>
-          )
         </div>
       </div>
     </section>
