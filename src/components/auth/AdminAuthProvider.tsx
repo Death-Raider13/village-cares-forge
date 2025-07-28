@@ -27,7 +27,7 @@ const Auth: React.FC = () => {
   // Admin credentials (in production, this should be handled more securely)
   const ADMIN_CREDENTIALS = {
     email: 'admin@andrewcaresvillage.com',
-    password: 'AdminCares2024!',
+    password: 'AdminCares2025!',
     firstName: 'Admin',
     lastName: 'User'
   };
