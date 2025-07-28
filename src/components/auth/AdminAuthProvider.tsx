@@ -9,7 +9,46 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Eye, EyeOff, Mail, Lock, User, Shield, Settings } from 'lucide-react';
 import AdminDashboard from '@/components/dashboard/AdminDashboard/Dashboard';
+import { supabase } from '@/integrations/supabase/client';
 
+const handleSignIn = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    // Always use Supabase authentication
+    await signIn(Mail, password);
+    
+    // After successful authentication, check if user is admin
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Check if this user is an admin (you can check by email or a role field)
+      const isAdmin = user.email === 'admin@andrewcaresvillage.com' || 
+                     user.user_metadata?.role === 'admin';
+      
+      if (isAdmin) {
+        setUserRole('admin');
+        setIsAdminDashboardOpen(true);
+        
+        // Create admin session tracking
+        localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('adminSession', JSON.stringify({
+          email: user.email,
+          name: user.user_metadata?.first_name + ' ' + user.user_metadata?.last_name || 'Admin User',
+          loginTime: new Date().toISOString()
+        }));
+      } else {
+        setUserRole('user');
+      }
+    }
+    
+  } catch (error) {
+    console.error('Sign in error:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +62,7 @@ const Auth: React.FC = () => {
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  
 
   // Admin credentials (in production, this should be handled more securely)
   const ADMIN_CREDENTIALS = {
@@ -466,4 +506,21 @@ const Auth: React.FC = () => {
   );
 };
 
+
 export default Auth;
+
+function setIsAdminDashboardOpen(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}
+function setUserRole(arg0: string) {
+  throw new Error('Function not implemented.');
+}
+
+function setLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}
+
+function signIn(email: any, password: any) {
+  throw new Error('Function not implemented.');
+}
+
