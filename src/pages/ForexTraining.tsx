@@ -25,7 +25,7 @@ interface ForexSignal {
   created_at: string;
 }
 
-const ForexTrading: React.FC = () => {
+const ForexTraining: React.FC = () => {
   const [signals, setSignals] = useState<ForexSignal[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -609,4 +609,4 @@ const ForexTrading: React.FC = () => {
   );
 };
 
-export default ForexTrading;
+export default ForexTraining;
