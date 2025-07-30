@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
-import ForexTrading from '@/pages/ForexTrading';
+import ForexTraining from '@/pages/ForexTraining';
 import FitnessTraining from '@/pages/FitnessTraining';
 import KarateTraining from '@/pages/KarateTraining';
 import FitnessJourney from '@/pages/FitnessJourney';
@@ -17,7 +17,7 @@ function App() {
         <div className="min-h-screen bg-vintage-warm-cream">
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/forex-trading" element={<ForexTrading />} />
+            <Route path="/forex-training" element={<ForexTraining />} />
             <Route path="/fitness-training" element={<FitnessTraining />} />
             <Route path="/karate-training" element={<KarateTraining />} />
             <Route path="/fitness-journey" element={<FitnessJourney />} />
