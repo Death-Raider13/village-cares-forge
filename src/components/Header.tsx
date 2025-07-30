@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                 isActive('/forex-trading') ? 'text-vintage-forest-green' : 'text-vintage-forest-green/70'
               }`}
             >
-              Forex Trading
+              Forex Training
             </Link>
             <Link 
               to="/fitness-training"

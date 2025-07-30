@@ -105,7 +105,7 @@ const ForexTrading: React.FC = () => {
         <div className="container mx-auto px-4 text-center text-vintage-warm-cream relative z-10">
           <div className="max-w-4xl mx-auto">
             <h1 className="font-playfair font-bold text-5xl md:text-7xl mb-6 tracking-tight">
-              Professional Forex Trading
+              Professional Forex Training
             </h1>
             <p className="font-crimson text-xl md:text-2xl mb-8 leading-relaxed opacity-90">
               Master the global currency markets with institutional-grade tools, comprehensive education, and time-tested strategies from market professionals
