@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { createRateLimiter } from '@/lib/security';
 
 interface AuthContextType {
   user: User | null;
@@ -32,6 +33,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  
+  // Rate limiter: 5 attempts per 15 minutes
+  const authRateLimiter = createRateLimiter(5, 15 * 60 * 1000);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -105,15 +109,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Rate limiting check
+      if (!authRateLimiter(email)) {
+        const error = new Error('Too many login attempts. Please try again later.');
+        toast({
+          title: "Too many attempts",
+          description: "Please wait before trying again.",
+          variant: "destructive",
+        });
+        throw error;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        let errorMessage = "Authentication failed. Please check your credentials.";
+        
+        // Provide user-friendly error messages without exposing system details
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = "Invalid email or password. Please try again.";
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = "Please check your email and confirm your account.";
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = "Too many attempts. Please try again later.";
+        }
+        
         toast({
           title: "Sign in failed",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
         throw error;

@@ -55,8 +55,25 @@ const ServiceBooking: React.FC<ServiceBookingProps> = ({ service, onBookingCompl
     setLoading(true);
 
     try {
-      // Sanitize user input before storing
+      // Additional input validation
+      if (!bookingDate || new Date(bookingDate) < new Date()) {
+        toast({
+          title: "Invalid date",
+          description: "Please select a valid future date and time.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const sanitizedNotes = notes ? sanitizeInput(notes) : null;
+      if (sanitizedNotes && sanitizedNotes.length > 500) {
+        toast({
+          title: "Notes too long",
+          description: "Notes must be less than 500 characters.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('bookings')

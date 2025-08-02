@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { sanitizeInput } from '@/lib/security';
 import { Award, Plus } from 'lucide-react';
 
 interface MartialArtsRank {
@@ -63,22 +64,56 @@ const MartialArtsTracker: React.FC = () => {
 
     setLoading(true);
     try {
+      // Input validation and sanitization
+      const sanitizedDiscipline = sanitizeInput(formData.discipline);
+      const sanitizedRankName = sanitizeInput(formData.rank_name);
+      const sanitizedInstructor = formData.instructor ? sanitizeInput(formData.instructor) : '';
+      
+      if (!sanitizedDiscipline || !sanitizedRankName || !formData.rank_level || !formData.date_achieved) {
+        toast({
+          title: "Missing information",
+          description: "Please fill in all required fields.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const rankLevel = parseInt(formData.rank_level);
+      if (isNaN(rankLevel) || rankLevel < 1 || rankLevel > 20) {
+        toast({
+          title: "Invalid rank level",
+          description: "Rank level must be a number between 1 and 20.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const dateAchieved = new Date(formData.date_achieved);
+      if (dateAchieved > new Date()) {
+        toast({
+          title: "Invalid date",
+          description: "Date achieved cannot be in the future.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('martial_arts_ranks')
         .insert({
           user_id: user.id,
-          discipline: formData.discipline,
-          rank_name: formData.rank_name,
-          rank_level: parseInt(formData.rank_level),
+          discipline: sanitizedDiscipline,
+          rank_name: sanitizedRankName,
+          rank_level: rankLevel,
           date_achieved: formData.date_achieved,
-          instructor: formData.instructor,
+          instructor: sanitizedInstructor,
         });
 
       if (error) throw error;
 
       toast({
         title: "Rank added!",
-        description: `Your ${formData.rank_name} in ${formData.discipline} has been recorded.`,
+        description: `Your ${sanitizedRankName} in ${sanitizedDiscipline} has been recorded.`,
       });
 
       setFormData({
@@ -93,9 +128,10 @@ const MartialArtsTracker: React.FC = () => {
     } catch (error: any) {
       toast({
         title: "Failed to add rank",
-        description: error.message,
+        description: "Unable to save your rank. Please try again.",
         variant: "destructive",
       });
+      console.error('Error adding rank:', error);
     } finally {
       setLoading(false);
     }
