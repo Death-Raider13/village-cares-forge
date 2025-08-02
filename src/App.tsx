@@ -18,6 +18,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/forex-training" element={<ForexTraining />} />
+            <Route path="/forex-trading" element={<ForexTraining />} />
             <Route path="/fitness-training" element={<FitnessTraining />} />
             <Route path="/karate-training" element={<KarateTraining />} />
             <Route path="/fitness-journey" element={<FitnessJourney />} />

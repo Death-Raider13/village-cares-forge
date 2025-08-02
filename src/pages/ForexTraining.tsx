@@ -8,26 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { TrendingUp, TrendingDown, Star, Clock, Target, AlertCircle, BarChart3, Calculator, DollarSign, Activity } from 'lucide-react';
-import TradingSignalsModal from '@/components/forex/TradingSignalsModal';
+import { TrendingUp, TrendingDown, Star, Clock, Target, AlertCircle, BookOpen, Calculator, DollarSign, Activity, BarChart3 } from 'lucide-react';
 import TradingAcademyModal from '@/components/forex/TradingAcademyModal';
 
-interface ForexSignal {
-  id: string;
-  currency_pair: string;
-  signal_type: string;
-  entry_price: number;
-  stop_loss: number;
-  take_profit: number;
-  confidence_level: number;
-  description: string;
-  status: string;
-  created_at: string;
-}
 
 const ForexTraining: React.FC = () => {
-  const [signals, setSignals] = useState<ForexSignal[]>([]);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   // Trading Calculator States
@@ -38,39 +23,7 @@ const ForexTraining: React.FC = () => {
   const [takeProfit, setTakeProfit] = useState(1.0950);
   const [lotSize, setLotSize] = useState(0.1);
 
-  const [signalsModalOpen, setSignalsModalOpen] = useState(false);
   const [academyModalOpen, setAcademyModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchSignals();
-  }, []);
-
-  const fetchSignals = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('forex_signals')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSignals(data || []);
-    } catch (error) {
-      console.error('Error fetching forex signals:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPrice = (price: number) => price.toFixed(5);
-
-  const getSignalIcon = (type: string) => {
-    return type === 'buy' ? (
-      <TrendingUp className="h-4 w-4 text-green-600" />
-    ) : (
-      <TrendingDown className="h-4 w-4 text-red-600" />
-    );
-  };
 
   const calculateRiskReward = (entry: number, stopLoss: number, takeProfit: number) => {
     const risk = Math.abs(entry - stopLoss);
@@ -111,13 +64,13 @@ const ForexTraining: React.FC = () => {
               Master the global currency markets with institutional-grade tools, comprehensive education, and time-tested strategies from market professionals
             </p>
             <div className="flex flex-wrap justify-center gap-6">
-              <Button size="lg" className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setSignalsModalOpen(true)}>
-                <BarChart3 className="mr-2 h-5 w-5" />
+              <Button size="lg" className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setAcademyModalOpen(true)}>
+                <BookOpen className="mr-2 h-5 w-5" />
                 Trading Education
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setAcademyModalOpen(true)}>
+              <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3">
                 <Target className="mr-2 h-5 w-5" />
-                Trading Academy
+                Learn More
               </Button>
             </div>
           </div>
@@ -125,9 +78,8 @@ const ForexTraining: React.FC = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12">
-        <Tabs defaultValue="signals" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="signals" className="font-semibold">Educational Signals</TabsTrigger>
+        <Tabs defaultValue="calculator" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm">
             <TabsTrigger value="calculator" className="font-semibold">Trading Tools</TabsTrigger>
             <TabsTrigger value="education" className="font-semibold">Education Hub</TabsTrigger>
             <TabsTrigger value="analysis" className="font-semibold">Market Analysis</TabsTrigger>
@@ -135,98 +87,6 @@ const ForexTraining: React.FC = () => {
             <TabsTrigger value="community" className="font-semibold">Community</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="signals" className="space-y-8 mt-8">
-            {/* Market Overview */}
-            <Card className="bg-white/90 backdrop-blur-sm border-2 border-vintage-gold/20">
-              <CardHeader>
-                <CardTitle className="font-playfair text-2xl text-vintage-deep-blue">Market Overview</CardTitle>
-                <CardDescription>Real-time currency pair performance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-vintage-deep-blue/5 rounded-lg">
-                    <h4 className="font-semibold text-vintage-deep-blue">EUR/USD</h4>
-                    <p className="text-2xl font-bold text-green-600">1.0847</p>
-                    <p className="text-sm text-green-600">+0.0023 (+0.21%)</p>
-                  </div>
-                  <div className="p-4 bg-vintage-deep-blue/5 rounded-lg">
-                    <h4 className="font-semibold text-vintage-deep-blue">GBP/USD</h4>
-                    <p className="text-2xl font-bold text-red-600">1.2341</p>
-                    <p className="text-sm text-red-600">-0.0056 (-0.45%)</p>
-                  </div>
-                  <div className="p-4 bg-vintage-deep-blue/5 rounded-lg">
-                    <h4 className="font-semibold text-vintage-deep-blue">USD/JPY</h4>
-                    <p className="text-2xl font-bold text-green-600">149.82</p>
-                    <p className="text-sm text-green-600">+0.34 (+0.23%)</p>
-                  </div>
-                  <div className="p-4 bg-vintage-deep-blue/5 rounded-lg">
-                    <h4 className="font-semibold text-vintage-deep-blue">USD/CHF</h4>
-                    <p className="text-2xl font-bold text-red-600">0.9123</p>
-                    <p className="text-sm text-red-600">-0.0012 (-0.13%)</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Professional Trading Signals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading ? (
-                <div className="col-span-full text-center py-12">
-                  <Activity className="h-8 w-8 animate-spin mx-auto mb-4 text-vintage-deep-blue" />
-                  <p className="text-vintage-dark-brown">Loading professional signals...</p>
-                </div>
-              ) : (
-                signals.map((signal) => (
-                  <Card key={signal.id} className="hover:shadow-xl transition-all duration-300 bg-white/95 backdrop-blur-sm border-l-4 border-l-vintage-gold">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 font-playfair">
-                          {getSignalIcon(signal.signal_type)}
-                          {signal.currency_pair}
-                        </CardTitle>
-                        <Badge variant={signal.signal_type === 'buy' ? 'default' : 'destructive'} className="font-semibold">
-                          {signal.signal_type.toUpperCase()}
-                        </Badge>
-                      </div>
-                      <CardDescription className="font-crimson">{signal.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="space-y-1">
-                          <span className="font-medium text-vintage-dark-brown">Entry Price:</span>
-                          <div className="text-lg font-bold text-vintage-deep-blue">{formatPrice(signal.entry_price)}</div>
-                        </div>
-                        <div className="space-y-1">
-                          <span className="font-medium text-vintage-dark-brown">Stop Loss:</span>
-                          <div className="text-red-600 font-semibold">{formatPrice(signal.stop_loss)}</div>
-                        </div>
-                        <div className="space-y-1">
-                          <span className="font-medium text-vintage-dark-brown">Take Profit:</span>
-                          <div className="text-green-600 font-semibold">{formatPrice(signal.take_profit)}</div>
-                        </div>
-                        <div className="space-y-1">
-                          <span className="font-medium text-vintage-dark-brown">R:R Ratio:</span>
-                          <div className="font-bold text-vintage-deep-blue">
-                            1:{calculateRiskReward(signal.entry_price, signal.stop_loss, signal.take_profit).toFixed(1)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-vintage-gold/20">
-                        <div className="flex items-center gap-1">
-                          {Array.from({ length: signal.confidence_level }).map((_, i) => (
-                            <Star key={i} className="h-3 w-3 fill-vintage-gold text-vintage-gold" />
-                          ))}
-                        </div>
-                        <span className="text-xs text-vintage-dark-brown/70">
-                          {new Date(signal.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          </TabsContent>
 
           <TabsContent value="calculator" className="space-y-8 mt-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -603,7 +463,6 @@ const ForexTraining: React.FC = () => {
       </div>
 
       {/* Modals */}
-      <TradingSignalsModal isOpen={signalsModalOpen} onClose={() => setSignalsModalOpen(false)} />
       <TradingAcademyModal isOpen={academyModalOpen} onClose={() => setAcademyModalOpen(false)} />
     </div>
   );
