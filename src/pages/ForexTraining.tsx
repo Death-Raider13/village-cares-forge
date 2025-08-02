@@ -113,7 +113,7 @@ const ForexTraining: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-6">
               <Button size="lg" className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setSignalsModalOpen(true)}>
                 <BarChart3 className="mr-2 h-5 w-5" />
-                Live Trading Signals
+                Trading Education
               </Button>
               <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setAcademyModalOpen(true)}>
                 <Target className="mr-2 h-5 w-5" />
@@ -127,7 +127,7 @@ const ForexTraining: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         <Tabs defaultValue="signals" className="w-full">
           <TabsList className="grid w-full grid-cols-6 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="signals" className="font-semibold">Live Signals</TabsTrigger>
+            <TabsTrigger value="signals" className="font-semibold">Educational Signals</TabsTrigger>
             <TabsTrigger value="calculator" className="font-semibold">Trading Tools</TabsTrigger>
             <TabsTrigger value="education" className="font-semibold">Education Hub</TabsTrigger>
             <TabsTrigger value="analysis" className="font-semibold">Market Analysis</TabsTrigger>
@@ -569,12 +569,12 @@ const ForexTraining: React.FC = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center p-6 border rounded-lg">
-                    <h4 className="font-semibold mb-2">Live Trading Room</h4>
+                    <h4 className="font-semibold mb-2">Trading Community</h4>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Join our daily trading sessions with professional analysts
+                      Connect with fellow traders and share educational content
                     </p>
                     <Button className="w-full" disabled={!user}>
-                      {user ? 'Join Room' : 'Sign in to Access'}
+                      {user ? 'Join Community' : 'Sign in to Access'}
                     </Button>
                   </div>
                   <div className="text-center p-6 border rounded-lg">

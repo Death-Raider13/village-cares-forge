@@ -33,8 +33,8 @@ const ForexSection: React.FC = () => {
     },
     {
       icon: TrendingUp,
-      title: 'Live Trading Room',
-      description: 'Real-time market analysis and trading discussions in our exclusive community'
+      title: 'Trading Education Hub',
+      description: 'Educational market analysis and trading discussions in our learning community'
     }
   ];
 

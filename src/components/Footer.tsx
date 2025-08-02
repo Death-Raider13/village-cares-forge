@@ -76,7 +76,7 @@ const Footer: React.FC = () => {
                 <li>Market Analysis</li>
                 <li>Trading Education</li>
                 <li>Risk Management</li>
-                <li>Live Trading Room</li>
+                <li>Trading Education</li>
               </ul>
             </div>
             <div>

@@ -68,7 +68,7 @@ const VideoStreamModal: React.FC<VideoStreamModalProps> = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="h-full flex flex-col">
             <div className="px-6 py-2 border-b bg-white/50">
               <TabsList className="grid w-full grid-cols-4 bg-white/80">
                 <TabsTrigger value="live" className="flex items-center gap-2">
