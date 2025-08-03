@@ -18,8 +18,81 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Trash2,
+  Video,
+  Play,
+  Upload
 } from 'lucide-react';
+
+// Video interface
+interface VideoData {
+  id: string;
+  title: string;
+  description: string;
+  category: 'forex' | 'fitness' | 'karate';
+  url: string;
+  thumbnail?: string;
+  created_at: string;
+}
+
+// VideoCard component
+interface VideoCardProps {
+  video: VideoData;
+  onDelete: (id: string) => void;
+}
+
+const VideoCard: React.FC<VideoCardProps> = ({ video, onDelete }) => {
+  return (
+    <Card className="overflow-hidden">
+      <div className="relative aspect-video bg-gray-100">
+        {video.thumbnail ? (
+          <img
+            src={video.thumbnail}
+            alt={video.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Video className="h-12 w-12 text-gray-400" />
+          </div>
+        )}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <a
+            href={video.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-black bg-opacity-60 rounded-full p-3 hover:bg-opacity-80 transition-all"
+          >
+            <Play className="h-8 w-8 text-white" />
+          </a>
+        </div>
+      </div>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">{video.title}</CardTitle>
+        <CardDescription className="text-xs">
+          {new Date(video.created_at).toLocaleDateString()}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-sm text-muted-foreground line-clamp-2">{video.description}</p>
+        <div className="flex justify-between items-center">
+          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+            {video.category.charAt(0).toUpperCase() + video.category.slice(1)}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(video.id)}
+            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 // Admin emails - these would typically be stored in a more secure way
 const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'Andrewcares556@gmail.com'];
@@ -39,6 +112,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Videos state
+  const [uploadedVideos, setUploadedVideos] = useState<VideoData[]>([]);
 
   // Stats for dashboard
   const [stats, setStats] = useState({
@@ -47,6 +125,104 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     totalPrograms: 0,
     totalBookings: 0
   });
+
+  // Mock video upload function (simulated, not actually using Supabase)
+  const uploadVideo = async (
+    title: string,
+    description: string,
+    category: string,
+    videoFile: File
+  ) => {
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      setError('');
+
+      // Simulate upload progress
+      const simulateProgress = () => {
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 10;
+          setUploadProgress(progress);
+          if (progress >= 100) {
+            clearInterval(interval);
+
+            // Create a mock video object
+            const newVideo: VideoData = {
+              id: Math.random().toString(36).substring(2, 15),
+              title,
+              description,
+              category: category as 'forex' | 'fitness' | 'karate',
+              url: URL.createObjectURL(videoFile), // Create a local URL for the video
+              created_at: new Date().toISOString(),
+            };
+
+            // Add the new video to the state
+            setUploadedVideos((prev) => [newVideo, ...prev]);
+            setSuccess('Video uploaded successfully!');
+            setTimeout(() => setSuccess(''), 3000);
+            setIsUploading(false);
+          }
+        }, 300);
+      };
+
+      // Start the simulated upload
+      simulateProgress();
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      setError('Failed to upload video. Please try again.');
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  // Mock delete video function
+  const handleDeleteVideo = (id: string) => {
+    try {
+      // Remove the video from the state
+      setUploadedVideos((prev) => prev.filter((video) => video.id !== id));
+      setSuccess('Video deleted successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      setError('Failed to delete video. Please try again.');
+    }
+  };
+
+  // Mock initial videos (for demonstration purposes)
+  useEffect(() => {
+    if (isAdmin && uploadedVideos.length === 0) {
+      // Add some mock videos for demonstration
+      const mockVideos: VideoData[] = [
+        {
+          id: '1',
+          title: 'Forex Trading Basics',
+          description: 'Learn the fundamentals of forex trading in this comprehensive guide.',
+          category: 'forex',
+          url: 'https://example.com/videos/forex-basics.mp4',
+          created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+        },
+        {
+          id: '2',
+          title: 'Advanced Fitness Workout',
+          description: 'High-intensity interval training for advanced fitness enthusiasts.',
+          category: 'fitness',
+          url: 'https://example.com/videos/advanced-fitness.mp4',
+          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+        },
+        {
+          id: '3',
+          title: 'Karate Kata Tutorial',
+          description: 'Step-by-step tutorial for the Heian Shodan kata.',
+          category: 'karate',
+          url: 'https://example.com/videos/karate-kata.mp4',
+          created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+        },
+      ];
+
+      setUploadedVideos(mockVideos);
+    }
+  }, [isAdmin, uploadedVideos.length]);
 
   // Admin verification
   useEffect(() => {
@@ -346,11 +522,130 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         <TabsContent value="content" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Content Management</CardTitle>
-              <CardDescription>Manage website content and courses</CardDescription>
+              <CardTitle>Video Upload</CardTitle>
+              <CardDescription>Upload educational videos for different categories</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Content management functionality will be implemented here.</p>
+              <form className="space-y-6" onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const title = formData.get('title') as string;
+                const description = formData.get('description') as string;
+                const category = formData.get('category') as string;
+                const videoFile = formData.get('video') as File;
+
+                if (title && description && category && videoFile) {
+                  uploadVideo(title, description, category, videoFile);
+                  (e.target as HTMLFormElement).reset();
+                }
+              }}>
+                <div className="space-y-2">
+                  <Label htmlFor="video-title">Video Title</Label>
+                  <Input
+                    id="video-title"
+                    name="title"
+                    placeholder="Enter video title"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video-description">Description</Label>
+                  <textarea
+                    id="video-description"
+                    name="description"
+                    className="w-full min-h-[100px] p-2 border rounded-md"
+                    placeholder="Enter video description"
+                    required
+                  ></textarea>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video-category">Category</Label>
+                  <select
+                    id="video-category"
+                    name="category"
+                    className="w-full p-2 border rounded-md"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    <option value="forex">Forex</option>
+                    <option value="fitness">Fitness</option>
+                    <option value="karate">Karate</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video-file">Video File</Label>
+                  <Input
+                    id="video-file"
+                    name="video"
+                    type="file"
+                    accept="video/*"
+                    required
+                  />
+                </div>
+
+                <Button type="submit" className="w-full">Upload Video</Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Uploaded Videos</CardTitle>
+              <CardDescription>Manage your uploaded videos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="forex" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="forex">Forex</TabsTrigger>
+                  <TabsTrigger value="fitness">Fitness</TabsTrigger>
+                  <TabsTrigger value="karate">Karate</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="forex" className="space-y-4 mt-4">
+                  {uploadedVideos.filter(video => video.category === 'forex').length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {uploadedVideos
+                        .filter(video => video.category === 'forex')
+                        .map((video, index) => (
+                          <VideoCard key={index} video={video} onDelete={handleDeleteVideo} />
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">No forex videos uploaded yet.</p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="fitness" className="space-y-4 mt-4">
+                  {uploadedVideos.filter(video => video.category === 'fitness').length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {uploadedVideos
+                        .filter(video => video.category === 'fitness')
+                        .map((video, index) => (
+                          <VideoCard key={index} video={video} onDelete={handleDeleteVideo} />
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">No fitness videos uploaded yet.</p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="karate" className="space-y-4 mt-4">
+                  {uploadedVideos.filter(video => video.category === 'karate').length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {uploadedVideos
+                        .filter(video => video.category === 'karate')
+                        .map((video, index) => (
+                          <VideoCard key={index} video={video} onDelete={handleDeleteVideo} />
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">No karate videos uploaded yet.</p>
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
