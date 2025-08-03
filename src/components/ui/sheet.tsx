@@ -72,6 +72,14 @@ const SheetContent = React.forwardRef<
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
+/**
+ * Renders a div element with specified class names and additional props.
+ * @example
+ * sheet({className: "custom-class", id: "unique-id"})
+ * // Returns a div with the className "flex flex-col space-y-2 text-center sm:text-left custom-class" and id "unique-id"
+ * @param {React.HTMLAttributes<HTMLDivElement>} props - The attributes to pass to the div element such as className and other HTML attributes.
+ * @returns {JSX.Element} A JSX element representing the div with combined class names and applied props.
+ */
 const SheetHeader = ({
   className,
   ...props
@@ -86,6 +94,16 @@ const SheetHeader = ({
 )
 SheetHeader.displayName = "SheetHeader"
 
+/**
+ * Returns a styled HTML div element with specified class names and additional properties.
+ * @example
+ * Sheet({ className: "custom-class", id: "unique-id" })
+ * <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 custom-class" id="unique-id"></div>
+ * @param {Object} {className, ...props} - An object containing className and other HTML attributes to apply to the div.
+ * @param {string} {className} - Additional class names to apply for styling.
+ * @param {React.HTMLAttributes<HTMLDivElement>} {...props} - Additional HTML attributes to apply to the div.
+ * @returns {JSX.Element} A JSX element representing a styled div.
+ */
 const SheetFooter = ({
   className,
   ...props

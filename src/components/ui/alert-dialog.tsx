@@ -43,6 +43,14 @@ const AlertDialogContent = React.forwardRef<
 ))
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName
 
+/**
+ * Renders a customizable HTML div element with specific styling and properties.
+ * @example
+ * AlertDialogComponent({ className: 'custom-class', id: 'alert-1' })
+ * // Returns a JSX element for rendering
+ * @param {React.HTMLAttributes<HTMLDivElement>} {className, ...props} - className specifies additional CSS classes, while props includes other HTML attributes for customization.
+ * @returns {JSX.Element} A JSX element representing a styled div container.
+ */
 const AlertDialogHeader = ({
   className,
   ...props
@@ -57,6 +65,14 @@ const AlertDialogHeader = ({
 )
 AlertDialogHeader.displayName = "AlertDialogHeader"
 
+/**
+ * Renders a customizable alert dialog container with responsive styling.
+ * @example
+ * renderAlertDialogContainer({ className: "custom-class", id: "dialog1" })
+ * // Returns a styled <div> element configured with provided className and props.
+ * @param {React.HTMLAttributes<HTMLDivElement>} {className, ...props} - Props including className for styling and additional HTML attributes.
+ * @returns {JSX.Element} React component that renders a styled div with responsive design.
+ */
 const AlertDialogFooter = ({
   className,
   ...props

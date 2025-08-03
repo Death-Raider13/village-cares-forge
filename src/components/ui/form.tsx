@@ -26,6 +26,14 @@ const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue
 )
 
+/**
+ * Provides a context and controller for form fields with specified props.
+ * @example
+ * myFormComponent({ name: 'sampleField' })
+ * A React component that renders a form field with the context and controller.
+ * @param {ControllerProps<TFieldValues, TName>} props - Props for the Controller component including field name and other configurations.
+ * @returns {ReactElement} A React element with FormFieldContext.Provider wrapping the Controller component.
+ */
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
@@ -39,6 +47,14 @@ const FormField = <
   )
 }
 
+/**
+ * Retrieves and returns the state and IDs for a form field.
+ * @example
+ * const fieldDetails = useFormField()
+ * // { id: 'someId', name: 'fieldName', formItemId: 'someId-form-item', formDescriptionId: 'someId-form-item-description', formMessageId: 'someId-form-item-message', ...fieldState }
+ * @returns {Object} An object containing the field state and component-specific IDs: 'id', 'name', 'formItemId', 'formDescriptionId', 'formMessageId', and additional field state properties.
+ * @throws {Error} Throws an error if used outside of a <FormField> context.
+ */
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)

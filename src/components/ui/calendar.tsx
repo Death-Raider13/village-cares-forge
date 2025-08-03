@@ -7,6 +7,17 @@ import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+/**
+ * Renders a customizable calendar component using the DayPicker library.
+ * @example
+ * Calendar({ className: "custom-calendar", showOutsideDays: false })
+ * // Renders a calendar without showing days from outside of the current month, with a custom className applied.
+ * @param {CalendarProps} {Object} - The properties for configuring the calendar component.
+ * @param {string} {Object.className} - Optional class name for additional styling on the calendar.
+ * @param {Object} {Object.classNames} - Object containing custom class names for various DayPicker elements.
+ * @param {boolean} {Object.showOutsideDays} - Flag to indicate whether days outside the current month should be displayed. Defaults to true.
+ * @returns {JSX.Element} A JSX element that represents the calendar with given configurations.
+ */
 function Calendar({
   className,
   classNames,

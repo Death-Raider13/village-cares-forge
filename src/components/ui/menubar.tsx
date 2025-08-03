@@ -198,6 +198,15 @@ const MenubarSeparator = React.forwardRef<
 ))
 MenubarSeparator.displayName = MenubarPrimitive.Separator.displayName
 
+/**
+ * Creates and returns a styled HTML span element with additional properties and className.
+ * @example
+ * createStyledSpan('custom-class', { 'aria-label': 'example' })
+ * Returns a span element with specific styles and additional attributes.
+ * @param {string} className - Additional classes to apply to the span element.
+ * @param {React.HTMLAttributes<HTMLSpanElement>} props - Additional HTML attributes to apply to the span element.
+ * @returns {JSX.Element} A styled HTML span element with the given className and props.
+ */
 const MenubarShortcut = ({
   className,
   ...props

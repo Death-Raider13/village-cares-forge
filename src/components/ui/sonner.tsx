@@ -3,6 +3,15 @@ import { Toaster as Sonner, toast } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+/**
+ * Renders a customized toaster component with theme-driven styles and props.
+ * @example
+ * const props = { theme: "light", position: "bottom-right" };
+ * renderToasterComponent(props)
+ * // Renders a customized Sonner toaster with specified props and theme.
+ * @param {ToasterProps} props - Configuration options for the toaster, including appearance and position.
+ * @returns {ReactElement} A Sonner toaster component with customized styling and functionality based on provided props.
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
 
