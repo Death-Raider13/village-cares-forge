@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 Something went wrong
               </CardTitle>
               <CardDescription>
-                We encountered an unexpected error. Please try again.
+                {this.state.error?.message || "We encountered an unexpected error. Please try again."}
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">

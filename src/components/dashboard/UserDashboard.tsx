@@ -1,6 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +25,8 @@ const UserDashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedSession, setSelectedSession] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
@@ -81,6 +85,14 @@ const UserDashboard: React.FC = () => {
     }
   };
 
+  const handleBookingClick = (booking: any) => {
+    setSelectedBooking(booking);
+  };
+
+  const handleSessionClick = (session: any) => {
+    setSelectedSession(session);
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-vintage-warm-cream to-vintage-sage-green/10 flex items-center justify-center">
@@ -98,10 +110,59 @@ const UserDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-vintage-warm-cream to-vintage-sage-green/10 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vintage-deep-blue mx-auto mb-4"></div>
-          <p className="text-vintage-dark-brown text-lg">Loading your dashboard...</p>
+      <div className="min-h-screen bg-gradient-to-br from-vintage-warm-cream to-vintage-sage-green/10 p-8">
+        <div className="container mx-auto px-4 py-8">
+          {/* Welcome Header Skeleton */}
+          <div className="mb-8">
+            <Skeleton className="h-10 w-3/4 mb-2" />
+            <Skeleton className="h-6 w-1/2" />
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="h-6 w-1/2 mb-2" />
+                <Skeleton className="h-10 w-1/4" />
+              </Card>
+            ))}
+          </div>
+
+          {/* Main Content Skeletons */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-6">
+                <Skeleton className="h-8 w-2/3 mb-4" />
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, j) => (
+                    <div key={j} className="flex items-center space-x-4">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Quick Actions Skeleton */}
+          <Card className="mt-8 p-6">
+            <Skeleton className="h-8 w-1/3 mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          </Card>
+
+          {/* Motivational Quote Skeleton */}
+          <Card className="mt-8 p-6">
+            <Skeleton className="h-6 w-full mb-2" />
+            <Skeleton className="h-4 w-1/3 mx-auto" />
+          </Card>
         </div>
       </div>
     );
@@ -181,7 +242,7 @@ const UserDashboard: React.FC = () => {
             <CardContent className="space-y-4">
               {data.recentSessions.length > 0 ? (
                 data.recentSessions.slice(0, 5).map((session) => (
-                  <div key={session.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div key={session.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleSessionClick(session)}>
                     <div className="flex items-start justify-between mb-2">
                       <p className="font-semibold text-vintage-deep-blue">{session.title}</p>
                       {session.completed && (
@@ -329,6 +390,101 @@ const UserDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+    </div>
+
+      {/* Booking Details Dialog */}
+      <Dialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{selectedBooking?.services?.name || 'Booking Details'}</DialogTitle>
+            <DialogDescription>
+              Detailed information about your upcoming booking.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Service:</p>
+                <p className="col-span-3 text-sm text-gray-900">{selectedBooking.services?.name || 'N/A'}</p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Category:</p>
+                <p className="col-span-3 text-sm text-gray-900 capitalize">{selectedBooking.services?.category || 'N/A'}</p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Date:</p>
+                <p className="col-span-3 text-sm text-gray-900">
+                  {new Date(selectedBooking.booking_date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric'
+                  })}
+                </p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Status:</p>
+                <Badge className={getStatusColor(selectedBooking.status)}>
+                  {selectedBooking.status}
+                </Badge>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Session Details Dialog */}
+      <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{selectedSession?.title || 'Session Details'}</DialogTitle>
+            <DialogDescription>
+              Detailed information about your recent training session.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSession && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Title:</p>
+                <p className="col-span-3 text-sm text-gray-900">{selectedSession.title || 'N/A'}</p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Type:</p>
+                <p className="col-span-3 text-sm text-gray-900 capitalize">{selectedSession.session_type || 'N/A'}</p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Duration:</p>
+                <p className="col-span-3 text-sm text-gray-900">{selectedSession.duration_minutes} minutes</p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Date:</p>
+                <p className="col-span-3 text-sm text-gray-900">
+                  {new Date(selectedSession.session_date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+              {selectedSession.description && (
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <p className="text-sm font-medium text-gray-700">Notes:</p>
+                  <p className="col-span-3 text-sm text-gray-900">{selectedSession.description}</p>
+                </div>
+              )}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <p className="text-sm font-medium text-gray-700">Completed:</p>
+                <Badge className={selectedSession.completed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                  {selectedSession.completed ? 'Yes' : 'No'}
+                </Badge>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
