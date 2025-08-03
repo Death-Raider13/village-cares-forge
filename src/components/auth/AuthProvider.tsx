@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { createRateLimiter, validatePassword } from '@/lib/security';
+import { createRateLimiter, validatePassword, logSecurityEvent } from '@/lib/security';
 
 interface AuthContextType {
   user: User | null;
@@ -106,49 +106,99 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    try {
-      // Rate limiting check
-      if (!authRateLimiter(email)) {
-        const error = new Error('Too many login attempts. Please try again later.');
-        toast({
-          title: "Too many attempts",
-          description: "Please wait before trying again.",
-          variant: "destructive",
-        });
-        throw error;
-      }
+    const cleanEmail = email.trim().toLowerCase();
+    
+    // Check rate limiting with enhanced response
+    const rateLimitResult = authRateLimiter(cleanEmail);
+    if (!rateLimitResult.allowed) {
+      logSecurityEvent({
+        type: 'auth_failure',
+        email: cleanEmail,
+        details: { 
+          reason: 'rate_limited', 
+          attempts: rateLimitResult.attempts,
+          retryAfter: rateLimitResult.retryAfter 
+        }
+      });
+      
+      toast({
+        title: 'Too Many Attempts',
+        description: `Please wait ${rateLimitResult.retryAfter || 60} seconds before trying again.`,
+        variant: 'destructive',
+      });
+      throw new Error('Rate limited');
+    }
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
+    // Log authentication attempt
+    logSecurityEvent({
+      type: 'auth_attempt',
+      email: cleanEmail,
+      details: { attempts: rateLimitResult.attempts }
+    });
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
         password,
       });
 
       if (error) {
-        let errorMessage = "Authentication failed. Please check your credentials.";
-
-        // Provide user-friendly error messages without exposing system details
+        console.error('Sign-in error:', error);
+        
+        // Log failed authentication
+        logSecurityEvent({
+          type: 'auth_failure',
+          email: cleanEmail,
+          details: { 
+            error: error.message,
+            attempts: rateLimitResult.attempts 
+          }
+        });
+        
+        let errorMessage = 'Authentication failed. Please check your credentials.';
+        
         if (error.message.includes('Invalid login credentials')) {
-          errorMessage = "Invalid email or password. Please try again.";
+          errorMessage = 'Invalid email or password. Please try again.';
         } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = "Please check your email and confirm your account.";
+          errorMessage = 'Please check your email and confirm your account.';
         } else if (error.message.includes('Too many requests')) {
-          errorMessage = "Too many attempts. Please try again later.";
+          errorMessage = 'Too many sign-in attempts. Please try again later';
         }
-
+        
         toast({
-          title: "Sign in failed",
+          title: 'Sign-in Failed',
           description: errorMessage,
-          variant: "destructive",
+          variant: 'destructive',
         });
         throw error;
       }
 
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
+      if (data.user) {
+        // Log successful authentication
+        logSecurityEvent({
+          type: 'auth_success',
+          userId: data.user.id,
+          email: cleanEmail,
+          details: { sessionId: data.session?.access_token.substring(0, 8) + '...' }
+        });
+        
+        toast({
+          title: 'Welcome Back!',
+          description: 'You have successfully signed in.',
+        });
+      }
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('Unexpected error during sign-in:', error);
+      
+      logSecurityEvent({
+        type: 'auth_failure',
+        email: cleanEmail,
+        details: { 
+          error: 'unexpected_error',
+          attempts: rateLimitResult.attempts 
+        }
+      });
+      
       throw error;
     }
   };

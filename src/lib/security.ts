@@ -57,8 +57,8 @@ export const sanitizeInput = (input: string): string => {
 export const validatePasswordStrength = (password: string): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
-  if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long');
+  if (password.length < 12) {
+    errors.push('Password must be at least 12 characters long');
   }
 
   if (!/(?=.*[a-z])/.test(password)) {
@@ -75,6 +75,27 @@ export const validatePasswordStrength = (password: string): { valid: boolean; er
 
   if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) {
     errors.push('Password must contain at least one special character');
+  }
+
+  // Additional security checks
+  if (password.length > 128) {
+    errors.push('Password must be less than 128 characters long');
+  }
+
+  if (/(.)\1{2,}/.test(password)) {
+    errors.push('Password cannot contain more than 2 consecutive identical characters');
+  }
+
+  // Check for common patterns
+  const commonPatterns = [
+    /123+|abc+|qwe+/i,
+    /password|admin|user|login/i,
+    /^[0-9]+$/,
+    /^[a-zA-Z]+$/
+  ];
+
+  if (commonPatterns.some(pattern => pattern.test(password))) {
+    errors.push('Password cannot contain common patterns or be purely numeric/alphabetic');
   }
 
   return {
@@ -95,22 +116,103 @@ export const validateEmail = (email: string): boolean => {
  * Rate limiting helper (client-side basic implementation)
  */
 export const createRateLimiter = (maxAttempts: number, windowMs: number) => {
-  const attempts = new Map<string, { count: number; resetTime: number }>();
+  const attempts = new Map<string, { count: number; resetTime: number; lastAttempt: number }>();
 
-  return (key: string): boolean => {
+  return (key: string): { allowed: boolean; retryAfter?: number; attempts: number } => {
     const now = Date.now();
     const userAttempts = attempts.get(key);
 
     if (!userAttempts || now > userAttempts.resetTime) {
-      attempts.set(key, { count: 1, resetTime: now + windowMs });
-      return true;
+      attempts.set(key, { count: 1, resetTime: now + windowMs, lastAttempt: now });
+      return { allowed: true, attempts: 1 };
     }
 
     if (userAttempts.count >= maxAttempts) {
-      return false;
+      // Progressive delay based on attempt count
+      const baseDelay = 1000; // 1 second
+      const progressiveDelay = Math.min(baseDelay * Math.pow(2, userAttempts.count - maxAttempts), 300000); // Max 5 minutes
+      const retryAfter = Math.max(0, userAttempts.resetTime - now + progressiveDelay);
+      
+      return { 
+        allowed: false, 
+        retryAfter: Math.ceil(retryAfter / 1000),
+        attempts: userAttempts.count 
+      };
     }
 
     userAttempts.count++;
-    return true;
+    userAttempts.lastAttempt = now;
+    return { allowed: true, attempts: userAttempts.count };
   };
+};
+
+/**
+ * Enhanced security event logger
+ */
+export interface SecurityEvent {
+  type: 'auth_attempt' | 'auth_success' | 'auth_failure' | 'session_timeout' | 'suspicious_activity';
+  userId?: string;
+  email?: string;
+  ip?: string;
+  userAgent?: string;
+  timestamp: string;
+  details?: Record<string, any>;
+}
+
+export const logSecurityEvent = (event: Omit<SecurityEvent, 'timestamp'>) => {
+  const securityEvent: SecurityEvent = {
+    ...event,
+    timestamp: new Date().toISOString(),
+  };
+
+  // Store in localStorage for now (in production, send to server)
+  const events = getStoredSecurityEvents();
+  events.unshift(securityEvent);
+  
+  // Keep only last 100 events to prevent storage bloat
+  if (events.length > 100) {
+    events.splice(100);
+  }
+  
+  localStorage.setItem('security_events', JSON.stringify(events));
+  
+  // Console log for development
+  if (import.meta.env.DEV) {
+    console.log('🔒 Security Event:', securityEvent);
+  }
+};
+
+export const getStoredSecurityEvents = (): SecurityEvent[] => {
+  try {
+    const stored = localStorage.getItem('security_events');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+/**
+ * Session security utilities
+ */
+export const SESSION_TIMEOUT_WARNING = 5 * 60 * 1000; // 5 minutes
+export const SESSION_TIMEOUT_DURATION = 30 * 60 * 1000; // 30 minutes
+
+export const createSessionManager = () => {
+  let timeoutId: NodeJS.Timeout | null = null;
+  let warningId: NodeJS.Timeout | null = null;
+  
+  const resetTimers = (onWarning: () => void, onTimeout: () => void) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (warningId) clearTimeout(warningId);
+    
+    warningId = setTimeout(onWarning, SESSION_TIMEOUT_DURATION - SESSION_TIMEOUT_WARNING);
+    timeoutId = setTimeout(onTimeout, SESSION_TIMEOUT_DURATION);
+  };
+  
+  const clearTimers = () => {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (warningId) clearTimeout(warningId);
+  };
+  
+  return { resetTimers, clearTimers };
 };

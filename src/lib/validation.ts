@@ -29,7 +29,7 @@ export const signUpSchema = z.object({
     .refine(validateEmail, 'Please enter a valid email address'),
   password: z
     .string()
-    .min(8, 'Password must be at least 8 characters long')
+    .min(12, 'Password must be at least 12 characters long')
     .refine(
       (password) => validatePasswordStrength(password).valid,
       (password) => ({
