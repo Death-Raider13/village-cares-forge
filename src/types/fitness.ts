@@ -11,6 +11,8 @@ export interface WorkoutPlan {
   exercises: Exercise[];
   duration: number;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  focus: string[];
+  equipment: string[];
 }
 
 export interface Exercise {

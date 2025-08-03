@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { validatePassword } from '@/lib/security';
 
 interface AuthContextType {
   user: User | null;
@@ -57,15 +58,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       // Password strength validation
-      if (password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
-      }
-      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-        throw new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.message);
       }
 
       const redirectUrl = `${window.location.origin}/`;
-      
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
