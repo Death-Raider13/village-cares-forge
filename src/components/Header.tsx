@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8" role="navigation" aria-label="Main navigation">
+            <nav className="hidden md:flex items-center space-x-8">
               <NavLink to="/">Home</NavLink>
               <NavLink to="/forex-training">Forex Training</NavLink>
               <NavLink to="/fitness-training">Fitness Training</NavLink>
@@ -142,14 +142,15 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
       </header>
 
       {/* Mobile Navigation Menu */}
-      <div className={`fixed top-16 left-0 right-0 z-40 md:hidden bg-vintage-warm-cream border-t border-vintage-gold/20 transition-all duration-300 ease-in-out overflow-hidden ${mobileMenuOpen ? 'max-h-screen opacity-100 py-4' : 'max-h-0 opacity-0 py-0'}`}>
-        <div className="container mx-auto px-4">
+      {mobileMenuOpen && (
+        <div className="fixed top-16 left-0 right-0 z-40 md:hidden bg-vintage-warm-cream border-t border-vintage-gold/20">
+          <div className="container mx-auto px-4 py-4">
             {/* Mobile Search Bar */}
             <div className="mb-4">
               <SearchBar />
             </div>
 
-            <nav className="flex flex-col space-y-4" role="navigation" aria-label="Mobile navigation">
+            <nav className="flex flex-col space-y-4">
               <NavLink to="/" onClick={closeMobileMenu}>Home</NavLink>
               <NavLink to="/forex-training" onClick={closeMobileMenu}>Forex Training</NavLink>
               <NavLink to="/fitness-training" onClick={closeMobileMenu}>Fitness Training</NavLink>
