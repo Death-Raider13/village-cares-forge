@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// Security utilities for input validation and sanitization
-=======
 // Security utilities for input validation, sanitization, and audit logging
 
 /**
@@ -48,6 +45,8 @@ export interface SecurityEvent {
   userAgent?: string;
   details?: Record<string, any>;
   message: string;
+  email?: string;
+  ip?: string;
 }
 
 /**
@@ -74,7 +73,7 @@ export const createSecurityEvent = (
   details,
   id: undefined
 });
->>>>>>> 5b4c829 (changes)
+
 /**
  * Validates a password against security requirements
  * 
@@ -112,6 +111,7 @@ export const validatePassword = (password: string): { isValid: boolean; message?
 
   return { isValid: true };
 };
+
 /**
  * Sanitizes user input by removing potentially dangerous HTML tags and characters
  */
@@ -223,21 +223,6 @@ export const createRateLimiter = (maxAttempts: number, windowMs: number) => {
 };
 
 /**
- * Enhanced security event logger
- */
-export interface SecurityEvent {
-  type: SecurityEventType;
-  userId?: string;
-  email?: string;
-  ip?: string;
-  userAgent?: string;
-  timestamp: Date;
-  details?: Record<string, any>;
-  severity: SecurityEventSeverity;
-  message: string;
-}
-
-/**
  * Logs a security event to the browser's local storage, up to a maximum of 100 events.
  * The logged event will include the current timestamp.
  * @param {Object} event - The security event to log. Must contain the following properties:
@@ -248,7 +233,7 @@ export interface SecurityEvent {
  *   - userAgent: The user agent string of the user associated with the event (optional)
  *   - details: Additional details about the event (optional)
  */
-export const logSecurityEvent = ({ type, userId, email, ip, userAgent, details }: Omit<SecurityEvent, 'timestamp'>): void => {
+export const logSecurityEvent = ({ type, userId, email, ip, userAgent, details }: Omit<SecurityEvent, 'timestamp' | 'severity' | 'message' | 'id'>): void => {
   const securityEvent: SecurityEvent = {
     type,
     userId,

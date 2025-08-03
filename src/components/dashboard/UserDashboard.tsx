@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Calendar, Clock, TrendingUp, Award, Activity, BookOpen } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Award, Activity } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import StatsCards from './StatsCards';
 import ProgressChart from './ProgressChart';
 
@@ -21,6 +22,8 @@ const UserDashboard: React.FC = () => {
     ranks: [],
   });
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedSession, setSelectedSession] = useState<any>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -138,7 +141,11 @@ const UserDashboard: React.FC = () => {
             <CardContent className="space-y-4">
               {data.bookings.length > 0 ? (
                 data.bookings.slice(0, 5).map((booking) => (
-                  <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div 
+                    key={booking.id} 
+                    className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => setSelectedBooking(booking)}
+                  >
                     <div className="flex-1">
                       <p className="font-semibold text-vintage-deep-blue">{booking.services?.name || 'Training Session'}</p>
                       <p className="text-sm text-vintage-dark-brown/70 font-crimson">
@@ -180,7 +187,11 @@ const UserDashboard: React.FC = () => {
             <CardContent className="space-y-4">
               {data.recentSessions.length > 0 ? (
                 data.recentSessions.slice(0, 5).map((session) => (
-                  <div key={session.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div 
+                    key={session.id} 
+                    className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => setSelectedSession(session)}
+                  >
                     <div className="flex items-start justify-between mb-2">
                       <p className="font-semibold text-vintage-deep-blue">{session.title}</p>
                       {session.completed && (
@@ -327,8 +338,6 @@ const UserDashboard: React.FC = () => {
             </p>
           </CardContent>
         </Card>
-<<<<<<< HEAD
-=======
 
         {/* Booking Details Dialog */}
         <Dialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
@@ -423,7 +432,6 @@ const UserDashboard: React.FC = () => {
             )}
           </DialogContent>
         </Dialog>
->>>>>>> 5b4c829 (changes)
       </div>
     </div>
   );

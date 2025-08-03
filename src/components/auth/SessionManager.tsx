@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import React, { useEffect } from 'react';
-import { useSessionSecurity } from '@/hooks/useSessionSecurity';
-=======
 import React, { useEffect, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuth } from './AuthProvider';
@@ -14,25 +10,12 @@ const SESSION_TIMEOUT = 30 * 60 * 1000;
 const WARNING_BEFORE_TIMEOUT = 5 * 60 * 1000;
 // Refresh token threshold in milliseconds (10 minutes)
 const REFRESH_THRESHOLD = 10 * 60 * 1000;
->>>>>>> 5b4c829 (changes)
 
 interface SessionManagerProps {
   children: React.ReactNode;
 }
 
 export const SessionManager: React.FC<SessionManagerProps> = ({ children }) => {
-<<<<<<< HEAD
-  // Initialize session security with default settings
-  useSessionSecurity({
-    enableWarnings: true,
-    enableAutoLogout: true,
-    warningTimeBeforeLogout: 5 * 60 * 1000, // 5 minutes warning
-    sessionDuration: 30 * 60 * 1000, // 30 minutes total
-  });
-
-  return <>{children}</>;
-};
-=======
   const { session, user, signOut } = useAuth();
   const { toast } = useToast();
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
@@ -194,4 +177,3 @@ export const SessionManager: React.FC<SessionManagerProps> = ({ children }) => {
 };
 
 export default SessionManager;
->>>>>>> 5b4c829 (changes)
