@@ -18,9 +18,9 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <NotificationsProvider>
-          <SearchProvider>
-            <AuthProvider>
+        <AuthProvider>
+          <NotificationsProvider>
+            <SearchProvider>
               <Router>
                 <div className="min-h-screen bg-vintage-warm-cream">
                   <Routes>
@@ -50,9 +50,9 @@ function App() {
                   <Toaster />
                 </div>
               </Router>
-            </AuthProvider>
-          </SearchProvider>
-        </NotificationsProvider>
+            </SearchProvider>
+          </NotificationsProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
