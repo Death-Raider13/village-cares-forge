@@ -163,6 +163,18 @@ const ContextMenuSeparator = React.forwardRef<
 ))
 ContextMenuSeparator.displayName = ContextMenuPrimitive.Separator.displayName
 
+/**
+ * Creates a styled span element with specified className and other properties.
+ * @example
+ * ({
+ *   className,
+ *   ...props
+ * }: React.HTMLAttributes<HTMLSpanElement>) => {
+ *   return <span className={cn("ml-auto text-xs tracking-widest text-muted-foreground", className)} {...props} />;
+ * }
+ * @param {React.HTMLAttributes<HTMLSpanElement>} {className, ...props} - Contains className for applying custom styles and other HTML span element properties.
+ * @returns {JSX.Element} A styled React span element.
+ */
 const ContextMenuShortcut = ({
   className,
   ...props

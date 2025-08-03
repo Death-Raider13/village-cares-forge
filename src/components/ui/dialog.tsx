@@ -51,6 +51,14 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
+/**
+ * Renders a flexible and customizable HTML div element with specific styling classes.
+ * @example
+ * ({ className: "additional-class", id: "uniqueId" })
+ * <div class="flex flex-col space-y-1.5 text-center sm:text-left additional-class" id="uniqueId"></div>
+ * @param {React.HTMLAttributes<HTMLDivElement>} {className, ...props} - The attributes for styling and other HTML properties of the div component.
+ * @returns {JSX.Element} A styled div element with specified classes and properties.
+ */
 const DialogHeader = ({
   className,
   ...props
@@ -65,6 +73,14 @@ const DialogHeader = ({
 )
 DialogHeader.displayName = "DialogHeader"
 
+/**
+ * Renders a responsive HTML div element with specified class names and properties.
+ * @example
+ * dialogComponent({ className: 'custom-class', ...props })
+ * // Returns a flex container div with applied custom class and properties.
+ * @param {Object} props - Object containing HTML attributes and className for the div.
+ * @returns {JSX.Element} An HTML div element styled for responsive layouts.
+ */
 const DialogFooter = ({
   className,
   ...props

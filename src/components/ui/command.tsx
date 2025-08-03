@@ -124,6 +124,14 @@ const CommandItem = React.forwardRef<
 
 CommandItem.displayName = CommandPrimitive.Item.displayName
 
+/**
+ * Renders a customizable span element with predefined styling and additional attributes.
+ * @example
+ * command({className: 'custom-class', title: 'Sample title'})
+ * // Returns a <span> element with the specified class name and title attribute
+ * @param {Object} {className, ...props} - The className and any other properties to pass to the span element.
+ * @returns {JSX.Element} A span element combining predefined and custom styles and attributes.
+ */
 const CommandShortcut = ({
   className,
   ...props
