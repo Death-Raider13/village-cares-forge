@@ -69,7 +69,7 @@ const TradingSignalsModal: React.FC<TradingSignalsModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Professional Trading Signals</DialogTitle>
           <DialogDescription>
@@ -98,7 +98,7 @@ const TradingSignalsModal: React.FC<TradingSignalsModalProps> = ({ isOpen, onClo
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -244,14 +244,14 @@ const TradingSignalsModal: React.FC<TradingSignalsModalProps> = ({ isOpen, onClo
                 <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
                   <h4 className="font-semibold mb-2">EUR/USD Technical Outlook</h4>
                   <p className="text-sm text-muted-foreground">
-                    The EUR/USD pair is testing key resistance at 1.0850. A break above could target 1.0900-1.0950. 
+                    The EUR/USD pair is testing key resistance at 1.0850. A break above could target 1.0900-1.0950.
                     Support levels remain at 1.0800 and 1.0750. RSI showing bullish divergence on the 4H chart.
                   </p>
                 </div>
                 <div className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
                   <h4 className="font-semibold mb-2">USD/JPY Weekly Review</h4>
                   <p className="text-sm text-muted-foreground">
-                    USD/JPY continues its upward momentum, breaking above 149.50. Watch for potential intervention 
+                    USD/JPY continues its upward momentum, breaking above 149.50. Watch for potential intervention
                     signals from BoJ around 150.00 level. Strong USD fundamentals support the bullish bias.
                   </p>
                 </div>
@@ -269,7 +269,7 @@ const TradingSignalsModal: React.FC<TradingSignalsModalProps> = ({ isOpen, onClo
                   <div>
                     <h4 className="font-semibold mb-2">What are Forex Signals?</h4>
                     <p className="text-sm text-muted-foreground">
-                      Trading signals are trade recommendations that specify the currency pair, entry price, 
+                      Trading signals are trade recommendations that specify the currency pair, entry price,
                       stop loss, and take profit levels based on technical and fundamental analysis.
                     </p>
                   </div>
@@ -303,7 +303,7 @@ const TradingSignalsModal: React.FC<TradingSignalsModalProps> = ({ isOpen, onClo
                   <div>
                     <h4 className="font-semibold mb-2">Risk Management</h4>
                     <p className="text-sm text-muted-foreground">
-                      Successful trading is more about managing risk than being right. Always use stop losses 
+                      Successful trading is more about managing risk than being right. Always use stop losses
                       and never move them against your position. Position size according to your risk tolerance.
                     </p>
                   </div>
@@ -320,9 +320,9 @@ const TradingSignalsModal: React.FC<TradingSignalsModalProps> = ({ isOpen, onClo
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Trading forex involves substantial risk and may not be suitable for all investors. 
-                  Past performance is not indicative of future results. Our signals are for educational 
-                  purposes and should not be considered as financial advice. Always do your own research 
+                  Trading forex involves substantial risk and may not be suitable for all investors.
+                  Past performance is not indicative of future results. Our signals are for educational
+                  purposes and should not be considered as financial advice. Always do your own research
                   and consider consulting with a financial advisor.
                 </p>
               </CardContent>

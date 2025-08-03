@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -48,42 +47,42 @@
   }
 
   .dark {
-    --background: 30 17% 8%;
+    --background: 30 17% 12%;
     --foreground: 43 31% 94%;
 
-    --card: 30 17% 10%;
+    --card: 30 17% 15%;
     --card-foreground: 43 31% 94%;
 
-    --popover: 30 17% 10%;
+    --popover: 30 17% 15%;
     --popover-foreground: 43 31% 94%;
 
-    --primary: 45 100% 42%;
-    --primary-foreground: 30 17% 8%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 30 17% 12%;
 
-    --secondary: 30 10% 20%;
+    --secondary: 30 10% 25%;
     --secondary-foreground: 43 31% 94%;
 
-    --muted: 30 10% 18%;
-    --muted-foreground: 43 15% 60%;
+    --muted: 30 10% 22%;
+    --muted-foreground: 43 15% 70%;
 
-    --accent: 217 91% 28%;
+    --accent: 217 91% 35%;
     --accent-foreground: 43 31% 94%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 43 31% 94%;
 
-    --border: 30 10% 25%;
-    --input: 30 10% 25%;
-    --ring: 45 100% 42%;
+    --border: 30 10% 30%;
+    --input: 30 10% 30%;
+    --ring: 45 100% 50%;
 
-    --sidebar-background: 30 17% 8%;
+    --sidebar-background: 30 17% 12%;
     --sidebar-foreground: 43 31% 94%;
-    --sidebar-primary: 45 100% 42%;
-    --sidebar-primary-foreground: 30 17% 8%;
-    --sidebar-accent: 30 10% 18%;
+    --sidebar-primary: 45 100% 50%;
+    --sidebar-primary-foreground: 30 17% 12%;
+    --sidebar-accent: 30 10% 22%;
     --sidebar-accent-foreground: 43 31% 94%;
-    --sidebar-border: 30 10% 25%;
-    --sidebar-ring: 45 100% 42%;
+    --sidebar-border: 30 10% 30%;
+    --sidebar-ring: 45 100% 50%;
   }
 }
 
@@ -101,15 +100,15 @@
 @layer components {
   .vintage-border {
     background: linear-gradient(45deg, transparent 30%, hsl(var(--accent)) 30%, hsl(var(--accent)) 35%, transparent 35%),
-                linear-gradient(-45deg, transparent 30%, hsl(var(--accent)) 30%, hsl(var(--accent)) 35%, transparent 35%);
+      linear-gradient(-45deg, transparent 30%, hsl(var(--accent)) 30%, hsl(var(--accent)) 35%, transparent 35%);
     background-size: 20px 20px;
     background-position: 0 0, 10px 0;
   }
-  
+
   .ornate-divider {
     position: relative;
   }
-  
+
   .ornate-divider::before {
     content: '❦';
     position: absolute;
@@ -120,5 +119,34 @@
     color: hsl(var(--accent));
     padding: 0 1rem;
     font-size: 1.5rem;
+  }
+
+  /* Modal improvements for dark mode */
+  .dark .dialog-content {
+    box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.05);
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Improved visibility for modal content in dark mode */
+  .dark .modal-content {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+  }
+
+  /* Better contrast for form elements in dark mode */
+  .dark input,
+  .dark select,
+  .dark textarea {
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--border));
+  }
+
+  /* Improved button visibility in dark mode */
+  .dark button {
+    border: 1px solid transparent;
+  }
+
+  .dark button:hover:not([disabled]) {
+    border-color: hsl(var(--accent));
   }
 }

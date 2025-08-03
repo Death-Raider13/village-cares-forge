@@ -75,7 +75,7 @@ const PhilosophyModal: React.FC<PhilosophyModalProps> = ({ isOpen, onClose }) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-center">Karate Philosophy & Wisdom</DialogTitle>
           <DialogDescription className="text-center text-lg">

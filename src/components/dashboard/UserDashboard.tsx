@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,14 +43,14 @@ const UserDashboard: React.FC = () => {
           .eq('user_id', user.id)
           .order('booking_date', { ascending: true })
           .limit(10),
-        
+
         supabase
           .from('training_sessions')
           .select('*')
           .eq('user_id', user.id)
           .order('session_date', { ascending: false })
           .limit(10),
-        
+
         supabase
           .from('martial_arts_ranks')
           .select('*')
@@ -328,6 +327,103 @@ const UserDashboard: React.FC = () => {
             </p>
           </CardContent>
         </Card>
+<<<<<<< HEAD
+=======
+
+        {/* Booking Details Dialog */}
+        <Dialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{selectedBooking?.services?.name || 'Booking Details'}</DialogTitle>
+              <DialogDescription>
+                Detailed information about your upcoming booking.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedBooking && (
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Service:</p>
+                  <p className="col-span-3 text-sm text-gray-900">{selectedBooking.services?.name || 'N/A'}</p>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Category:</p>
+                  <p className="col-span-3 text-sm text-gray-900 capitalize">{selectedBooking.services?.category || 'N/A'}</p>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Date:</p>
+                  <p className="col-span-3 text-sm text-gray-900">
+                    {new Date(selectedBooking.booking_date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric'
+                    })}
+                  </p>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Status:</p>
+                  <Badge className={getStatusColor(selectedBooking.status)}>
+                    {selectedBooking.status}
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Session Details Dialog */}
+        <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{selectedSession?.title || 'Session Details'}</DialogTitle>
+              <DialogDescription>
+                Detailed information about your recent training session.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedSession && (
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Title:</p>
+                  <p className="col-span-3 text-sm text-gray-900">{selectedSession.title || 'N/A'}</p>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Type:</p>
+                  <p className="col-span-3 text-sm text-gray-900 capitalize">{selectedSession.session_type || 'N/A'}</p>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Duration:</p>
+                  <p className="col-span-3 text-sm text-gray-900">{selectedSession.duration_minutes} minutes</p>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Date:</p>
+                  <p className="col-span-3 text-sm text-gray-900">
+                    {new Date(selectedSession.session_date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+                {selectedSession.description && (
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <p className="text-sm font-medium text-gray-700">Notes:</p>
+                    <p className="col-span-3 text-sm text-gray-900">{selectedSession.description}</p>
+                  </div>
+                )}
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <p className="text-sm font-medium text-gray-700">Completed:</p>
+                  <Badge className={selectedSession.completed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                    {selectedSession.completed ? 'Yes' : 'No'}
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+>>>>>>> 5b4c829 (changes)
       </div>
     </div>
   );

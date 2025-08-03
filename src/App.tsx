@@ -13,7 +13,7 @@ import KarateTraining from '@/pages/KarateTraining';
 import FitnessJourney from '@/pages/FitnessJourney.refactored';
 import KarateJourney from '@/pages/KarateJourney';
 import Auth from '@/pages/Auth';
-import { SessionManager } from '@/components/auth/SessionManager';
+import AdminPage from '@/pages/AdminPage';
 
 function App() {
   return (
@@ -31,23 +31,47 @@ function App() {
                       <Route path="/forex-trading" element={<ForexTraining />} />
                       <Route path="/fitness-training" element={<FitnessTraining />} />
                       <Route path="/karate-training" element={<KarateTraining />} />
+<<<<<<< HEAD
                       <Route 
                         path="/fitness-journey" 
+=======
+                      <Route
+                        path="/fitness-journey"
+>>>>>>> 5b4c829 (changes)
                         element={
                           <ProtectedRoute>
                             <FitnessJourney />
                           </ProtectedRoute>
+<<<<<<< HEAD
                         } 
                       />
                       <Route 
                         path="/karate-journey" 
+=======
+                        }
+                      />
+                      <Route
+                        path="/karate-journey"
+>>>>>>> 5b4c829 (changes)
                         element={
                           <ProtectedRoute>
                             <KarateJourney />
                           </ProtectedRoute>
+<<<<<<< HEAD
                         } 
+=======
+                        }
+>>>>>>> 5b4c829 (changes)
                       />
                       <Route path="/auth" element={<Auth />} />
+                      <Route
+                        path="/admin"
+                        element={
+                          <ProtectedRoute>
+                            <AdminPage />
+                          </ProtectedRoute>
+                        }
+                      />
                     </Routes>
                     <Toaster />
                   </div>

@@ -47,7 +47,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
   const handleGoalChange = (goalId: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      goals: checked 
+      goals: checked
         ? [...prev.goals, goalId]
         : prev.goals.filter(g => g !== goalId)
     }));
@@ -57,7 +57,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
     const isChecked = checked === true;
     setFormData(prev => ({
       ...prev,
-      available_equipment: isChecked 
+      available_equipment: isChecked
         ? [...prev.available_equipment, equipmentItem]
         : prev.available_equipment.filter(e => e !== equipmentItem)
     }));
@@ -85,12 +85,12 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
 
       toast.success('Your fitness journey has started! Redirecting to your personalized dashboard...');
       onClose();
-      
+
       // Redirect to fitness journey page
       setTimeout(() => {
         navigate('/fitness-journey');
       }, 1000);
-      
+
     } catch (error) {
       console.error('Error starting journey:', error);
       toast.error('Failed to start journey. Please try again.');
@@ -99,7 +99,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Start Your Fitness Journey</DialogTitle>
           <DialogDescription>
@@ -118,11 +118,10 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {fitnessGoals.map((goal) => (
-                <Card 
-                  key={goal.id} 
-                  className={`cursor-pointer transition-all hover:shadow-lg ${
-                    formData.goals.includes(goal.id) ? 'ring-2 ring-primary bg-primary/5' : ''
-                  }`}
+                <Card
+                  key={goal.id}
+                  className={`cursor-pointer transition-all hover:shadow-lg ${formData.goals.includes(goal.id) ? 'ring-2 ring-primary bg-primary/5' : ''
+                    }`}
                   onClick={() => handleGoalChange(goal.id, !formData.goals.includes(goal.id))}
                 >
                   <CardHeader className="pb-3">
@@ -138,10 +137,10 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
             </div>
 
             <div className="flex justify-center">
-              <Button 
-                onClick={() => setStep(2)} 
+              <Button
+                onClick={() => setStep(2)}
                 disabled={formData.goals.length === 0}
-                size="lg" 
+                size="lg"
                 className="px-8"
               >
                 Continue
@@ -162,7 +161,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="fitness_level">Current Fitness Level</Label>
-                <Select value={formData.fitness_level} onValueChange={(value) => setFormData({...formData, fitness_level: value})}>
+                <Select value={formData.fitness_level} onValueChange={(value) => setFormData({ ...formData, fitness_level: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your fitness level" />
                   </SelectTrigger>
@@ -177,7 +176,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
 
               <div className="space-y-2">
                 <Label htmlFor="frequency">Workout Frequency</Label>
-                <Select value={formData.workout_frequency} onValueChange={(value) => setFormData({...formData, workout_frequency: value})}>
+                <Select value={formData.workout_frequency} onValueChange={(value) => setFormData({ ...formData, workout_frequency: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="How often can you workout?" />
                   </SelectTrigger>
@@ -192,7 +191,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
 
               <div className="space-y-2">
                 <Label htmlFor="duration">Preferred Workout Duration</Label>
-                <Select value={formData.preferred_duration} onValueChange={(value) => setFormData({...formData, preferred_duration: value})}>
+                <Select value={formData.preferred_duration} onValueChange={(value) => setFormData({ ...formData, preferred_duration: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="How long per session?" />
                   </SelectTrigger>
@@ -211,7 +210,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
                   id="health"
                   placeholder="Any injuries or health conditions?"
                   value={formData.health_conditions}
-                  onChange={(e) => setFormData({...formData, health_conditions: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, health_conditions: e.target.value })}
                 />
               </div>
             </div>
@@ -236,8 +235,8 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
               <Button variant="outline" onClick={() => setStep(1)}>
                 Back
               </Button>
-              <Button 
-                onClick={handleSubmit} 
+              <Button
+                onClick={handleSubmit}
                 disabled={!formData.fitness_level || !formData.workout_frequency}
                 className="bg-vintage-deep-blue hover:bg-vintage-forest-green"
               >

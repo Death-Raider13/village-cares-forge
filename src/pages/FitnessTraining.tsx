@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowRight, Activity, BookOpen, Target } from 'lucide-react';
 import StartJourneyModal from '@/components/fitness/StartJourneyModal';
 import FitnessEducationModal from '@/components/fitness/FitnessEducationModal';
-
 const FitnessTraining: React.FC = () => {
   
   const [startJourneyOpen, setStartJourneyOpen] = useState(false);

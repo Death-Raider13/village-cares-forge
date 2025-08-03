@@ -1,4 +1,80 @@
+<<<<<<< HEAD
 // Security utilities for input validation and sanitization
+=======
+// Security utilities for input validation, sanitization, and audit logging
+
+/**
+ * Security event types for audit logging
+ */
+export enum SecurityEventType {
+  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+  LOGIN_FAILURE = 'LOGIN_FAILURE',
+  LOGOUT = 'LOGOUT',
+  PASSWORD_CHANGE = 'PASSWORD_CHANGE',
+  PASSWORD_RESET_REQUEST = 'PASSWORD_RESET_REQUEST',
+  PASSWORD_RESET_COMPLETE = 'PASSWORD_RESET_COMPLETE',
+  ACCOUNT_CREATION = 'ACCOUNT_CREATION',
+  ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
+  ACCOUNT_DELETION = 'ACCOUNT_DELETION',
+  PROFILE_UPDATE = 'PROFILE_UPDATE',
+  SESSION_TIMEOUT = 'SESSION_TIMEOUT',
+  SESSION_REFRESH = 'SESSION_REFRESH',
+  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
+  PERMISSION_CHANGE = 'PERMISSION_CHANGE',
+  ADMIN_ACTION = 'ADMIN_ACTION',
+}
+
+/**
+ * Security event severity levels
+ */
+export enum SecurityEventSeverity {
+  INFO = 'INFO',
+  WARNING = 'WARNING',
+  ERROR = 'ERROR',
+  CRITICAL = 'CRITICAL',
+}
+
+/**
+ * Security event interface for audit logging
+ */
+export interface SecurityEvent {
+  id: any;
+  type: SecurityEventType;
+  severity: SecurityEventSeverity;
+  timestamp: Date;
+  userId?: string;
+  username?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  details?: Record<string, any>;
+  message: string;
+}
+
+/**
+ * Creates a new security event for audit logging
+ * @param type The type of security event
+ * @param message A description of the security event
+ * @param severity The severity of the security event
+ * @param userId The ID of the user associated with the event
+ * @param details Additional details about the security event
+ * @returns A new security event
+ */
+export const createSecurityEvent = (
+  type: SecurityEventType,
+  message: string,
+  severity: SecurityEventSeverity = SecurityEventSeverity.INFO,
+  userId?: string,
+  details?: Record<string, unknown>
+): SecurityEvent => ({
+  type,
+  severity,
+  timestamp: new Date(),
+  userId,
+  message,
+  details,
+  id: undefined
+});
+>>>>>>> 5b4c829 (changes)
 /**
  * Validates a password against security requirements
  * 
@@ -150,35 +226,48 @@ export const createRateLimiter = (maxAttempts: number, windowMs: number) => {
  * Enhanced security event logger
  */
 export interface SecurityEvent {
-  type: 'auth_attempt' | 'auth_success' | 'auth_failure' | 'session_timeout' | 'suspicious_activity';
+  type: SecurityEventType;
   userId?: string;
   email?: string;
   ip?: string;
   userAgent?: string;
-  timestamp: string;
+  timestamp: Date;
   details?: Record<string, any>;
+  severity: SecurityEventSeverity;
+  message: string;
 }
 
-export const logSecurityEvent = (event: Omit<SecurityEvent, 'timestamp'>) => {
+/**
+ * Logs a security event to the browser's local storage, up to a maximum of 100 events.
+ * The logged event will include the current timestamp.
+ * @param {Object} event - The security event to log. Must contain the following properties:
+ *   - type: The type of security event (e.g. 'auth_attempt', 'auth_success', 'auth_failure', etc.)
+ *   - userId: The ID of the user associated with the event (optional)
+ *   - email: The email address of the user associated with the event (optional)
+ *   - ip: The IP address of the user associated with the event (optional)
+ *   - userAgent: The user agent string of the user associated with the event (optional)
+ *   - details: Additional details about the event (optional)
+ */
+export const logSecurityEvent = ({ type, userId, email, ip, userAgent, details }: Omit<SecurityEvent, 'timestamp'>): void => {
   const securityEvent: SecurityEvent = {
-    ...event,
-    timestamp: new Date().toISOString(),
+    type,
+    userId,
+    email,
+    ip,
+    userAgent,
+    details,
+    timestamp: new Date(),
+    id: undefined,
+    severity: SecurityEventSeverity.INFO,
+    message: ""
   };
 
-  // Store in localStorage for now (in production, send to server)
-  const events = getStoredSecurityEvents();
-  events.unshift(securityEvent);
-  
-  // Keep only last 100 events to prevent storage bloat
-  if (events.length > 100) {
-    events.splice(100);
-  }
-  
-  localStorage.setItem('security_events', JSON.stringify(events));
-  
-  // Console log for development
-  if (import.meta.env.DEV) {
-    console.log('🔒 Security Event:', securityEvent);
+  try {
+    const storedEvents = getStoredSecurityEvents();
+    const events = [securityEvent, ...storedEvents.slice(0, 99)];
+    localStorage.setItem('security_events', JSON.stringify(events));
+  } catch (error) {
+    console.error('Error logging security event:', error);
   }
 };
 

@@ -118,44 +118,44 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
   ];
 
   const resources = [
-    { 
-      name: 'Complete Trading Plan Template', 
-      type: 'PDF', 
+    {
+      name: 'Complete Trading Plan Template',
+      type: 'PDF',
       size: '2.1 MB',
       description: 'A comprehensive template to create your personal trading plan',
       category: 'Planning'
     },
-    { 
-      name: 'Risk Management Checklist', 
-      type: 'PDF', 
+    {
+      name: 'Risk Management Checklist',
+      type: 'PDF',
       size: '0.8 MB',
       description: 'Daily checklist to ensure proper risk management',
       category: 'Risk Management'
     },
-    { 
-      name: 'Chart Pattern Recognition Guide', 
-      type: 'PDF', 
+    {
+      name: 'Chart Pattern Recognition Guide',
+      type: 'PDF',
       size: '3.2 MB',
       description: 'Visual guide to identifying profitable chart patterns',
       category: 'Technical Analysis'
     },
-    { 
-      name: 'Economic Indicators Handbook', 
-      type: 'PDF', 
+    {
+      name: 'Economic Indicators Handbook',
+      type: 'PDF',
       size: '1.8 MB',
       description: 'Understanding how economic news affects currency markets',
       category: 'Fundamental Analysis'
     },
-    { 
-      name: 'Trading Psychology Workbook', 
-      type: 'PDF', 
+    {
+      name: 'Trading Psychology Workbook',
+      type: 'PDF',
       size: '1.5 MB',
       description: 'Exercises to develop mental discipline and emotional control',
       category: 'Psychology'
     },
-    { 
-      name: 'MetaTrader 4/5 Setup Guide', 
-      type: 'PDF', 
+    {
+      name: 'MetaTrader 4/5 Setup Guide',
+      type: 'PDF',
       size: '2.8 MB',
       description: 'Complete guide to setting up and customizing MT4/MT5',
       category: 'Platforms'
@@ -224,7 +224,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
   const handleLessonComplete = (courseId: string, moduleIndex: number, lessonIndex: number) => {
     const lessonKey = `${courseId}-${moduleIndex}-${lessonIndex}`;
     const newCompleted = new Set(completedLessons);
-    
+
     if (!newCompleted.has(lessonKey)) {
       newCompleted.add(lessonKey);
       setCompletedLessons(newCompleted);
@@ -264,7 +264,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
           setSelectedCourse(null);
           onClose();
         }}>
-          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -276,8 +276,8 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                 </Button>
               </div>
             </DialogHeader>
-            <TradingCourse 
-              course={course} 
+            <TradingCourse
+              course={course}
               onLessonComplete={handleLessonComplete}
               completedLessons={completedLessons}
             />
@@ -289,7 +289,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Trading Academy</DialogTitle>
           <DialogDescription>
@@ -347,8 +347,8 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                     <CardDescription>{tool.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button 
-                      className="w-full" 
+                    <Button
+                      className="w-full"
                       onClick={() => tool.available && openTool(tool.name, tool.url)}
                       disabled={!tool.available}
                     >
@@ -424,8 +424,8 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
                           </li>
                         ))}
                       </ul>
-                      <Button 
-                        className="w-full" 
+                      <Button
+                        className="w-full"
                         disabled={!cert.available}
                         onClick={() => cert.available && startCertification(cert.title)}
                       >

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import LazyLoad from 'react-lazy-load';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,34 +52,34 @@ const FitnessJourney: React.FC = () => {
         duration: 30,
         difficulty: 'intermediate',
         exercises: [
-          { 
-            name: 'Jumping Jacks', 
-            sets: 3, 
-            reps: '30 seconds', 
+          {
+            name: 'Jumping Jacks',
+            sets: 3,
+            reps: '30 seconds',
             description: 'Full body cardio movement',
             instructions: 'Start with feet together, jump while spreading legs and raising arms overhead, then jump back to starting position.',
             tips: ['Keep your core engaged', 'Land softly on balls of feet', 'Maintain steady breathing rhythm']
           },
-          { 
-            name: 'Burpees', 
-            sets: 3, 
-            reps: '10-15', 
+          {
+            name: 'Burpees',
+            sets: 3,
+            reps: '10-15',
             description: 'Total body explosive exercise',
             instructions: 'Start standing, squat down and place hands on floor, jump feet back to plank, do push-up, jump feet forward, then jump up with arms overhead.',
             tips: ['Keep your core tight throughout', 'Modify by stepping instead of jumping', 'Focus on smooth transitions']
           },
-          { 
-            name: 'Mountain Climbers', 
-            sets: 3, 
-            reps: '30 seconds', 
+          {
+            name: 'Mountain Climbers',
+            sets: 3,
+            reps: '30 seconds',
             description: 'Core and cardio combination',
             instructions: 'Start in plank position, alternate bringing knees to chest rapidly while maintaining plank position.',
             tips: ['Keep hips level', 'Maintain straight line from head to heels', 'Drive knees toward chest']
           },
-          { 
-            name: 'High Knees', 
-            sets: 3, 
-            reps: '30 seconds', 
+          {
+            name: 'High Knees',
+            sets: 3,
+            reps: '30 seconds',
             description: 'Intense cardio movement',
             instructions: 'Run in place while lifting knees as high as possible, aiming to bring knees to hip level.',
             tips: ['Pump arms actively', 'Stay on balls of feet', 'Keep torso upright']
@@ -94,34 +95,34 @@ const FitnessJourney: React.FC = () => {
         duration: 45,
         difficulty: 'intermediate',
         exercises: [
-          { 
-            name: 'Push-ups', 
-            sets: 3, 
-            reps: '8-12', 
+          {
+            name: 'Push-ups',
+            sets: 3,
+            reps: '8-12',
             description: 'Chest and tricep builder',
             instructions: 'Start in plank position, lower body until chest nearly touches floor, push back up to starting position.',
             tips: ['Keep core engaged', 'Maintain straight line from head to heels', 'Control the descent']
           },
-          { 
-            name: 'Pike Push-ups', 
-            sets: 3, 
-            reps: '6-10', 
+          {
+            name: 'Pike Push-ups',
+            sets: 3,
+            reps: '6-10',
             description: 'Shoulder development',
             instructions: 'Start in downward dog position, lower head toward ground between hands, push back up.',
             tips: ['Keep legs straight', 'Focus on shoulder movement', 'Walk feet closer to hands for more difficulty']
           },
-          { 
-            name: 'Tricep Dips', 
-            sets: 3, 
-            reps: '8-12', 
+          {
+            name: 'Tricep Dips',
+            sets: 3,
+            reps: '8-12',
             description: 'Tricep isolation',
             instructions: 'Sit on chair edge, hands beside hips, lower body by bending elbows, push back up.',
             tips: ['Keep elbows close to body', 'Lower until arms are parallel to floor', 'Engage core throughout']
           },
-          { 
-            name: 'Plank to Push-up', 
-            sets: 3, 
-            reps: '5-8', 
+          {
+            name: 'Plank to Push-up',
+            sets: 3,
+            reps: '5-8',
             description: 'Core and upper body combo',
             instructions: 'Start in plank on forearms, push up to full plank position one arm at a time, return to forearm plank.',
             tips: ['Keep hips stable', 'Alternate leading arm', 'Maintain plank position throughout']
@@ -137,34 +138,34 @@ const FitnessJourney: React.FC = () => {
         duration: 40,
         difficulty: 'beginner',
         exercises: [
-          { 
-            name: 'Walking/Jogging', 
-            sets: 1, 
-            reps: '20 minutes', 
+          {
+            name: 'Walking/Jogging',
+            sets: 1,
+            reps: '20 minutes',
             description: 'Steady state cardio',
             instructions: 'Maintain a steady pace that allows you to hold a conversation while exercising.',
             tips: ['Start slow and build up', 'Focus on consistent breathing', 'Land midfoot when running']
           },
-          { 
-            name: 'Step-ups', 
-            sets: 3, 
-            reps: '10 each leg', 
+          {
+            name: 'Step-ups',
+            sets: 3,
+            reps: '10 each leg',
             description: 'Lower body endurance',
             instructions: 'Step up onto sturdy surface with right foot, bring left foot up, step down with right foot first.',
             tips: ['Use full foot on step surface', 'Keep knee aligned over ankle', 'Control the descent']
           },
-          { 
-            name: 'Arm Circles', 
-            sets: 2, 
-            reps: '30 seconds each', 
+          {
+            name: 'Arm Circles',
+            sets: 2,
+            reps: '30 seconds each',
             description: 'Shoulder endurance',
             instructions: 'Extend arms parallel to floor, make small circles forward then backward.',
             tips: ['Start with small circles', 'Keep arms straight', 'Gradually increase circle size']
           },
-          { 
-            name: 'Wall Sit', 
-            sets: 3, 
-            reps: '30-60 seconds', 
+          {
+            name: 'Wall Sit',
+            sets: 3,
+            reps: '30-60 seconds',
             description: 'Leg endurance',
             instructions: 'Lean back against wall, slide down until thighs are parallel to floor, hold position.',
             tips: ['Keep back flat against wall', 'Thighs parallel to floor', 'Distribute weight evenly']
@@ -180,34 +181,34 @@ const FitnessJourney: React.FC = () => {
         duration: 50,
         difficulty: 'intermediate',
         exercises: [
-          { 
-            name: 'Squats', 
-            sets: 4, 
-            reps: '12-15', 
+          {
+            name: 'Squats',
+            sets: 4,
+            reps: '12-15',
             description: 'Lower body strength',
             instructions: 'Stand with feet shoulder-width apart, lower hips back and down, return to standing.',
             tips: ['Keep knees aligned with toes', 'Lower until thighs are parallel', 'Drive through heels to stand']
           },
-          { 
-            name: 'Push-ups', 
-            sets: 4, 
-            reps: '8-12', 
+          {
+            name: 'Push-ups',
+            sets: 4,
+            reps: '8-12',
             description: 'Upper body strength',
             instructions: 'Start in plank position, lower body until chest nearly touches floor, push back up.',
             tips: ['Keep core engaged', 'Maintain straight line', 'Control the movement']
           },
-          { 
-            name: 'Lunges', 
-            sets: 3, 
-            reps: '10 each leg', 
+          {
+            name: 'Lunges',
+            sets: 3,
+            reps: '10 each leg',
             description: 'Single leg strength',
             instructions: 'Step forward with one leg, lower hips until both knees are at 90 degrees, return to start.',
             tips: ['Keep front knee over ankle', 'Lower knee should nearly touch ground', 'Keep torso upright']
           },
-          { 
-            name: 'Plank', 
-            sets: 3, 
-            reps: '30-60 seconds', 
+          {
+            name: 'Plank',
+            sets: 3,
+            reps: '30-60 seconds',
             description: 'Core strength',
             instructions: 'Hold plank position on forearms and toes, maintaining straight line from head to heels.',
             tips: ['Engage core muscles', 'Keep hips level', 'Breathe steadily']
@@ -223,34 +224,34 @@ const FitnessJourney: React.FC = () => {
         duration: 25,
         difficulty: 'beginner',
         exercises: [
-          { 
-            name: 'Cat-Cow Stretch', 
-            sets: 2, 
-            reps: '10', 
+          {
+            name: 'Cat-Cow Stretch',
+            sets: 2,
+            reps: '10',
             description: 'Spine mobility',
             instructions: 'Start on hands and knees, arch back (cow), then round spine (cat), repeat smoothly.',
             tips: ['Move slowly and controlled', 'Focus on spinal articulation', 'Coordinate with breathing']
           },
-          { 
-            name: 'Downward Dog', 
-            sets: 3, 
-            reps: '30 seconds', 
+          {
+            name: 'Downward Dog',
+            sets: 3,
+            reps: '30 seconds',
             description: 'Full body stretch',
             instructions: 'Start on hands and knees, tuck toes under, lift hips up and back into inverted V shape.',
             tips: ['Keep hands shoulder-width apart', 'Pedal feet to stretch calves', 'Lengthen spine']
           },
-          { 
-            name: 'Hip Circles', 
-            sets: 2, 
-            reps: '10 each direction', 
+          {
+            name: 'Hip Circles',
+            sets: 2,
+            reps: '10 each direction',
             description: 'Hip mobility',
             instructions: 'Stand with hands on hips, make large circles with hips in both directions.',
             tips: ['Keep upper body still', 'Make full range circles', 'Control the movement']
           },
-          { 
-            name: 'Shoulder Rolls', 
-            sets: 2, 
-            reps: '10 each direction', 
+          {
+            name: 'Shoulder Rolls',
+            sets: 2,
+            reps: '10 each direction',
             description: 'Shoulder mobility',
             instructions: 'Roll shoulders forward in large circles, then backward.',
             tips: ['Make full circles', 'Keep arms relaxed', 'Focus on shoulder blade movement']
@@ -266,34 +267,34 @@ const FitnessJourney: React.FC = () => {
         duration: 35,
         difficulty: 'beginner',
         exercises: [
-          { 
-            name: 'Bodyweight Squats', 
-            sets: 3, 
-            reps: '10-12', 
+          {
+            name: 'Bodyweight Squats',
+            sets: 3,
+            reps: '10-12',
             description: 'Lower body foundation',
             instructions: 'Stand with feet shoulder-width apart, lower hips back and down, return to standing.',
             tips: ['Keep chest up', 'Weight on heels', 'Knees track over toes']
           },
-          { 
-            name: 'Modified Push-ups', 
-            sets: 3, 
-            reps: '6-10', 
+          {
+            name: 'Modified Push-ups',
+            sets: 3,
+            reps: '6-10',
             description: 'Upper body basics',
             instructions: 'Perform push-ups on knees or against wall, maintaining proper form.',
             tips: ['Keep body straight', 'Control the movement', 'Progress to full push-ups']
           },
-          { 
-            name: 'Glute Bridges', 
-            sets: 3, 
-            reps: '12-15', 
+          {
+            name: 'Glute Bridges',
+            sets: 3,
+            reps: '12-15',
             description: 'Posterior chain',
             instructions: 'Lie on back, lift hips by squeezing glutes, lower back down.',
             tips: ['Drive through heels', 'Squeeze glutes at top', 'Keep core engaged']
           },
-          { 
-            name: 'Dead Bug', 
-            sets: 2, 
-            reps: '8 each side', 
+          {
+            name: 'Dead Bug',
+            sets: 2,
+            reps: '8 each side',
             description: 'Core stability',
             instructions: 'Lie on back, extend opposite arm and leg, return to start, repeat other side.',
             tips: ['Keep lower back pressed down', 'Move slowly', 'Maintain core engagement']
@@ -324,15 +325,15 @@ const FitnessJourney: React.FC = () => {
         setWorkoutHistory(data);
         const completedSessions = data.filter(session => session.completed);
         setCompletedWorkouts(completedSessions.length);
-        
+
         const latestSession = data[0];
         const description = latestSession.description || '';
         const goals = description.match(/Goals: (.+?)(?:\.|$)/)?.[1]?.split(', ') || [];
         const level = description.match(/Level: (.+?)(?:\.|$)/)?.[1] || 'beginner';
-        
+
         setUserGoals(goals);
         setUserLevel(level);
-        
+
         // Set current workout based on primary goal and level
         const primaryGoal = goals[0];
         if (primaryGoal && goalBasedWorkouts[primaryGoal]) {
@@ -508,8 +509,8 @@ const FitnessJourney: React.FC = () => {
                             <h5 className="font-semibold">{exercise.name}</h5>
                             <div className="flex gap-2">
                               <Badge variant="outline">{exercise.sets} sets × {exercise.reps}</Badge>
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="ghost"
                                 onClick={() => openExerciseModal(exercise)}
                               >
@@ -593,7 +594,7 @@ const FitnessJourney: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h4 className="font-semibold mb-3">Recent Workouts</h4>
                     <div className="space-y-2">

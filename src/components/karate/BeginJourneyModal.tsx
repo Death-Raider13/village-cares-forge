@@ -102,7 +102,7 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto dialog-content modal-content">
         <DialogHeader>
           <DialogTitle className="font-playfair text-2xl text-vintage-deep-blue">
             Begin Your Karate Journey
@@ -185,11 +185,10 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
                   {karateGoals.map(goal => (
                     <div
                       key={goal.value}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.goals.includes(goal.value)
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${formData.goals.includes(goal.value)
                           ? 'bg-vintage-deep-blue text-white'
                           : 'hover:bg-gray-50'
-                      }`}
+                        }`}
                       onClick={() => handleGoalToggle(goal.value)}
                     >
                       <div className="flex items-center gap-2">
@@ -251,8 +250,8 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
               <div className="bg-vintage-sage-green/10 p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">Your Personalized Journey</h4>
                 <p className="text-sm text-muted-foreground">
-                  Based on your responses, we'll create a customized training program that matches your 
-                  experience level, goals, and availability. You'll progress through traditional belt 
+                  Based on your responses, we'll create a customized training program that matches your
+                  experience level, goals, and availability. You'll progress through traditional belt
                   ranks while learning authentic karate techniques and philosophy.
                 </p>
               </div>
@@ -261,8 +260,8 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
         )}
 
         <div className="flex justify-between pt-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={prevStep}
             disabled={step === 1}
           >
@@ -272,14 +271,13 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
             {[1, 2, 3].map(num => (
               <div
                 key={num}
-                className={`w-2 h-2 rounded-full ${
-                  num === step ? 'bg-vintage-deep-blue' : 'bg-gray-300'
-                }`}
+                className={`w-2 h-2 rounded-full ${num === step ? 'bg-vintage-deep-blue' : 'bg-gray-300'
+                  }`}
               />
             ))}
           </div>
           {step < 3 ? (
-            <Button 
+            <Button
               onClick={nextStep}
               disabled={
                 (step === 1 && (!formData.name || !formData.age || !formData.experience)) ||
@@ -289,7 +287,7 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
               Next
             </Button>
           ) : (
-            <Button 
+            <Button
               onClick={handleSubmit}
               disabled={loading || !formData.availability}
             >

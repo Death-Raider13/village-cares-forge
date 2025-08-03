@@ -129,7 +129,7 @@ const FitnessEducationModal: React.FC<FitnessEducationModalProps> = ({ isOpen, o
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Fitness Education Hub</DialogTitle>
           <DialogDescription>
@@ -148,8 +148,8 @@ const FitnessEducationModal: React.FC<FitnessEducationModalProps> = ({ isOpen, o
           </TabsList>
 
           {educationModules.map((module, moduleIndex) => (
-            <TabsContent 
-              key={moduleIndex} 
+            <TabsContent
+              key={moduleIndex}
               value={module.title.toLowerCase().replace(' ', '_')}
               className="space-y-6"
             >
