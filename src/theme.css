@@ -1,0 +1,161 @@
+:root,
+[data-theme="light"] {
+  /* Base colors */
+  --background: #fff;
+  --foreground: #1a1a1a;
+  
+  /* Vintage theme colors - Light Mode */
+  --vintage-warm-cream: #f8f4e9;
+  --vintage-deep-blue: #2c3e50;
+  --vintage-burgundy: #8e354a;
+  --vintage-gold: #d4af37;
+  --vintage-sage-green: #7c9c8b;
+  --vintage-dark-brown: #5d4037;
+  
+  /* UI Component colors */
+  --card-background: #ffffff;
+  --card-foreground: var(--vintage-dark-brown);
+  --card-border: rgba(142, 53, 74, 0.2);
+  --card-hover-border: rgba(142, 53, 74, 0.5);
+  
+  --primary: var(--vintage-burgundy);
+  --primary-foreground: var(--vintage-warm-cream);
+  
+  --secondary: var(--vintage-deep-blue);
+  --secondary-foreground: var(--vintage-warm-cream);
+  
+  --accent: rgba(212, 175, 55, 0.2);
+  --accent-foreground: var(--vintage-deep-blue);
+  
+  --destructive: #e53935;
+  --destructive-foreground: #ffffff;
+  
+  --muted: #f1f1f1;
+  --muted-foreground: #6c757d;
+  
+  --border: rgba(212, 175, 55, 0.3);
+  --input: rgba(212, 175, 55, 0.3);
+  --ring: var(--vintage-gold);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  /* Base colors */
+  --background: #1a1a1a;
+  --foreground: #f8f4e9;
+  
+  /* Vintage theme colors - Dark Mode */
+  --vintage-warm-cream: #2c2c2c;
+  --vintage-deep-blue: #5d8bbd;
+  --vintage-burgundy: #c06c84;
+  --vintage-gold: #ffd700;
+  --vintage-sage-green: #5a7d6f;
+  --vintage-dark-brown: #d7ccc8;
+  
+  /* UI Component colors */
+  --card-background: #2a2a2a;
+  --card-foreground: #e0e0e0;
+  --card-border: rgba(192, 108, 132, 0.3);
+  --card-hover-border: rgba(192, 108, 132, 0.6);
+  
+  --primary: var(--vintage-burgundy);
+  --primary-foreground: #1a1a1a;
+  
+  --secondary: var(--vintage-deep-blue);
+  --secondary-foreground: #1a1a1a;
+  
+  --accent: rgba(255, 215, 0, 0.15);
+  --accent-foreground: var(--vintage-gold);
+  
+  --destructive: #f44336;
+  --destructive-foreground: #ffffff;
+  
+  --muted: #2c2c2c;
+  --muted-foreground: #a0a0a0;
+  
+  --border: rgba(255, 215, 0, 0.2);
+  --input: rgba(255, 215, 0, 0.2);
+  --ring: var(--vintage-gold);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Apply theme variables to the body */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Override background classes with CSS variables */
+.bg-vintage-warm-cream {
+  background-color: var(--vintage-warm-cream);
+}
+
+.bg-vintage-deep-blue {
+  background-color: var(--vintage-deep-blue);
+}
+
+.bg-vintage-burgundy {
+  background-color: var(--vintage-burgundy);
+}
+
+.bg-vintage-gold {
+  background-color: var(--vintage-gold);
+}
+
+.bg-vintage-sage-green {
+  background-color: var(--vintage-sage-green);
+}
+
+.bg-vintage-dark-brown {
+  background-color: var(--vintage-dark-brown);
+}
+
+/* Override text color classes with CSS variables */
+.text-vintage-warm-cream {
+  color: var(--vintage-warm-cream);
+}
+
+.text-vintage-deep-blue {
+  color: var(--vintage-deep-blue);
+}
+
+.text-vintage-burgundy {
+  color: var(--vintage-burgundy);
+}
+
+.text-vintage-gold {
+  color: var(--vintage-gold);
+}
+
+.text-vintage-sage-green {
+  color: var(--vintage-sage-green);
+}
+
+.text-vintage-dark-brown {
+  color: var(--vintage-dark-brown);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card-background);
+  color: var(--card-foreground);
+  border-color: var(--card-border);
+}
+
+.card:hover {
+  border-color: var(--card-hover-border);
+}
+
+/* Transition for smooth theme switching */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
