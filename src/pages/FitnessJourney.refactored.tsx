@@ -177,7 +177,7 @@ const FitnessJourneyContent: React.FC = () => {
                       ))}
                     </div>
                     <Button
-                      onClick={() => completeWorkout(currentWorkout)}
+                      onClick={() => completeWorkout()}
                       className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-forest-green"
                     >
                       <CheckCircle className="h-4 w-4 mr-2" />

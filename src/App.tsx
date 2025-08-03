@@ -10,7 +10,7 @@ import Index from '@/pages/Index';
 import ForexTraining from '@/pages/ForexTraining';
 import FitnessTraining from '@/pages/FitnessTraining';
 import KarateTraining from '@/pages/KarateTraining';
-import FitnessJourney from '@/pages/FitnessJourney';
+import FitnessJourney from '@/pages/FitnessJourney.refactored';
 import KarateJourney from '@/pages/KarateJourney';
 import Auth from '@/pages/Auth';
 
