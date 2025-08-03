@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { TrendingUp, TrendingDown, Star, Clock, Target, AlertCircle, BookOpen, Calculator, DollarSign, Activity, BarChart3 } from 'lucide-react';
+import { 
+  TrendingUp, TrendingDown, Star, Clock, Target, AlertCircle, BookOpen, 
+  Calculator, DollarSign, Activity, BarChart3, GraduationCap, BookMarked, 
+  Users, Brain 
+} from 'lucide-react';
 import TradingAcademyModal from '@/components/forex/TradingAcademyModal';
-
 
 const ForexTraining: React.FC = () => {
   const { user } = useAuth();
@@ -61,16 +62,16 @@ const ForexTraining: React.FC = () => {
               Professional Forex Training
             </h1>
             <p className="font-crimson text-xl md:text-2xl mb-8 leading-relaxed opacity-90">
-              Master the global currency markets with institutional-grade tools, comprehensive education, and time-tested strategies from market professionals
+              Master the global currency markets with comprehensive education, professional-grade tools, and time-tested strategies from industry experts
             </p>
             <div className="flex flex-wrap justify-center gap-6">
               <Button size="lg" className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => setAcademyModalOpen(true)}>
                 <BookOpen className="mr-2 h-5 w-5" />
                 Trading Education
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3">
-                <Target className="mr-2 h-5 w-5" />
-                Learn More
+              <Button size="lg" variant="outline" className="border-2 border-vintage-warm-cream text-vintage-warm-cream hover:bg-vintage-warm-cream hover:text-vintage-deep-blue font-semibold px-8 py-3" onClick={() => document.getElementById('education-hub')?.scrollIntoView({ behavior: 'smooth' })}>
+                <BookMarked className="mr-2 h-5 w-5" />
+                Explore Courses
               </Button>
             </div>
           </div>
@@ -78,15 +79,183 @@ const ForexTraining: React.FC = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12">
-        <Tabs defaultValue="calculator" className="w-full">
+        <Tabs defaultValue="education" className="w-full">
           <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="calculator" className="font-semibold">Trading Tools</TabsTrigger>
             <TabsTrigger value="education" className="font-semibold">Education Hub</TabsTrigger>
+            <TabsTrigger value="calculator" className="font-semibold">Trading Tools</TabsTrigger>
             <TabsTrigger value="analysis" className="font-semibold">Market Analysis</TabsTrigger>
             <TabsTrigger value="fundamentals" className="font-semibold">Fundamentals</TabsTrigger>
             <TabsTrigger value="community" className="font-semibold">Community</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="education" id="education-hub" className="space-y-8 mt-8">
+            {/* Featured Courses */}
+            <Card className="bg-white/90 backdrop-blur-sm border-2 border-vintage-gold/20">
+              <CardHeader>
+                <CardTitle className="font-playfair text-2xl text-vintage-deep-blue">Featured Courses</CardTitle>
+                <CardDescription>Comprehensive forex education for all skill levels</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="p-6 bg-vintage-deep-blue/5 rounded-lg border border-vintage-gold/10 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-full bg-green-100">
+                        <BookOpen className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-vintage-deep-blue">Forex Fundamentals</h4>
+                        <Badge variant="outline" className="mt-1">Beginner</Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-vintage-dark-brown/80 mb-4">Master the basics of forex trading from currency pairs to market analysis</p>
+                    <Button size="sm" className="w-full" onClick={() => setAcademyModalOpen(true)}>Start Learning</Button>
+                  </div>
+
+                  <div className="p-6 bg-vintage-deep-blue/5 rounded-lg border border-vintage-gold/10 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-full bg-blue-100">
+                        <BarChart3 className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-vintage-deep-blue">Technical Analysis</h4>
+                        <Badge variant="outline" className="mt-1">Intermediate</Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-vintage-dark-brown/80 mb-4">Advanced chart reading and technical indicators for professional trading</p>
+                    <Button size="sm" className="w-full" onClick={() => setAcademyModalOpen(true)}>Explore Course</Button>
+                  </div>
+
+                  <div className="p-6 bg-vintage-deep-blue/5 rounded-lg border border-vintage-gold/10 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-full bg-purple-100">
+                        <Brain className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-vintage-deep-blue">Trading Psychology</h4>
+                        <Badge variant="outline" className="mt-1">All Levels</Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-vintage-dark-brown/80 mb-4">Master the mental aspects of trading for consistent performance</p>
+                    <Button size="sm" className="w-full" onClick={() => setAcademyModalOpen(true)}>Learn More</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Learning Paths */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
+                    <Target className="h-5 w-5" />
+                    Forex Basics
+                  </CardTitle>
+                  <CardDescription>Foundation knowledge for beginners</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-sm font-crimson">
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Understanding currency pairs and quotes</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Market sessions and optimal trading times</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Fundamental vs technical analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Risk management principles</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Psychology of trading</span>
+                    </li>
+                  </ul>
+                  <Button className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-burgundy" onClick={() => setAcademyModalOpen(true)}>
+                    Start Learning
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
+                    <BarChart3 className="h-5 w-5" />
+                    Technical Analysis
+                  </CardTitle>
+                  <CardDescription>Chart patterns and indicators mastery</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-sm font-crimson">
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Support and resistance identification</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Japanese candlestick patterns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Moving averages and trend analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>RSI, MACD, and momentum indicators</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Fibonacci retracements and extensions</span>
+                    </li>
+                  </ul>
+                  <Button className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-burgundy" onClick={() => setAcademyModalOpen(true)}>
+                    Advanced Course
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
+                    <DollarSign className="h-5 w-5" />
+                    Risk Management
+                  </CardTitle>
+                  <CardDescription>Protecting your trading capital</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-sm font-crimson">
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Position sizing strategies</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Stop loss and take profit placement</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Risk-reward ratio optimization</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Portfolio diversification</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-vintage-gold rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Emotional discipline techniques</span>
+                    </li>
+                  </ul>
+                  <Button className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-burgundy" onClick={() => setAcademyModalOpen(true)}>
+                    Master Risk Management
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="calculator" className="space-y-8 mt-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -206,121 +375,6 @@ const ForexTraining: React.FC = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="education" className="space-y-8 mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
-                    <Target className="h-5 w-5" />
-                    Forex Basics
-                  </CardTitle>
-                  <CardDescription>Foundation knowledge for beginners</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 text-sm font-crimson">
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Understanding currency pairs and quotes</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Market sessions and optimal trading times</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Fundamental vs technical analysis</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Risk management principles</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Psychology of trading</span>
-                    </li>
-                  </ul>
-                  <Button className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-burgundy" disabled={!user}>
-                    {user ? 'Start Learning' : 'Sign in to Access'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
-                    <BarChart3 className="h-5 w-5" />
-                    Technical Analysis
-                  </CardTitle>
-                  <CardDescription>Chart patterns and indicators mastery</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 text-sm font-crimson">
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Support and resistance identification</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Japanese candlestick patterns</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Moving averages and trend analysis</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>RSI, MACD, and momentum indicators</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Fibonacci retracements and extensions</span>
-                    </li>
-                  </ul>
-                  <Button className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-burgundy" disabled={!user}>
-                    {user ? 'Advanced Course' : 'Sign in to Access'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 font-playfair text-vintage-deep-blue">
-                    <DollarSign className="h-5 w-5" />
-                    Risk Management
-                  </CardTitle>
-                  <CardDescription>Protecting your trading capital</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 text-sm font-crimson">
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Position sizing strategies</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Stop loss and take profit placement</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Risk-reward ratio optimization</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Portfolio diversification</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Star className="h-3 w-3 text-vintage-gold mt-1 flex-shrink-0" />
-                      <span>Emotional discipline techniques</span>
-                    </li>
-                  </ul>
-                  <Button className="w-full mt-6 bg-vintage-deep-blue hover:bg-vintage-burgundy" disabled={!user}>
-                    {user ? 'Master Risk Management' : 'Sign in to Access'}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
           <TabsContent value="analysis" className="space-y-6">
             <Card className="bg-white/95 backdrop-blur-sm">
               <CardHeader>
@@ -335,7 +389,7 @@ const ForexTraining: React.FC = () => {
                       <strong>Current Price:</strong> 1.0847 | <strong>Bias:</strong> Bullish
                     </p>
                     <p className="text-sm text-vintage-dark-brown">
-                      The EUR/USD pair has successfully broken above the key resistance level at 1.0850, confirming our bullish bias. 
+                      The EUR/USD pair has successfully broken above the key resistance level at 1.0850, confirming our bullish bias.
                       The momentum is supported by RSI moving above 60 and MACD showing positive divergence. Next targets are 1.0950 and 1.1000.
                       Support levels remain at 1.0800 and 1.0750.
                     </p>
@@ -346,7 +400,7 @@ const ForexTraining: React.FC = () => {
                       <strong>Current Price:</strong> 1.2341 | <strong>Bias:</strong> Bearish
                     </p>
                     <p className="text-sm text-vintage-dark-brown">
-                      GBP/USD is facing strong resistance at the 1.2350-1.2380 zone. Bearish divergence on the 4H chart suggests 
+                      GBP/USD is facing strong resistance at the 1.2350-1.2380 zone. Bearish divergence on the 4H chart suggests
                       a potential pullback to 1.2250 support. Watch for a break below 1.2300 which could accelerate selling toward 1.2200.
                     </p>
                   </div>

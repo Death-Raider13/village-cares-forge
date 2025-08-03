@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { createRateLimiter } from '@/lib/security';
+import { createRateLimiter, validatePassword } from '@/lib/security';
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  
+
   // Rate limiter: 5 attempts per 15 minutes
   const authRateLimiter = createRateLimiter(5, 15 * 60 * 1000);
 
@@ -61,15 +61,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       // Password strength validation
-      if (password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
-      }
-      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-        throw new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.message);
       }
 
       const redirectUrl = `${window.location.origin}/`;
-      
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -127,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         let errorMessage = "Authentication failed. Please check your credentials.";
-        
+
         // Provide user-friendly error messages without exposing system details
         if (error.message.includes('Invalid login credentials')) {
           errorMessage = "Invalid email or password. Please try again.";
@@ -136,7 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else if (error.message.includes('Too many requests')) {
           errorMessage = "Too many attempts. Please try again later.";
         }
-        
+
         toast({
           title: "Sign in failed",
           description: errorMessage,
