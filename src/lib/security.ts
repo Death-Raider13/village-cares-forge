@@ -1,4 +1,71 @@
-// Security utilities for input validation and sanitization
+// Security utilities for input validation, sanitization, and audit logging
+
+/**
+ * Security event types for audit logging
+ */
+export enum SecurityEventType {
+  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+  LOGIN_FAILURE = 'LOGIN_FAILURE',
+  LOGOUT = 'LOGOUT',
+  PASSWORD_CHANGE = 'PASSWORD_CHANGE',
+  PASSWORD_RESET_REQUEST = 'PASSWORD_RESET_REQUEST',
+  PASSWORD_RESET_COMPLETE = 'PASSWORD_RESET_COMPLETE',
+  ACCOUNT_CREATION = 'ACCOUNT_CREATION',
+  ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
+  ACCOUNT_DELETION = 'ACCOUNT_DELETION',
+  PROFILE_UPDATE = 'PROFILE_UPDATE',
+  SESSION_TIMEOUT = 'SESSION_TIMEOUT',
+  SESSION_REFRESH = 'SESSION_REFRESH',
+  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
+  PERMISSION_CHANGE = 'PERMISSION_CHANGE',
+  ADMIN_ACTION = 'ADMIN_ACTION',
+}
+
+/**
+ * Security event severity levels
+ */
+export enum SecurityEventSeverity {
+  INFO = 'INFO',
+  WARNING = 'WARNING',
+  ERROR = 'ERROR',
+  CRITICAL = 'CRITICAL',
+}
+
+/**
+ * Security event interface for audit logging
+ */
+export interface SecurityEvent {
+  type: SecurityEventType;
+  severity: SecurityEventSeverity;
+  timestamp: Date;
+  userId?: string;
+  username?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  details?: Record<string, any>;
+  message: string;
+}
+
+/**
+ * Creates a new security event for audit logging
+ */
+export const createSecurityEvent = (
+  type: SecurityEventType,
+  message: string,
+  severity: SecurityEventSeverity = SecurityEventSeverity.INFO,
+  userId?: string,
+  details?: Record<string, any>
+): SecurityEvent => {
+  return {
+    type,
+    severity,
+    timestamp: new Date(),
+    userId,
+    message,
+    details,
+    userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
+  };
+};
 /**
  * Validates a password against security requirements
  * 
