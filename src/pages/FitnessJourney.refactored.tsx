@@ -210,10 +210,10 @@ const FitnessJourneyContent: React.FC = () => {
                         <span className="font-medium">{day}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        {index % 2 === 0 ? (
-                          <Badge>Workout Day</Badge>
-                        ) : index === 6 ? (
+                        {index === 6 ? (
                           <Badge variant="outline">Rest Day</Badge>
+                        ) : index % 2 === 0 ? (
+                          <Badge>Workout Day</Badge>
                         ) : (
                           <Badge variant="secondary">Active Recovery</Badge>
                         )}
