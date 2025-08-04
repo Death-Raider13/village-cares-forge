@@ -25,44 +25,43 @@ function App() {
           <AuthProvider>
             <NotificationsProvider>
               <SearchProvider>
-                <SessionManager>
-                  <div className="min-h-screen bg-vintage-warm-cream">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/forex-training" element={<ForexTraining />} />
-                      <Route path="/forex-trading" element={<ForexTraining />} />
-                      <Route path="/fitness-training" element={<FitnessTraining />} />
-                      <Route path="/karate-training" element={<KarateTraining />} />
-                      <Route
-                        path="/fitness-journey"
-                        element={
-                          <ProtectedRoute>
-                            <FitnessJourney />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="/karate-journey"
-                        element={
-                          <ProtectedRoute>
-                            <KarateJourney />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/admin-login" element={<AdminLogin />} />
-                      <Route
-                        path="/admin"
-                        element={
-                          <ProtectedRoute>
-                            <AdminPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                    </Routes>
-                    <Toaster />
-                  </div>
-                </SessionManager>
+                <div className="min-h-screen bg-vintage-warm-cream">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/forex-training" element={<ForexTraining />} />
+                    <Route path="/forex-trading" element={<ForexTraining />} />
+                    <Route path="/fitness-training" element={<FitnessTraining />} />
+                    <Route path="/karate-training" element={<KarateTraining />} />
+                    <Route
+                      path="/fitness-journey"
+                      element={
+                        <ProtectedRoute>
+                          <FitnessJourney />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/karate-journey"
+                      element={
+                        <ProtectedRoute>
+                          <KarateJourney />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/admin-login" element={<AdminLogin />} />
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute>
+                          <AdminPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Routes>
+                  <SessionManager />
+                  <Toaster />
+                </div>
               </SearchProvider>
             </NotificationsProvider>
           </AuthProvider>

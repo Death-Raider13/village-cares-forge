@@ -1,104 +1,101 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/hooks/use-toast';
 
 interface PasswordHistoryEntry {
-  id: string;
-  user_id: string;
-  password_hash: string;
-  created_at: string;
+  hashedPassword: string;
+  timestamp: Date;
 }
 
-const HISTORY_LIMIT = 5; // Number of previous passwords to remember
+const MAX_PASSWORD_HISTORY = 5; // Store last 5 passwords
 
-export const usePasswordHistory = () => {
-  const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
-  const { toast } = useToast();
+/**
+ * Hook for managing password history to prevent reuse
+ * Phase 2 security enhancement
+ */
+export const usePasswordHistory = (userId?: string) => {
+  const [isChecking, setIsChecking] = useState(false);
+
+  const getStorageKey = useCallback((id: string) => `password_history_${id}`, []);
+
+  const getPasswordHistory = useCallback((id: string): PasswordHistoryEntry[] => {
+    try {
+      const stored = localStorage.getItem(getStorageKey(id));
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }, [getStorageKey]);
+
+  const savePasswordHistory = useCallback((id: string, history: PasswordHistoryEntry[]) => {
+    try {
+      localStorage.setItem(getStorageKey(id), JSON.stringify(history));
+    } catch (error) {
+      console.error('Failed to save password history:', error);
+    }
+  }, [getStorageKey]);
 
   // Simple hash function for client-side password checking
-  const simpleHash = async (password: string): Promise<string> => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password + user?.id);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
+  const simpleHash = useCallback((password: string): string => {
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return hash.toString();
+  }, []);
 
-  const checkPasswordHistory = useCallback(async (newPassword: string): Promise<boolean> => {
-    if (!user) return true;
+  const isPasswordReused = useCallback(async (password: string, id: string): Promise<boolean> => {
+    if (!id || !password) return false;
 
+    setIsChecking(true);
     try {
-      setLoading(true);
+      const history = getPasswordHistory(id);
+      const hashedPassword = simpleHash(password);
       
-      // Get stored password hashes from localStorage (in production, use database)
-      const storedHashes = JSON.parse(
-        localStorage.getItem(`password_history_${user.id}`) || '[]'
-      );
-
-      const newPasswordHash = await simpleHash(newPassword);
-      
-      const isReused = storedHashes.some((entry: { hash: string }) => 
-        entry.hash === newPasswordHash
-      );
-
-      if (isReused) {
-        toast({
-          title: 'Password Previously Used',
-          description: `You cannot reuse any of your last ${HISTORY_LIMIT} passwords. Please choose a different password.`,
-          variant: 'destructive',
-        });
-        return false;
-      }
-
-      return true;
+      const isReused = history.some(entry => entry.hashedPassword === hashedPassword);
+      return isReused;
     } catch (error) {
       console.error('Error checking password history:', error);
-      return true; // Allow password change if check fails
+      return false;
     } finally {
-      setLoading(false);
+      setIsChecking(false);
     }
-  }, [user, toast]);
+  }, [getPasswordHistory, simpleHash]);
 
-  const addToPasswordHistory = useCallback(async (password: string): Promise<void> => {
-    if (!user) return;
+  const addPasswordToHistory = useCallback((password: string, id: string) => {
+    if (!id || !password) return;
 
     try {
-      const passwordHash = await simpleHash(password);
+      const history = getPasswordHistory(id);
+      const hashedPassword = simpleHash(password);
       
-      // Get existing history
-      const existingHistory = JSON.parse(
-        localStorage.getItem(`password_history_${user.id}`) || '[]'
-      );
-
-      // Add new password hash
-      const newEntry = {
-        hash: passwordHash,
-        timestamp: new Date().toISOString(),
+      const newEntry: PasswordHistoryEntry = {
+        hashedPassword,
+        timestamp: new Date()
       };
 
-      const updatedHistory = [newEntry, ...existingHistory].slice(0, HISTORY_LIMIT);
-      
-      // Store updated history
-      localStorage.setItem(
-        `password_history_${user.id}`,
-        JSON.stringify(updatedHistory)
-      );
+      // Add new password and keep only the last MAX_PASSWORD_HISTORY entries
+      const updatedHistory = [newEntry, ...history].slice(0, MAX_PASSWORD_HISTORY);
+      savePasswordHistory(id, updatedHistory);
     } catch (error) {
-      console.error('Error updating password history:', error);
+      console.error('Error adding password to history:', error);
     }
-  }, [user]);
+  }, [getPasswordHistory, simpleHash, savePasswordHistory]);
 
-  const clearPasswordHistory = useCallback(() => {
-    if (!user) return;
-    localStorage.removeItem(`password_history_${user.id}`);
-  }, [user]);
+  const clearPasswordHistory = useCallback((id: string) => {
+    if (!id) return;
+    
+    try {
+      localStorage.removeItem(getStorageKey(id));
+    } catch (error) {
+      console.error('Error clearing password history:', error);
+    }
+  }, [getStorageKey]);
 
   return {
-    checkPasswordHistory,
-    addToPasswordHistory,
+    isPasswordReused,
+    addPasswordToHistory,
     clearPasswordHistory,
-    loading,
+    isChecking
   };
 };

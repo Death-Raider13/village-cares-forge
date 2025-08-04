@@ -94,9 +94,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDelete }) => {
   );
 };
 
-// Admin emails - these would typically be stored in a more secure way
-const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'andrewcares556@gmail.com'];
-const ADMIN_PASSWORD = 'ADMIN_ANDREWCARES';
+// Secure admin authentication now uses role-based access instead of hardcoded credentials
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -224,7 +222,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     }
   }, [isAdmin, uploadedVideos.length]);
 
-  // Admin verification
+  // Admin verification using role-based authentication
   useEffect(() => {
     const verifyAdmin = async () => {
       setIsVerifying(true);
@@ -235,11 +233,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         return;
       }
 
-      // Check if user email is in admin list (case-insensitive)
-      const isAdminEmail = ADMIN_EMAILS.some(
-        email => email.toLowerCase() === user.email.toLowerCase()
-      );
-      setIsAdmin(isAdminEmail);
+      try {
+        // Check user role from profiles table
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(profile?.role === 'admin');
+        }
+      } catch (err) {
+        console.error('Admin role check error:', err);
+        setIsAdmin(false);
+      }
+
       setIsVerifying(false);
     };
 
@@ -298,51 +310,26 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     fetchStats();
   }, [isAdmin]);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Remove hardcoded password verification - now using role-based authentication
+  // This function is no longer needed as admin access is controlled by user roles
 
-    // Trim password to remove any whitespace
-    const trimmedPassword = password.trim();
-
-    // Log for debugging
-    console.log('Attempting admin verification');
-
-    // Compare passwords (case-sensitive)
-    if (trimmedPassword === ADMIN_PASSWORD) {
-      console.log('Admin password verified successfully');
-      setIsAdmin(true);
-      setError('');
-      setSuccess('Admin access granted');
-    } else {
-      console.log('Password verification failed');
-      console.log('Entered (trimmed):', trimmedPassword);
-      console.log('Expected:', ADMIN_PASSWORD);
-      console.log('Length comparison:', trimmedPassword.length, ADMIN_PASSWORD.length);
-
-      // Check if it's just a case issue
-      if (trimmedPassword.toLowerCase() === ADMIN_PASSWORD.toLowerCase()) {
-        console.log('Case mismatch detected - accepting anyway');
-        setIsAdmin(true);
-        setError('');
-        setSuccess('Admin access granted (note: password case mismatch)');
-      } else {
-        setError('Invalid admin password');
-        setSuccess('');
-      }
-    }
-  };
-
-  // Function to send a notification to all users
-  // Since we don't have a notifications table, we'll simulate it for now
+  // Enhanced notification system using Supabase
   const sendGlobalNotification = async (title: string, message: string) => {
     try {
-      // In a real implementation, you would create a notifications table
-      // and insert the notification there
+      // Insert global notification into Supabase notifications table
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          title,
+          message,
+          type: 'info',
+          user_id: null, // Global notifications don't have a specific user
+          read: false
+        });
 
-      // For now, we'll just simulate success
-      console.log('Sending notification:', { title, message });
+      if (error) throw error;
 
-      setSuccess('Notification sent successfully (simulated)');
+      setSuccess('Global notification sent successfully');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       console.error('Error sending notification:', error);
@@ -351,52 +338,34 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // If user is not logged in or not an admin and hasn't verified password
+  // If user is not logged in or not an admin
   if (!isAdmin && !isVerifying) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Admin Verification
+            Access Denied
           </CardTitle>
           <CardDescription>
-            Enter the admin password to access the control panel
+            You need admin privileges to access this panel
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="admin-password">Admin Password</Label>
-              <div className="relative">
-                <Input
-                  id="admin-password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pr-10"
-                  placeholder="Enter admin password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-            <Button type="submit" className="w-full">Verify Admin Access</Button>
-          </form>
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Insufficient Privileges</AlertTitle>
+            <AlertDescription>
+              Your account does not have administrator access. Please contact an admin if you believe this is an error.
+            </AlertDescription>
+          </Alert>
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={onClose}
+          >
+            Close Panel
+          </Button>
         </CardContent>
       </Card>
     );

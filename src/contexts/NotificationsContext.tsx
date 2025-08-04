@@ -47,8 +47,8 @@ interface NotificationsProviderProps {
 const STORAGE_KEY = 'andrew-cares-notifications';
 
 // Flag to indicate if we should use Supabase for notifications
-// Set to false for now until the notifications table is created in Supabase
-const USE_SUPABASE = false;
+// Set to true now that the notifications table has been created
+const USE_SUPABASE = true;
 
 export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);

@@ -36,7 +36,7 @@ export enum SecurityEventSeverity {
  */
 export interface SecurityEvent {
   id: any;
-  type: SecurityEventType;
+  type: string; // Changed from SecurityEventType to string for flexibility
   severity: SecurityEventSeverity;
   timestamp: Date;
   userId?: string;
@@ -75,16 +75,16 @@ export const createSecurityEvent = (
 });
 
 /**
- * Validates a password against security requirements
+ * Validates a password against enhanced security requirements (Phase 2)
  * 
  * @param password The password to validate
  * @returns An object with isValid flag and error message if invalid
  */
 export const validatePassword = (password: string): { isValid: boolean; message?: string } => {
-  if (password.length < 8) {
+  if (password.length < 12) {
     return {
       isValid: false,
-      message: 'Password must be at least 8 characters long'
+      message: 'Password must be at least 12 characters long'
     };
   }
 
@@ -106,6 +106,13 @@ export const validatePassword = (password: string): { isValid: boolean; message?
     return {
       isValid: false,
       message: 'Password must contain at least one number'
+    };
+  }
+
+  if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) {
+    return {
+      isValid: false,
+      message: 'Password must contain at least one special character'
     };
   }
 
@@ -233,7 +240,7 @@ export const createRateLimiter = (maxAttempts: number, windowMs: number) => {
  *   - userAgent: The user agent string of the user associated with the event (optional)
  *   - details: Additional details about the event (optional)
  */
-export const logSecurityEvent = ({ type, userId, email, ip, userAgent, details }: Omit<SecurityEvent, 'timestamp' | 'severity' | 'message' | 'id'>): void => {
+export const logSecurityEvent = ({ type, userId, email, ip, userAgent, details }: { type: string; userId?: string; email?: string; ip?: string; userAgent?: string; details?: Record<string, any> }): void => {
   const securityEvent: SecurityEvent = {
     type,
     userId,
