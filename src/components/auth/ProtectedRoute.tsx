@@ -24,7 +24,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
+  // Check if user is authenticated through regular auth flow or admin authentication
+  const isAdminAuthenticated = localStorage.getItem('isAdminAuthenticated') === 'true';
+
+  // Allow access if user is authenticated through regular auth flow or admin authentication
+  if (!user && !isAdminAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 

@@ -13,16 +13,22 @@ import { PasswordStrength } from '@/components/ui/password-strength';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { signInSchema, signUpSchema, SignInFormData, SignUpFormData } from '@/lib/validation';
 import { sanitizeInput } from '@/lib/security';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+// Admin emails - these would typically be stored in a more secure way
+const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'andrewcares556@gmail.com'];
 
 const Auth: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
-  
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
+
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   const signInForm = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -48,11 +54,51 @@ const Auth: React.FC = () => {
       const redirectTo = (location.state as any)?.from?.pathname || '/';
       navigate(redirectTo, { replace: true });
     }
+
+    // Reset isCheckingAdmin state when component unmounts
+    return () => {
+      setIsCheckingAdmin(false);
+    };
   }, [user, navigate, location]);
+
+  // Function to check if email is admin and redirect
+  const checkAndRedirectIfAdmin = (email: string) => {
+    if (!email) return false;
+
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log('Checking if email is admin:', normalizedEmail);
+
+    const isAdmin = ADMIN_EMAILS.some(
+      adminEmail => adminEmail.toLowerCase() === normalizedEmail
+    );
+
+    if (isAdmin) {
+      console.log('Admin email detected:', normalizedEmail);
+
+      // Show a toast notification
+      toast({
+        title: 'Admin User Detected',
+        description: 'Redirecting to admin login...',
+        duration: 2000,
+      });
+
+      // Use a more forceful redirection approach
+      window.location.href = '/admin-login';
+      return true;
+    }
+
+    return false;
+  };
 
   const handleSignIn = async (data: SignInFormData) => {
     try {
       const sanitizedEmail = sanitizeInput(data.email);
+
+      // Check if admin email before proceeding with sign-in
+      if (checkAndRedirectIfAdmin(sanitizedEmail)) {
+        return; // Stop the sign-in process if redirecting
+      }
+
       await signIn(sanitizedEmail, data.password);
     } catch (error) {
       console.error('Sign in error:', error);
@@ -64,7 +110,12 @@ const Auth: React.FC = () => {
       const sanitizedFirstName = sanitizeInput(data.firstName);
       const sanitizedLastName = sanitizeInput(data.lastName);
       const sanitizedEmail = sanitizeInput(data.email);
-      
+
+      // Check if admin email before proceeding with sign-up
+      if (checkAndRedirectIfAdmin(sanitizedEmail)) {
+        return; // Stop the sign-up process if redirecting
+      }
+
       await signUp(sanitizedEmail, data.password, sanitizedFirstName, sanitizedLastName);
     } catch (error) {
       console.error('Sign up error:', error);
@@ -124,6 +175,15 @@ const Auth: React.FC = () => {
                                 placeholder="Enter your email"
                                 className="pl-10"
                                 {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+
+                                  // Only check if not already checking admin
+                                  if (!isCheckingAdmin) {
+                                    // Use the same function for consistency
+                                    checkAndRedirectIfAdmin(e.target.value);
+                                  }
+                                }}
                               />
                             </div>
                           </FormControl>
@@ -243,6 +303,15 @@ const Auth: React.FC = () => {
                                 placeholder="Enter your email"
                                 className="pl-10"
                                 {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+
+                                  // Only check if not already checking admin
+                                  if (!isCheckingAdmin) {
+                                    // Use the same function for consistency
+                                    checkAndRedirectIfAdmin(e.target.value);
+                                  }
+                                }}
                               />
                             </div>
                           </FormControl>

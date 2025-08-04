@@ -3,7 +3,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { createRateLimiter, validatePassword, logSecurityEvent } from '@/lib/security';
+import { createRateLimiter, validatePassword, logSecurityEvent, SecurityEventType } from '@/lib/security';
+import { useNavigate } from 'react-router-dom';
+
+// Admin emails - these would typically be stored in a more secure way
+const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'andrewcares556@gmail.com'];
 
 interface AuthContextType {
   user: User | null;
@@ -33,6 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Rate limiter: 5 attempts per 15 minutes
   const authRateLimiter = createRateLimiter(5, 15 * 60 * 1000);
@@ -107,20 +112,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (email: string, password: string) => {
     const cleanEmail = email.trim().toLowerCase();
-    
+
     // Check rate limiting with enhanced response
     const rateLimitResult = authRateLimiter(cleanEmail);
     if (!rateLimitResult.allowed) {
       logSecurityEvent({
-        type: 'auth_failure',
+        type: SecurityEventType.LOGIN_FAILURE,
         email: cleanEmail,
-        details: { 
-          reason: 'rate_limited', 
+        details: {
+          reason: 'rate_limited',
           attempts: rateLimitResult.attempts,
-          retryAfter: rateLimitResult.retryAfter 
+          retryAfter: rateLimitResult.retryAfter
         }
       });
-      
+
       toast({
         title: 'Too Many Attempts',
         description: `Please wait ${rateLimitResult.retryAfter || 60} seconds before trying again.`,
@@ -131,9 +136,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Log authentication attempt
     logSecurityEvent({
-      type: 'auth_attempt',
+      type: SecurityEventType.SUSPICIOUS_ACTIVITY,
       email: cleanEmail,
-      details: { attempts: rateLimitResult.attempts }
+      details: {
+        action: 'auth_attempt',
+        attempts: rateLimitResult.attempts
+      }
     });
 
     try {
@@ -144,19 +152,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Sign-in error:', error);
-        
+
         // Log failed authentication
         logSecurityEvent({
-          type: 'auth_failure',
+          type: SecurityEventType.LOGIN_FAILURE,
           email: cleanEmail,
-          details: { 
+          details: {
             error: error.message,
-            attempts: rateLimitResult.attempts 
+            attempts: rateLimitResult.attempts
           }
         });
-        
+
         let errorMessage = 'Authentication failed. Please check your credentials.';
-        
+
         if (error.message.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. Please try again.';
         } else if (error.message.includes('Email not confirmed')) {
@@ -164,7 +172,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else if (error.message.includes('Too many requests')) {
           errorMessage = 'Too many sign-in attempts. Please try again later';
         }
-        
+
         toast({
           title: 'Sign-in Failed',
           description: errorMessage,
@@ -176,35 +184,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data.user) {
         // Log successful authentication
         logSecurityEvent({
-          type: 'auth_success',
+          type: SecurityEventType.LOGIN_SUCCESS,
           userId: data.user.id,
           email: cleanEmail,
           details: { sessionId: data.session?.access_token.substring(0, 8) + '...' }
         });
-        
-        toast({
-          title: 'Welcome Back!',
-          description: 'You have successfully signed in.',
-        });
+
+        // Check if user is an admin
+        const isAdmin = ADMIN_EMAILS.some(
+          email => email.toLowerCase() === cleanEmail.toLowerCase()
+        );
+
+        if (isAdmin) {
+          // Redirect admin users to the admin login page
+          toast({
+            title: 'Admin User Detected',
+            description: 'Please enter your admin password to continue.',
+          });
+          navigate('/admin-login');
+        } else {
+          toast({
+            title: 'Welcome Back!',
+            description: 'You have successfully signed in.',
+          });
+        }
       }
     } catch (error) {
       console.error('Unexpected error during sign-in:', error);
-      
+
       logSecurityEvent({
-        type: 'auth_failure',
+        type: SecurityEventType.LOGIN_FAILURE,
         email: cleanEmail,
-        details: { 
+        details: {
           error: 'unexpected_error',
-          attempts: rateLimitResult.attempts 
+          attempts: rateLimitResult.attempts
         }
       });
-      
+
       throw error;
     }
   };
 
   const signOut = async () => {
     try {
+      // Clear admin authentication flag
+      localStorage.removeItem('isAdminAuthenticated');
+
       const { error } = await supabase.auth.signOut();
       if (error) {
         toast({

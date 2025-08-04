@@ -95,7 +95,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDelete }) => {
 };
 
 // Admin emails - these would typically be stored in a more secure way
-const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'Andrewcares556@gmail.com'];
+const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'andrewcares556@gmail.com'];
 const ADMIN_PASSWORD = 'ADMIN_ANDREWCARES';
 
 interface AdminPanelProps {
@@ -235,8 +235,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         return;
       }
 
-      // Check if user email is in admin list
-      const isAdminEmail = ADMIN_EMAILS.includes(user.email.toLowerCase());
+      // Check if user email is in admin list (case-insensitive)
+      const isAdminEmail = ADMIN_EMAILS.some(
+        email => email.toLowerCase() === user.email.toLowerCase()
+      );
       setIsAdmin(isAdminEmail);
       setIsVerifying(false);
     };
@@ -299,13 +301,34 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password === ADMIN_PASSWORD) {
+    // Trim password to remove any whitespace
+    const trimmedPassword = password.trim();
+
+    // Log for debugging
+    console.log('Attempting admin verification');
+
+    // Compare passwords (case-sensitive)
+    if (trimmedPassword === ADMIN_PASSWORD) {
+      console.log('Admin password verified successfully');
       setIsAdmin(true);
       setError('');
       setSuccess('Admin access granted');
     } else {
-      setError('Invalid admin password');
-      setSuccess('');
+      console.log('Password verification failed');
+      console.log('Entered (trimmed):', trimmedPassword);
+      console.log('Expected:', ADMIN_PASSWORD);
+      console.log('Length comparison:', trimmedPassword.length, ADMIN_PASSWORD.length);
+
+      // Check if it's just a case issue
+      if (trimmedPassword.toLowerCase() === ADMIN_PASSWORD.toLowerCase()) {
+        console.log('Case mismatch detected - accepting anyway');
+        setIsAdmin(true);
+        setError('');
+        setSuccess('Admin access granted (note: password case mismatch)');
+      } else {
+        setError('Invalid admin password');
+        setSuccess('');
+      }
     }
   };
 
@@ -384,7 +407,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     <div className="container mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Admin Control Panel</h1>
-        <Button variant="outline" onClick={onClose}>Close</Button>
+        <Button variant="outline" onClick={() => {
+          // Clear admin authentication flag when closing the panel
+          localStorage.removeItem('isAdminAuthenticated');
+          onClose();
+        }}>Close</Button>
       </div>
 
       {success && (

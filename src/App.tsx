@@ -14,16 +14,17 @@ import FitnessJourney from '@/pages/FitnessJourney.refactored';
 import KarateJourney from '@/pages/KarateJourney';
 import Auth from '@/pages/Auth';
 import AdminPage from '@/pages/AdminPage';
+import AdminLogin from '@/pages/AdminLogin';
 import { SessionManager } from '@/components/auth/SessionManager';
 
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AuthProvider>
-          <NotificationsProvider>
-            <SearchProvider>
-              <Router>
+        <Router>
+          <AuthProvider>
+            <NotificationsProvider>
+              <SearchProvider>
                 <SessionManager>
                   <div className="min-h-screen bg-vintage-warm-cream">
                     <Routes>
@@ -49,6 +50,7 @@ function App() {
                         }
                       />
                       <Route path="/auth" element={<Auth />} />
+                      <Route path="/admin-login" element={<AdminLogin />} />
                       <Route
                         path="/admin"
                         element={
@@ -61,10 +63,10 @@ function App() {
                     <Toaster />
                   </div>
                 </SessionManager>
-              </Router>
-            </SearchProvider>
-          </NotificationsProvider>
-        </AuthProvider>
+              </SearchProvider>
+            </NotificationsProvider>
+          </AuthProvider>
+        </Router>
       </ThemeProvider>
     </ErrorBoundary>
   );

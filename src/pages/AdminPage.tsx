@@ -17,27 +17,51 @@ const AdminPage: React.FC = () => {
   useEffect(() => {
     const checkAdminAccess = () => {
       setIsLoading(true);
-      
+
+      // Check if user has been authenticated through the AdminLogin page
+      const isAuthenticated = localStorage.getItem('isAdminAuthenticated') === 'true';
+
+      // If user is authenticated through the AdminLogin page, allow access
+      if (isAuthenticated) {
+        setIsAdmin(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // If not admin-authenticated, check regular auth flow
       if (!user || !user.email) {
         setIsAdmin(false);
         setIsLoading(false);
         return;
       }
-      
-      const isAdminEmail = ADMIN_EMAILS.includes(user.email.toLowerCase());
-      setIsAdmin(isAdminEmail);
+
+      // Use a more robust case-insensitive comparison for email
+      const isAdminEmail = ADMIN_EMAILS.some(
+        email => email.toLowerCase() === user.email.toLowerCase()
+      );
+
+      // For regular auth users, require both admin email and authentication
+      setIsAdmin(isAdminEmail && isAuthenticated);
       setIsLoading(false);
     };
-    
+
     checkAdminAccess();
   }, [user]);
 
-  // Redirect non-admin users
+  // Redirect non-admin users to the admin login page or home page
   useEffect(() => {
     if (!isLoading && !isAdmin) {
-      navigate('/');
+      // If user has admin email but not authenticated, redirect to admin login
+      if (user && user.email && ADMIN_EMAILS.some(
+        email => email.toLowerCase() === user.email!.toLowerCase()
+      )) {
+        navigate('/admin-login', { replace: true });
+      } else {
+        // Otherwise redirect to home
+        navigate('/', { replace: true });
+      }
     }
-  }, [isAdmin, isLoading, navigate]);
+  }, [isAdmin, isLoading, navigate, user]);
 
   if (isLoading) {
     return (
@@ -70,7 +94,7 @@ const AdminPage: React.FC = () => {
           </div>
           <Button variant="outline" onClick={() => navigate('/')}>Return to Site</Button>
         </div>
-        
+
         <AdminPanel isOpen={true} onClose={() => navigate('/')} />
       </div>
     </div>
