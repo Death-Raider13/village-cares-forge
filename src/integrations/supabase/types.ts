@@ -184,6 +184,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -192,6 +225,7 @@ export type Database = {
           id: string
           last_name: string | null
           phone: string | null
+          role: string | null
           updated_at: string
         }
         Insert: {
@@ -201,6 +235,7 @@ export type Database = {
           id: string
           last_name?: string | null
           phone?: string | null
+          role?: string | null
           updated_at?: string
         }
         Update: {
@@ -210,6 +245,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone?: string | null
+          role?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -303,7 +339,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
