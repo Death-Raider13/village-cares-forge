@@ -28,7 +28,7 @@ export const SecurityAuditLog: React.FC = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  const getEventIcon = (type: SecurityEvent['type']) => {
+  const getEventIcon = (type: string) => {
     switch (type) {
       case 'auth_success':
         return <Shield className="h-4 w-4 text-green-600" />;
@@ -43,7 +43,7 @@ export const SecurityAuditLog: React.FC = () => {
     }
   };
 
-  const getEventBadgeVariant = (type: SecurityEvent['type']) => {
+  const getEventBadgeVariant = (type: string) => {
     switch (type) {
       case 'auth_success':
         return 'default';
@@ -57,7 +57,7 @@ export const SecurityAuditLog: React.FC = () => {
     }
   };
 
-  const getEventTitle = (type: SecurityEvent['type']) => {
+  const getEventTitle = (type: string) => {
     switch (type) {
       case 'auth_attempt':
         return 'Authentication Attempt';
