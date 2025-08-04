@@ -1,14 +1,21 @@
+// components/auth/ProtectedRoute.tsx
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  adminOnly?: boolean; // New prop to specify admin-only routes
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  adminOnly = false
+}) => {
   const { user, loading } = useAuth();
+  const { isAdminAuthenticated } = useAdminAuth();
   const location = useLocation();
 
   if (loading) {
@@ -24,11 +31,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Check if user is authenticated through regular auth flow or admin authentication
-  const isAdminAuthenticated = localStorage.getItem('isAdminAuthenticated') === 'true';
+  // For admin-only routes
+  if (adminOnly) {
+    if (!isAdminAuthenticated()) {
+      return <Navigate to="/admin-login" state={{ from: location }} replace />;
+    }
+    return <>{children}</>;
+  }
 
-  // Allow access if user is authenticated through regular auth flow or admin authentication
-  if (!user && !isAdminAuthenticated) {
+  // For regular protected routes
+  const isAuthenticated = user || isAdminAuthenticated();
+
+  if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 

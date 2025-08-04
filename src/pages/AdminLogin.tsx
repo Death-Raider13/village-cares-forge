@@ -1,145 +1,132 @@
-import React, { useState, useEffect } from 'react';
+// pages/AdminLogin.tsx
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Shield, AlertTriangle, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { logSecurityEvent } from '@/lib/security';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 const AdminLogin: React.FC = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
+  const { verifyAdminLogin, loading } = useAdminAuth();
 
-  useEffect(() => {
-    const checkAdminRole = async () => {
-      setIsLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
 
-      if (user) {
-        try {
-          // Check user role from profiles table
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
 
-          if (error) {
-            console.error('Error fetching user profile:', error);
-            setIsAdmin(false);
-          } else {
-            const userIsAdmin = profile?.role === 'admin';
-            setIsAdmin(userIsAdmin);
+    const result = await verifyAdminLogin(email, password);
 
-            if (userIsAdmin) {
-              // Log successful admin access
-              logSecurityEvent({
-                type: 'auth_success',
-                userId: user.id,
-                email: user.email,
-                details: { action: 'admin_login_verification' }
-              });
-
-              setSuccess('Admin access verified');
-              setTimeout(() => {
-                navigate('/admin', { replace: true });
-              }, 1000);
-            } else {
-              // Log failed admin access attempt
-              logSecurityEvent({
-                type: 'auth_failure',
-                userId: user.id,
-                email: user.email,
-                details: { 
-                  action: 'admin_access_denied',
-                  reason: 'insufficient_privileges',
-                  userRole: profile?.role || 'unknown'
-                }
-              });
-
-              setError('Access denied: Admin privileges required');
-            }
-          }
-        } catch (err) {
-          console.error('Admin role check error:', err);
-          setError('Failed to verify admin privileges');
-        }
-      } else {
-        // User not authenticated, redirect to auth page
-        navigate('/auth', { replace: true });
-      }
-
-      setIsLoading(false);
-    };
-
-    checkAdminRole();
-  }, [user, navigate]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+    if (result.user) {
+      // Successfully authenticated - redirect to admin page
+      navigate('/admin', { replace: true });
+    } else {
+      setError(result.error || 'Invalid credentials');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-900 flex items-center justify-center p-4">
-      {/* Admin Banner */}
-      <div className="absolute top-0 left-0 right-0 bg-red-600 text-white py-2 px-4 text-center font-bold">
-        ADMIN AREA - AUTHORIZED PERSONNEL ONLY
-      </div>
-
-      <Card className="w-full max-w-md mx-auto bg-slate-800/90 backdrop-blur-sm border-2 border-amber-500 shadow-lg shadow-amber-500/20">
-        <CardHeader className="border-b border-slate-700 pb-6">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-amber-500 p-3 rounded-full">
-              <Shield className="h-12 w-12 text-slate-900" />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
+      <Card className="w-full max-w-md bg-slate-800 border-slate-700">
+        <CardHeader className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center">
+            <Shield className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-center text-2xl font-bold text-white">
-            ADMIN ACCESS VERIFICATION
+          <CardTitle className="text-2xl font-bold text-white">
+            ADMIN LOGIN
           </CardTitle>
-          <CardDescription className="text-center text-slate-300">
-            Checking your admin privileges...
-          </CardDescription>
+          <p className="text-slate-400 text-sm">
+            Enter your admin credentials to access the control panel
+          </p>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="space-y-6">
           {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Access Denied</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {success && (
-            <Alert className="mb-4 bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle>Success</AlertTitle>
-              <AlertDescription>{success}</AlertDescription>
-            </Alert>
-          )}
-
-          {!isAdmin && (
-            <div className="space-y-4">
-              <p className="text-slate-300 text-center">
-                You need admin privileges to access this area.
-              </p>
-              <Button
-                variant="outline"
-                className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
-                onClick={() => navigate('/', { replace: true })}
-              >
-                Return to Home
-              </Button>
+            <div className="flex items-center gap-2 p-3 bg-red-900/50 border border-red-700 rounded-md">
+              <AlertCircle className="h-4 w-4 text-red-400" />
+              <span className="text-red-400 text-sm">{error}</span>
             </div>
           )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Admin Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your admin email"
+                className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-orange-500"
+                disabled={loading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                Admin Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your admin password"
+                  className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-orange-500 pr-10"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                  disabled={loading}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Verifying...
+                </div>
+              ) : (
+                <>
+                  <Shield className="h-4 w-4 mr-2" />
+                  Secure Login
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="text-center">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/')}
+              className="w-full bg-transparent border-slate-600 text-slate-300 hover:bg-slate-700"
+              disabled={loading}
+            >
+              Return to Home
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

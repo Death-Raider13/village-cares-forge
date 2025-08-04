@@ -116,7 +116,7 @@ const Auth: React.FC = () => {
         return; // Stop the sign-up process if redirecting
       }
 
-      await signUp(sanitizedEmail, data.password, sanitizedFirstName, sanitizedLastName);
+      await signUp(sanitizedEmail, data.password, );
     } catch (error) {
       console.error('Sign up error:', error);
     }

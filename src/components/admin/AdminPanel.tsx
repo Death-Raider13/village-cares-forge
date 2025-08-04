@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Users,
@@ -112,6 +113,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const { isAdminAuthenticated, getStoredAdminUser } = useAdminAuth();
 
   // Videos state
   const [uploadedVideos, setUploadedVideos] = useState<VideoData[]>([]);
@@ -268,7 +270,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         const { count: usersCount, error: usersError } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true });
-
+        if (!isAdminAuthenticated()) {
+          return <div>Access Denied - Please log in as admin</div>;
+        }
+        const adminUser = getStoredAdminUser();
         if (usersError) throw usersError;
 
         // Fetch active users (assuming profiles with recent updates are active)
@@ -719,4 +724,4 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default AdminPanel;
+export default AdminPanel;``
