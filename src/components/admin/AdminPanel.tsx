@@ -100,12 +100,14 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDelete }) => {
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  // Add optional isAdminOverride prop that can be passed from parent
+  isAdminOverride?: boolean;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverride }) => {
   const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(isAdminOverride || false);
+  const [isVerifying, setIsVerifying] = useState(!isAdminOverride);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -224,19 +226,36 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     }
   }, [isAdmin, uploadedVideos.length]);
 
-  // Admin verification using role-based authentication
+  // Admin verification using direct sessionStorage check and role-based authentication
   useEffect(() => {
     const verifyAdmin = async () => {
       setIsVerifying(true);
 
+      // Direct check of sessionStorage for admin authentication
+      const isAdminAuth = sessionStorage.getItem('isAdminAuthenticated') === 'true';
+      const adminUserStr = sessionStorage.getItem('adminUser');
+
+      console.log('Admin auth check:', { isAdminAuth, adminUserStr });
+
+      if (isAdminAuth && adminUserStr) {
+        // If admin is authenticated via sessionStorage, grant access
+        console.log('Admin authenticated via sessionStorage');
+        setIsAdmin(true);
+        setIsVerifying(false);
+        return;
+      }
+
+      // If not authenticated via sessionStorage, check if user exists
       if (!user || !user.email) {
+        console.log('No user found');
         setIsAdmin(false);
         setIsVerifying(false);
         return;
       }
 
       try {
-        // Check user role from profiles table
+        // Check user role from profiles table as fallback
+        console.log('Checking user role from profiles table');
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
@@ -247,7 +266,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
           console.error('Error fetching user profile:', error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(profile?.role === 'admin');
+          const hasAdminRole = profile?.role === 'admin';
+          console.log('User role check:', { role: profile?.role, hasAdminRole });
+          setIsAdmin(hasAdminRole);
         }
       } catch (err) {
         console.error('Admin role check error:', err);
@@ -364,9 +385,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
               Your account does not have administrator access. Please contact an admin if you believe this is an error.
             </AlertDescription>
           </Alert>
-          <Button 
-            variant="outline" 
-            className="w-full" 
+          <Button
+            variant="outline"
+            className="w-full"
             onClick={onClose}
           >
             Close Panel
@@ -383,7 +404,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         <h1 className="text-3xl font-bold">Admin Control Panel</h1>
         <Button variant="outline" onClick={() => {
           // Clear admin authentication flag when closing the panel
-          localStorage.removeItem('isAdminAuthenticated');
+          sessionStorage.removeItem('isAdminAuthenticated');
           onClose();
         }}>Close</Button>
       </div>
@@ -724,4 +745,4 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default AdminPanel;``
+export default AdminPanel; ``
