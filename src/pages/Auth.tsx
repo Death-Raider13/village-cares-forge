@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -116,7 +115,7 @@ const Auth: React.FC = () => {
         return; // Stop the sign-up process if redirecting
       }
 
-      await signUp(sanitizedEmail, data.password, );
+      await signUp(sanitizedEmail, data.password, sanitizedFirstName, sanitizedLastName);
     } catch (error) {
       console.error('Sign up error:', error);
     }
