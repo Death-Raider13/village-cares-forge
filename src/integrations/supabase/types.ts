@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_content: {
+        Row: {
+          content: string | null
+          content_type: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          discipline: string
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          parent_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          content_type: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          discipline: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          parent_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          content_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          discipline?: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          parent_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_content_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "academy_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin: {
         Row: {
           created_at: string
@@ -26,6 +79,33 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+          password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+          password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          password_hash?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -78,6 +158,50 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_notifications: {
+        Row: {
+          content_id: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notification_message: string
+          notification_title: string
+          scheduled_at: string | null
+          sent_at: string | null
+          target_discipline: string | null
+        }
+        Insert: {
+          content_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notification_message: string
+          notification_title: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          target_discipline?: string | null
+        }
+        Update: {
+          content_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notification_message?: string
+          notification_title?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          target_discipline?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_notifications_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "academy_content"
             referencedColumns: ["id"]
           },
         ]
@@ -342,6 +466,14 @@ export type Database = {
       get_user_role: {
         Args: { user_uuid: string }
         Returns: string
+      }
+      verify_admin_login: {
+        Args: { admin_email: string; admin_password: string }
+        Returns: {
+          id: string
+          email: string
+          is_valid: boolean
+        }[]
       }
     }
     Enums: {
