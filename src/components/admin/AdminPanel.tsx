@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import AcademyContentManager from './AcademyContentManager';
 import {
   Users,
   Settings,
@@ -23,7 +24,11 @@ import {
   Trash2,
   Video,
   Play,
-  Upload
+  Upload,
+  BookOpen,
+  PlusCircle,
+  Edit3,
+  Send
 } from 'lucide-react';
 
 // Video interface
@@ -426,7 +431,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverrid
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard">
             <BarChart className="h-4 w-4 mr-2" />
             Dashboard
@@ -438,6 +443,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverrid
           <TabsTrigger value="content">
             <FileText className="h-4 w-4 mr-2" />
             Content
+          </TabsTrigger>
+          <TabsTrigger value="academy">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Academy
           </TabsTrigger>
           <TabsTrigger value="notifications">
             <Bell className="h-4 w-4 mr-2" />
@@ -726,6 +735,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverrid
               <p className="text-muted-foreground">Notification history will be displayed here.</p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Academy Tab */}
+        <TabsContent value="academy" className="space-y-4">
+          <AcademyContentManager />
         </TabsContent>
 
         {/* Settings Tab */}

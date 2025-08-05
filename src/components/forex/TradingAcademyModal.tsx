@@ -264,7 +264,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
           setSelectedCourse(null);
           onClose();
         }}>
-          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
+          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto bg-background text-foreground border border-border">
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -289,7 +289,7 @@ const TradingAcademyModal: React.FC<TradingAcademyModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto bg-background text-foreground border border-border">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Trading Academy</DialogTitle>
           <DialogDescription>

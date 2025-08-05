@@ -129,7 +129,7 @@ const FitnessEducationModal: React.FC<FitnessEducationModalProps> = ({ isOpen, o
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto dialog-content modal-content">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background text-foreground border border-border">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Fitness Education Hub</DialogTitle>
           <DialogDescription>
