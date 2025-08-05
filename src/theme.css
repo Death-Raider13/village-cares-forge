@@ -1,5 +1,5 @@
-:root,
-[data-theme="light"] {
+
+:root {
   /* Base colors */
   --background: #fff;
   --foreground: #1a1a1a;
@@ -43,55 +43,10 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="dark"] {
-  /* Base colors */
-  --background: #1a1a1a;
-  --foreground: #f8f4e9;
-  
-  /* Vintage theme colors - Dark Mode */
-  --vintage-warm-cream: #2c2c2c;
-  --vintage-deep-blue: #5d8bbd;
-  --vintage-burgundy: #c06c84;
-  --vintage-gold: #ffd700;
-  --vintage-sage-green: #5a7d6f;
-  --vintage-dark-brown: #d7ccc8;
-  
-  /* UI Component colors */
-  --card-background: #2a2a2a;
-  --card-foreground: #e0e0e0;
-  --card-border: rgba(192, 108, 132, 0.3);
-  --card-hover-border: rgba(192, 108, 132, 0.6);
-  
-  --primary: var(--vintage-burgundy);
-  --primary-foreground: #1a1a1a;
-  
-  --secondary: var(--vintage-deep-blue);
-  --secondary-foreground: #1a1a1a;
-  
-  --accent: rgba(255, 215, 0, 0.15);
-  --accent-foreground: var(--vintage-gold);
-  
-  --destructive: #f44336;
-  --destructive-foreground: #ffffff;
-  
-  --muted: #2c2c2c;
-  --muted-foreground: #a0a0a0;
-  
-  --border: rgba(255, 215, 0, 0.2);
-  --input: rgba(255, 215, 0, 0.2);
-  --ring: var(--vintage-gold);
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-}
-
 /* Apply theme variables to the body */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Override background classes with CSS variables */
@@ -153,9 +108,4 @@ body {
 
 .card:hover {
   border-color: var(--card-hover-border);
-}
-
-/* Transition for smooth theme switching */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }

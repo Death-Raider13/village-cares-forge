@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -45,45 +46,6 @@
     --sidebar-border: 43 20% 80%;
     --sidebar-ring: 217 91% 28%;
   }
-
-  .dark {
-    --background: 30 17% 12%;
-    --foreground: 43 31% 94%;
-
-    --card: 30 17% 15%;
-    --card-foreground: 43 31% 94%;
-
-    --popover: 30 17% 15%;
-    --popover-foreground: 43 31% 94%;
-
-    --primary: 45 100% 50%;
-    --primary-foreground: 30 17% 12%;
-
-    --secondary: 30 10% 25%;
-    --secondary-foreground: 43 31% 94%;
-
-    --muted: 30 10% 22%;
-    --muted-foreground: 43 15% 70%;
-
-    --accent: 217 91% 35%;
-    --accent-foreground: 43 31% 94%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 43 31% 94%;
-
-    --border: 30 10% 30%;
-    --input: 30 10% 30%;
-    --ring: 45 100% 50%;
-
-    --sidebar-background: 30 17% 12%;
-    --sidebar-foreground: 43 31% 94%;
-    --sidebar-primary: 45 100% 50%;
-    --sidebar-primary-foreground: 30 17% 12%;
-    --sidebar-accent: 30 10% 22%;
-    --sidebar-accent-foreground: 43 31% 94%;
-    --sidebar-border: 30 10% 30%;
-    --sidebar-ring: 45 100% 50%;
-  }
 }
 
 @layer base {
@@ -121,32 +83,32 @@
     font-size: 1.5rem;
   }
 
-  /* Modal improvements for dark mode */
-  .dark .dialog-content {
-    box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.05);
+  /* Modal improvements */
+  .dialog-content {
+    box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.1);
     border: 1px solid hsl(var(--border));
   }
 
-  /* Improved visibility for modal content in dark mode */
-  .dark .modal-content {
+  /* Modal content styling */
+  .modal-content {
     background-color: hsl(var(--card));
     color: hsl(var(--card-foreground));
   }
 
-  /* Better contrast for form elements in dark mode */
-  .dark input,
-  .dark select,
-  .dark textarea {
-    background-color: hsl(var(--muted));
+  /* Form elements styling */
+  input,
+  select,
+  textarea {
+    background-color: hsl(var(--background));
     border-color: hsl(var(--border));
   }
 
-  /* Improved button visibility in dark mode */
-  .dark button {
+  /* Button styling */
+  button {
     border: 1px solid transparent;
   }
 
-  .dark button:hover:not([disabled]) {
+  button:hover:not([disabled]) {
     border-color: hsl(var(--accent));
   }
 }

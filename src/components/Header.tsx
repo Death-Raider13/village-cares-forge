@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useNotifications } from '@/contexts/NotificationsContext';
-import { User, LogOut, Menu, X, Sun, Moon, Bell, ShieldAlert } from 'lucide-react';
+import { User, LogOut, Menu, X, Bell, ShieldAlert } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import NotificationCenter from '@/components/NotificationCenter';
 import { Link } from 'react-router-dom';
@@ -22,7 +22,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
   const { user, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { unreadCount, toggleNotificationCenter } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -76,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                     aria-label="Notifications"
                     className="rounded-full relative overflow-hidden group"
                   >
-                    <Bell className="h-5 w-5 text-vintage-deep-blue dark:text-vintage-gold group-hover:scale-110 transition-transform" />
+                    <Bell className="h-5 w-5 text-vintage-deep-blue group-hover:scale-110 transition-transform" />
                     <span className="absolute inset-0 rounded-full bg-vintage-gold/10 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-vintage-burgundy text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
@@ -87,17 +86,6 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                   <NotificationCenter />
                 </div>
               )}
-
-              {/* Theme Toggle Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                aria-label={theme === 'dark' ? "Switch to light mode" : "Switch to dark mode"}
-                className="rounded-full"
-              >
-                {theme === 'dark' ? <Sun className="h-5 w-5 text-vintage-gold" /> : <Moon className="h-5 w-5 text-vintage-deep-blue" />}
-              </Button>
 
               {/* Mobile Menu Button */}
               <Button
