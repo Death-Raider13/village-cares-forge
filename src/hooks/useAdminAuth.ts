@@ -1,6 +1,6 @@
 // hooks/useAdminAuth.ts
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase'; // Your Supabase client
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminUser {
     id: string;
