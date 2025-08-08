@@ -16,6 +16,7 @@ import KarateJourney from '@/pages/KarateJourney';
 import Auth from '@/pages/Auth';
 import AdminPage from '@/pages/AdminPage';
 import AdminLogin from '@/pages/AdminLogin';
+import Community from '@/pages/Community';
 import { SessionManager } from '@/components/auth/SessionManager';
 
 function App() {
