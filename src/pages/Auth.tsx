@@ -10,21 +10,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { PasswordStrength } from '@/components/ui/password-strength';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { signInSchema, signUpSchema, SignInFormData, SignUpFormData } from '@/lib/validation';
 import { sanitizeInput } from '@/lib/security';
 import { Eye, EyeOff, Mail, Lock, User, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Admin emails - these would typically be stored in a more secure way
-const ADMIN_EMAILS = ['lateefedidi4@gmail.com', 'andrewcares556@gmail.com'];
-
 const Auth: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
-  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const { signIn, signUp, user } = useAuth();
+  const { checkIfAdminEmail } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -53,11 +52,6 @@ const Auth: React.FC = () => {
       const redirectTo = (location.state as any)?.from?.pathname || '/';
       navigate(redirectTo, { replace: true });
     }
-
-    // Reset isCheckingAdmin state when component unmounts
-    return () => {
-      setIsCheckingAdmin(false);
-    };
   }, [user, navigate, location]);
 
   // Function to check if email is admin and redirect
@@ -65,15 +59,8 @@ const Auth: React.FC = () => {
     if (!email) return false;
 
     const normalizedEmail = email.trim().toLowerCase();
-    console.log('Checking if email is admin:', normalizedEmail);
 
-    const isAdmin = ADMIN_EMAILS.some(
-      adminEmail => adminEmail.toLowerCase() === normalizedEmail
-    );
-
-    if (isAdmin) {
-      console.log('Admin email detected:', normalizedEmail);
-
+    if (checkIfAdminEmail(normalizedEmail)) {
       // Show a toast notification
       toast({
         title: 'Admin User Detected',
@@ -81,8 +68,8 @@ const Auth: React.FC = () => {
         duration: 2000,
       });
 
-      // Use a more forceful redirection approach
-      window.location.href = '/admin-login';
+      // Use React Router navigation instead of window.location
+      navigate('/admin-login');
       return true;
     }
 
@@ -90,6 +77,7 @@ const Auth: React.FC = () => {
   };
 
   const handleSignIn = async (data: SignInFormData) => {
+    setAuthError(null);
     try {
       const sanitizedEmail = sanitizeInput(data.email);
 
@@ -98,13 +86,29 @@ const Auth: React.FC = () => {
         return; // Stop the sign-in process if redirecting
       }
 
-      await signIn(sanitizedEmail, data.password);
-    } catch (error) {
-      console.error('Sign in error:', error);
+      const result = await signIn(sanitizedEmail, data.password);
+
+      if (result.error) {
+        setAuthError(result.error);
+        toast({
+          title: 'Sign In Failed',
+          description: result.error,
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.message || 'An unexpected error occurred';
+      setAuthError(errorMessage);
+      toast({
+        title: 'Sign In Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     }
   };
 
   const handleSignUp = async (data: SignUpFormData) => {
+    setAuthError(null);
     try {
       const sanitizedFirstName = sanitizeInput(data.firstName);
       const sanitizedLastName = sanitizeInput(data.lastName);
@@ -115,14 +119,36 @@ const Auth: React.FC = () => {
         return; // Stop the sign-up process if redirecting
       }
 
-      await signUp(sanitizedEmail, data.password, sanitizedFirstName, sanitizedLastName);
-    } catch (error) {
-      console.error('Sign up error:', error);
+      const result = await signUp(sanitizedEmail, data.password, sanitizedFirstName, sanitizedLastName);
+
+      if (result.error) {
+        setAuthError(result.error);
+        toast({
+          title: 'Sign Up Failed',
+          description: result.error,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Account Created',
+          description: 'Your account has been created successfully!',
+          variant: 'default',
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.message || 'An unexpected error occurred';
+      setAuthError(errorMessage);
+      toast({
+        title: 'Sign Up Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     }
   };
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    setAuthError(null);
     signInForm.reset();
     signUpForm.reset();
     setShowPassword(false);
@@ -176,12 +202,8 @@ const Auth: React.FC = () => {
                                 {...field}
                                 onChange={(e) => {
                                   field.onChange(e);
-
-                                  // Only check if not already checking admin
-                                  if (!isCheckingAdmin) {
-                                    // Use the same function for consistency
-                                    checkAndRedirectIfAdmin(e.target.value);
-                                  }
+                                  // Check if admin email on change
+                                  checkAndRedirectIfAdmin(e.target.value);
                                 }}
                               />
                             </div>
@@ -304,12 +326,8 @@ const Auth: React.FC = () => {
                                 {...field}
                                 onChange={(e) => {
                                   field.onChange(e);
-
-                                  // Only check if not already checking admin
-                                  if (!isCheckingAdmin) {
-                                    // Use the same function for consistency
-                                    checkAndRedirectIfAdmin(e.target.value);
-                                  }
+                                  // Check if admin email on change
+                                  checkAndRedirectIfAdmin(e.target.value);
                                 }}
                               />
                             </div>

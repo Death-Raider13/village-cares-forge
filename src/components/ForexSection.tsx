@@ -39,22 +39,22 @@ const ForexSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-vintage-warm-cream to-white">
+    <section className="py-16 bg-gradient-to-b from-vintage-warm-cream to-vintage-warm-cream/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <div className="flex justify-center mb-6">
             <TrendingUp className="text-vintage-deep-blue mb-4" size={64} />
           </div>
-          
+
           <h2 className="font-playfair font-bold text-4xl md:text-5xl text-vintage-deep-blue mb-6">
             Forex Trading Mastery
           </h2>
-          
+
           <div className="w-24 h-1 bg-vintage-gold mx-auto mb-6 ornate-divider"></div>
-          
+
           <p className="font-crimson text-xl text-vintage-dark-brown max-w-3xl mx-auto leading-relaxed">
-            Navigate the global currency markets with the wisdom of traditional trading principles 
-            combined with cutting-edge analytical tools. Our platform honors the classical approach 
+            Navigate the global currency markets with the wisdom of traditional trading principles
+            combined with cutting-edge analytical tools. Our platform honors the classical approach
             to financial markets while embracing modern technology.
           </p>
         </div>
@@ -84,7 +84,7 @@ const ForexSection: React.FC = () => {
         </div>
 
         {/* Trading Platform Preview */}
-        <div className="bg-white rounded-lg shadow-xl border-4 border-vintage-gold/30 p-8 mb-12">
+        <div className="bg-white/90 rounded-lg shadow-xl border-4 border-vintage-gold/30 p-8 mb-12">
           <div className="text-center mb-8">
             <h3 className="font-playfair font-bold text-3xl text-vintage-deep-blue mb-4">
               Our Trading Platform
@@ -93,7 +93,7 @@ const ForexSection: React.FC = () => {
               Experience the elegance of traditional design meets modern functionality
             </p>
           </div>
-          
+
           {/* Simulated trading interface */}
           <div className="bg-vintage-deep-blue rounded-lg p-6 text-vintage-gold">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -118,7 +118,7 @@ const ForexSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center">
-          <Button 
+          <Button
             size="lg"
             className="bg-vintage-deep-blue hover:bg-vintage-burgundy text-vintage-gold font-playfair font-semibold text-lg px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >

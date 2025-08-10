@@ -45,22 +45,22 @@ const FitnessSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-vintage-warm-cream">
+    <section className="py-16 bg-gradient-to-b from-vintage-warm-cream to-vintage-warm-cream/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <div className="flex justify-center mb-6">
             <Dumbbell className="text-vintage-burgundy mb-4" size={64} />
           </div>
-          
+
           <h2 className="font-playfair font-bold text-4xl md:text-5xl text-vintage-deep-blue mb-6">
             Fitness Training Excellence
           </h2>
-          
+
           <div className="w-24 h-1 bg-vintage-gold mx-auto mb-6 ornate-divider"></div>
-          
+
           <p className="font-crimson text-xl text-vintage-dark-brown max-w-3xl mx-auto leading-relaxed">
-            Forge your body through timeless training principles that have built champions for generations. 
-            Our approach honors the classical methods of physical development while incorporating 
+            Forge your body through timeless training principles that have built champions for generations.
+            Our approach honors the classical methods of physical development while incorporating
             modern scientific understanding of human performance.
           </p>
         </div>
@@ -93,14 +93,14 @@ const FitnessSection: React.FC = () => {
         </div>
 
         {/* Training Philosophy */}
-        <div className="bg-gradient-to-r from-vintage-burgundy to-vintage-deep-blue rounded-lg shadow-xl p-8 mb-12 text-vintage-warm-cream">
+        <div className="bg-gradient-to-r from-vintage-burgundy to-vintage-deep-blue rounded-lg shadow-xl p-8 mb-12 text-vintage-warm-cream border-4 border-vintage-gold/30">
           <div className="text-center mb-8">
             <h3 className="font-playfair font-bold text-3xl mb-4">
               Our Training Philosophy
             </h3>
             <div className="w-20 h-1 bg-vintage-gold mx-auto mb-6"></div>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <h4 className="font-playfair font-semibold text-xl mb-3 text-vintage-gold">
@@ -110,7 +110,7 @@ const FitnessSection: React.FC = () => {
                 Build a solid foundation of movement quality, stability, and basic strength before advancing to complex techniques.
               </p>
             </div>
-            
+
             <div className="text-center">
               <h4 className="font-playfair font-semibold text-xl mb-3 text-vintage-gold">
                 Progressive Mastery
@@ -119,7 +119,7 @@ const FitnessSection: React.FC = () => {
                 Each program follows the classical principle of progressive overload, gradually increasing challenges as your body adapts.
               </p>
             </div>
-            
+
             <div className="text-center">
               <h4 className="font-playfair font-semibold text-xl mb-3 text-vintage-gold">
                 Holistic Health
@@ -132,11 +132,11 @@ const FitnessSection: React.FC = () => {
         </div>
 
         {/* Training Schedule */}
-        <div className="bg-white rounded-lg shadow-xl border-4 border-vintage-gold/30 p-8 mb-12">
+        <div className="bg-white/90 rounded-lg shadow-xl border-4 border-vintage-gold/30 p-8 mb-12">
           <h3 className="font-playfair font-bold text-3xl text-vintage-deep-blue text-center mb-8">
             Weekly Training Schedule
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
             {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => (
               <div key={day} className="bg-vintage-warm-cream rounded-lg p-4 text-center border-2 border-vintage-gold/20">
@@ -154,7 +154,7 @@ const FitnessSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center">
-          <Button 
+          <Button
             size="lg"
             className="bg-vintage-burgundy hover:bg-vintage-deep-blue text-vintage-warm-cream font-playfair font-semibold text-lg px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
