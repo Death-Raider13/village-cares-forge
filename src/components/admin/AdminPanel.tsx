@@ -8,7 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AcademyContentManager from './AcademyContentManager';
+import VideoManagement from './VideoManagement';
 import {
   Users,
   Settings,
@@ -28,10 +31,15 @@ import {
   BookOpen,
   PlusCircle,
   Edit3,
-  Send
+  Send,
+  ThumbsUp,
+  MessageSquare,
+  RefreshCw,
+  Search
 } from 'lucide-react';
+import { CommunityPost } from '@/pages/Community';
 
-// Video interface
+// Interfaces
 interface VideoData {
   id: string;
   title: string;
@@ -41,13 +49,22 @@ interface VideoData {
   thumbnail?: string;
   created_at: string;
 }
+interface CommunityStats {
+  totalPosts: number;
+  totalLikes: number;
+  totalComments: number;
+}
 
+interface PostFilter {
+  discipline: string;
+  sortBy: string;
+  search: string;
+}
 // VideoCard component
 interface VideoCardProps {
   video: VideoData;
   onDelete: (id: string) => void;
 }
-
 const VideoCard: React.FC<VideoCardProps> = ({ video, onDelete }) => {
   return (
     <Card className="overflow-hidden">
@@ -99,16 +116,137 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDelete }) => {
     </Card>
   );
 };
-
+// Community management state
+const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([]);
+const [loadingPosts, setLoadingPosts] = useState(false);
+const [communityStats, setCommunityStats] = useState<CommunityStats>({
+  totalPosts: 0,
+  totalLikes: 0,
+  totalComments: 0
+});
+const [postFilter, setPostFilter] = useState<PostFilter>({
+  discipline: 'all',
+  sortBy: 'recent',
+  search: ''
+});
 // Secure admin authentication now uses role-based access instead of hardcoded credentials
+// Fetch community posts
+const fetchCommunityPosts = async () => {
+  setLoadingPosts(true);
+  try {
+    // Fetch posts
+    let query = supabase
+      .from('community_posts')
+      .select('*');
 
+    // Apply discipline filter
+    if (postFilter.discipline !== 'all') {
+      query = query.eq('discipline', postFilter.discipline);
+    }
+
+    // Apply search filter
+    if (postFilter.search) {
+      query = query.or(`title.ilike.%${postFilter.search}%,content.ilike.%${postFilter.search}%`);
+    }
+
+    // Apply sorting
+    if (postFilter.sortBy === 'recent') {
+      query = query.order('created_at', { ascending: false });
+    } else if (postFilter.sortBy === 'likes') {
+      query = query.order('likes_count', { ascending: false });
+    } else if (postFilter.sortBy === 'comments') {
+      query = query.order('comments_count', { ascending: false });
+    }
+
+    const { data, error } = await query.limit(50);
+
+    if (error) {
+      throw error;
+    }
+
+    setCommunityPosts(data as CommunityPost[]);
+
+    // Fetch community stats
+    const { data: statsData, error: statsError } = await supabase
+      .from('community_posts')
+      .select('id', { count: 'exact' });
+
+    if (statsError) {
+      throw statsError;
+    }
+
+    const { count: likesCount, error: likesError } = await supabase
+      .from('community_post_likes')
+      .select('id', { count: 'exact' });
+
+    if (likesError) {
+      throw likesError;
+    }
+
+    const { count: commentsCount, error: commentsError } = await supabase
+      .from('community_comments')
+      .select('id', { count: 'exact' });
+
+    if (commentsError) {
+      throw commentsError;
+    }
+
+    setCommunityStats({
+      totalPosts: statsData?.length || 0,
+      totalLikes: likesCount || 0,
+      totalComments: commentsCount || 0
+    });
+
+  } catch (error) {
+    console.error('Error fetching community posts:', error);
+    setError('Failed to fetch community posts');
+  } finally {
+    setLoadingPosts(false);
+  }
+};
+
+// Delete community post
+const handleDeletePost = async (postId: string) => {
+  try {
+    // Delete post
+    const { error } = await supabase
+      .from('community_posts')
+      .delete()
+      .eq('id', postId);
+
+    if (error) {
+      throw error;
+    }
+
+    // Update posts list
+    setCommunityPosts(prev => prev.filter(post => post.id !== postId));
+
+    // Update stats
+    setCommunityStats(prev => ({
+      ...prev,
+      totalPosts: prev.totalPosts - 1
+    }));
+
+    setSuccess('Post deleted successfully');
+    setTimeout(() => setSuccess(''), 3000);
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    setError('Failed to delete post');
+    setTimeout(() => setError(''), 3000);
+  }
+};
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
   // Add optional isAdminOverride prop that can be passed from parent
   isAdminOverride?: boolean;
 }
-
+// Fetch community posts on mount and when filter changes
+useEffect(() => {
+  if (isAdmin) {
+    fetchCommunityPosts();
+  }
+}, [isAdmin, postFilter]);
 const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverride }) => {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(isAdminOverride || false);
@@ -431,7 +569,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverrid
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">
             <BarChart className="h-4 w-4 mr-2" />
             Dashboard
@@ -443,6 +581,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverrid
           <TabsTrigger value="content">
             <FileText className="h-4 w-4 mr-2" />
             Content
+          </TabsTrigger>
+          <TabsTrigger value="videos">
+            <Video className="h-4 w-4 mr-2" />
+            Videos
           </TabsTrigger>
           <TabsTrigger value="academy">
             <BookOpen className="h-4 w-4 mr-2" />
@@ -549,136 +691,164 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, isAdminOverrid
           </Card>
         </TabsContent>
 
-        {/* Content Tab */}
+        {/* Community Management Tab (formerly Content Tab) */}
         <TabsContent value="content" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Video Upload</CardTitle>
-              <CardDescription>Upload educational videos for different categories</CardDescription>
+              <CardTitle>Community Management</CardTitle>
+              <CardDescription>Manage community posts and discussions</CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-6" onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const title = formData.get('title') as string;
-                const description = formData.get('description') as string;
-                const category = formData.get('category') as string;
-                const videoFile = formData.get('video') as File;
-
-                if (title && description && category && videoFile) {
-                  uploadVideo(title, description, category, videoFile);
-                  (e.target as HTMLFormElement).reset();
-                }
-              }}>
-                <div className="space-y-2">
-                  <Label htmlFor="video-title">Video Title</Label>
-                  <Input
-                    id="video-title"
-                    name="title"
-                    placeholder="Enter video title"
-                    required
-                  />
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Community Posts</h3>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    // Refresh posts
+                    fetchCommunityPosts();
+                  }}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="video-description">Description</Label>
-                  <textarea
-                    id="video-description"
-                    name="description"
-                    className="w-full min-h-[100px] p-2 border rounded-md"
-                    placeholder="Enter video description"
-                    required
-                  ></textarea>
+                {/* Community Stats */}
+                <Card>
+                  <CardContent className="py-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-vintage-burgundy" />
+                      <div>
+                        <div className="text-lg font-semibold">{communityStats.totalPosts || 0}</div>
+                        <div className="text-sm text-muted-foreground">Total Posts</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ThumbsUp className="h-5 w-5 text-vintage-burgundy" />
+                      <div>
+                        <div className="text-lg font-semibold">{communityStats.totalLikes || 0}</div>
+                        <div className="text-sm text-muted-foreground">Total Likes</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5 text-vintage-burgundy" />
+                      <div>
+                        <div className="text-lg font-semibold">{communityStats.totalComments || 0}</div>
+                        <div className="text-sm text-muted-foreground">Total Comments</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Filter Controls */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="post-discipline">Filter by Discipline</Label>
+                    <Select
+                      value={postFilter.discipline}
+                      onValueChange={(value) => setPostFilter({ ...postFilter, discipline: value })}
+                    >
+                      <SelectTrigger id="post-discipline">
+                        <SelectValue placeholder="All Disciplines" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Disciplines</SelectItem>
+                        <SelectItem value="forex">Forex</SelectItem>
+                        <SelectItem value="fitness">Fitness</SelectItem>
+                        <SelectItem value="karate">Karate</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="post-sort">Sort By</Label>
+                    <Select
+                      value={postFilter.sortBy}
+                      onValueChange={(value) => setPostFilter({ ...postFilter, sortBy: value })}
+                    >
+                      <SelectTrigger id="post-sort">
+                        <SelectValue placeholder="Sort By" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="recent">Most Recent</SelectItem>
+                        <SelectItem value="likes">Most Liked</SelectItem>
+                        <SelectItem value="comments">Most Comments</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="post-search">Search</Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="post-search"
+                        placeholder="Search posts..."
+                        value={postFilter.search}
+                        onChange={(e) => setPostFilter({ ...postFilter, search: e.target.value })}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="video-category">Category</Label>
-                  <select
-                    id="video-category"
-                    name="category"
-                    className="w-full p-2 border rounded-md"
-                    required
-                  >
-                    <option value="">Select a category</option>
-                    <option value="forex">Forex</option>
-                    <option value="fitness">Fitness</option>
-                    <option value="karate">Karate</option>
-                  </select>
+                {/* Posts List */}
+                <div className="space-y-4">
+                  {loadingPosts ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-vintage-deep-blue"></div>
+                      <span className="ml-3 text-vintage-dark-brown">Loading posts...</span>
+                    </div>
+                  ) : communityPosts.length === 0 ? (
+                    <div className="text-center py-8">
+                      <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <p className="text-gray-500">No community posts found</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {communityPosts.map((post) => (
+                        <Card key={post.id}>
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg">{post.title}</CardTitle>
+                              <Badge variant="outline" className="capitalize">{post.discipline}</Badge>
+                            </div>
+                            <CardDescription className="text-xs">
+                              Posted on {new Date(post.created_at).toLocaleDateString()}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">{post.content}</p>
+                            <div className="flex justify-between items-center">
+                              <div className="flex gap-2">
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  <ThumbsUp className="h-3 w-3" /> {post.likes_count || 0}
+                                </Badge>
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  <MessageSquare className="h-3 w-3" /> {post.comments_count || 0}
+                                </Badge>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeletePost(post.id)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="video-file">Video File</Label>
-                  <Input
-                    id="video-file"
-                    name="video"
-                    type="file"
-                    accept="video/*"
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full">Upload Video</Button>
-              </form>
+              </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Uploaded Videos</CardTitle>
-              <CardDescription>Manage your uploaded videos</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="forex" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="forex">Forex</TabsTrigger>
-                  <TabsTrigger value="fitness">Fitness</TabsTrigger>
-                  <TabsTrigger value="karate">Karate</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="forex" className="space-y-4 mt-4">
-                  {uploadedVideos.filter(video => video.category === 'forex').length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {uploadedVideos
-                        .filter(video => video.category === 'forex')
-                        .map((video, index) => (
-                          <VideoCard key={index} video={video} onDelete={handleDeleteVideo} />
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No forex videos uploaded yet.</p>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="fitness" className="space-y-4 mt-4">
-                  {uploadedVideos.filter(video => video.category === 'fitness').length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {uploadedVideos
-                        .filter(video => video.category === 'fitness')
-                        .map((video, index) => (
-                          <VideoCard key={index} video={video} onDelete={handleDeleteVideo} />
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No fitness videos uploaded yet.</p>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="karate" className="space-y-4 mt-4">
-                  {uploadedVideos.filter(video => video.category === 'karate').length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {uploadedVideos
-                        .filter(video => video.category === 'karate')
-                        .map((video, index) => (
-                          <VideoCard key={index} video={video} onDelete={handleDeleteVideo} />
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No karate videos uploaded yet.</p>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+        {/* Videos Tab */}
+        <TabsContent value="videos" className="space-y-4">
+          <VideoManagement />
         </TabsContent>
 
         {/* Notifications Tab */}

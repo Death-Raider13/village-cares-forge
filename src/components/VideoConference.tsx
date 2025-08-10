@@ -1,21 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Video, 
-  VideoOff, 
-  Mic, 
-  MicOff, 
-  Phone, 
+import { Input } from '@/components/ui/input';
+import { useWebRTC } from '@/hooks/useWebRTC';
+import {
+  Video,
+  VideoOff,
+  Mic,
+  MicOff,
   PhoneOff,
   Monitor,
   MessageSquare,
   Settings,
   Users,
-  Maximize
+  Send
 } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface VideoConferenceProps {
   sessionId: string;
@@ -32,18 +38,27 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
   onEndCall,
   isInstructor = false
 }) => {
-  const { user } = useAuth();
-  const [isVideoOn, setIsVideoOn] = useState(true);
-  const [isAudioOn, setIsAudioOn] = useState(true);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const {
+    isConnected,
+    isVideoOn,
+    isAudioOn,
+    localStream,
+    initializeConnection,
+    toggleVideo,
+    toggleAudio,
+    disconnect
+  } = useWebRTC(sessionId);
+
   const [showChat, setShowChat] = useState(false);
-  const [participants, setParticipants] = useState<string[]>([instructorName]);
-  const [chatMessages, setChatMessages] = useState<Array<{id: string, user: string, message: string, timestamp: Date}>>([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  
+  const [user, setUser] = useState<any>(null);
+  const [sessionDuration, setSessionDuration] = useState(0);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const chatInputRef = useRef<HTMLInputElement>(null);
+  const startTimeRef = useRef<Date>(new Date());
 
   const sessionTypeColors = {
     fitness: 'bg-green-600',
@@ -52,58 +67,71 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
   };
 
   useEffect(() => {
-    // Initialize video call
-    initializeVideoCall();
-    return () => {
-      // Cleanup video call
-      cleanupVideoCall();
-    };
-  }, []);
+    // Get current user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
 
-  const initializeVideoCall = async () => {
-    try {
-      // Get user media
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      
-      if (localVideoRef.current) {
+    // Initialize WebRTC connection
+    initializeConnection().then((stream) => {
+      if (localVideoRef.current && stream) {
         localVideoRef.current.srcObject = stream;
       }
-    } catch (error) {
-      console.error('Error accessing media devices:', error);
-    }
+    });
+
+    // Session duration timer
+    const timer = setInterval(() => {
+      const now = new Date();
+      const duration = Math.floor((now.getTime() - startTimeRef.current.getTime()) / 1000);
+      setSessionDuration(duration);
+    }, 1000);
+
+    // Load chat messages
+    loadChatMessages();
+
+    // Subscribe to chat messages
+    const messagesChannel = supabase
+      .channel(`conference_${sessionId}_messages`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'conference_messages',
+        filter: `session_id=eq.${sessionId}`
+      }, (payload) => {
+        setMessages(prev => [...prev, payload.new]);
+      })
+      .subscribe();
+
+    return () => {
+      timer();
+      messagesChannel.unsubscribe();
+      disconnect();
+    };
+  }, [sessionId]);
+
+  const loadChatMessages = async () => {
+    const { data } = await supabase
+      .from('conference_messages')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+
+    if (data) setMessages(data);
   };
 
-  const cleanupVideoCall = () => {
-    // Stop all media tracks
-    if (localVideoRef.current?.srcObject) {
-      const stream = localVideoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-    }
-  };
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !user) return;
 
-  const toggleVideo = () => {
-    if (localVideoRef.current?.srcObject) {
-      const stream = localVideoRef.current.srcObject as MediaStream;
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !isVideoOn;
-        setIsVideoOn(!isVideoOn);
-      }
-    }
-  };
+    const { error } = await supabase
+      .from('conference_messages')
+      .insert([{
+        session_id: sessionId,
+        user_id: user.id,
+        message: newMessage.trim(),
+        user_name: user.email?.split('@')[0] || 'User'
+      }]);
 
-  const toggleAudio = () => {
-    if (localVideoRef.current?.srcObject) {
-      const stream = localVideoRef.current.srcObject as MediaStream;
-      const audioTrack = stream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !isAudioOn;
-        setIsAudioOn(!isAudioOn);
-      }
-    }
+    if (!error) setNewMessage('');
   };
 
   const toggleScreenShare = async () => {
@@ -112,6 +140,7 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
         // Replace video track with screen share
         setIsScreenSharing(true);
+        // Implementation would replace the video track in peer connection
       } else {
         // Return to camera
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -126,27 +155,19 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
   };
 
   const endCall = () => {
-    cleanupVideoCall();
+    disconnect();
     onEndCall?.();
   };
 
-  const sendMessage = () => {
-    if (newMessage.trim() && user) {
-      const message = {
-        id: Date.now().toString(),
-        user: user.email || 'User',
-        message: newMessage.trim(),
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, message]);
-      setNewMessage('');
-    }
-  };
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      sendMessage();
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -161,11 +182,14 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
             1-on-1 Session with {instructorName}
           </h2>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             <Users className="w-3 h-3 mr-1" />
-            {participants.length} participants
+            {isConnected ? '2' : '1'} participants
           </Badge>
+          <span className="text-sm text-gray-600">
+            Duration: {formatDuration(sessionDuration)}
+          </span>
         </div>
       </div>
 
@@ -180,7 +204,7 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
             autoPlay
             playsInline
           />
-          
+
           {/* Local Video (Picture in Picture) */}
           <div className="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-2 border-white/20">
             <video
@@ -200,7 +224,9 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
           {/* Session Info Overlay */}
           <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg p-3 text-white">
             <p className="text-sm font-medium">Session ID: {sessionId}</p>
-            <p className="text-xs opacity-75">Duration: 00:15:32</p>
+            <p className="text-xs opacity-75">
+              Status: {isConnected ? 'Connected' : 'Connecting...'}
+            </p>
           </div>
         </div>
 
@@ -208,41 +234,49 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
         {showChat && (
           <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
             <div className="p-4 border-b border-gray-200">
-              <h3 className="font-semibold text-vintage-deep-blue">Session Chat</h3>
+              <h3 className="font-semibold text-vintage-deep-blue flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Session Chat
+              </h3>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {chatMessages.map((msg) => (
-                <div key={msg.id} className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-vintage-deep-blue">{msg.user}</span>
-                    <span className="text-xs text-gray-500">
-                      {msg.timestamp.toLocaleTimeString()}
-                    </span>
+              {messages.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No messages yet...</p>
+              ) : (
+                messages.map((msg) => (
+                  <div key={msg.id} className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-vintage-deep-blue">{msg.user_name}</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(msg.created_at).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-2">{msg.message}</p>
                   </div>
-                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-2">{msg.message}</p>
+                ))
+              )}
+            </div>
+            {user && (
+              <div className="p-4 border-t border-gray-200">
+                <div className="flex space-x-2">
+                  <Input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1 text-sm"
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={sendMessage}
+                    className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
                 </div>
-              ))}
-            </div>
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex gap-2">
-                <input
-                  ref={chatInputRef}
-                  type="text"
-                  placeholder="Type a message..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-vintage-gold"
-                />
-                <Button
-                  size="sm"
-                  onClick={sendMessage}
-                  className="bg-vintage-gold hover:bg-vintage-gold/90 text-vintage-deep-blue"
-                >
-                  Send
-                </Button>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
@@ -314,4 +348,4 @@ const VideoConference: React.FC<VideoConferenceProps> = ({
   );
 };
 
-export default VideoConference;
+export {  VideoConference }; 

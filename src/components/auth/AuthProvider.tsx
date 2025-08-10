@@ -52,12 +52,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Please use the admin login page for admin access.' };
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      // Explicitly update user state
+      if (data.user) {
+        setUser(data.user);
+        // Redirect to home page after successful authentication
+        navigate('/', { replace: true });
+      }
+
       return {};
     } catch (error: any) {
       return { error: error.message };
@@ -71,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Admin accounts cannot be created through regular signup.' };
       }
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -83,6 +91,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) throw error;
+
+      // Explicitly update user state
+      if (data.user) {
+        setUser(data.user);
+        // Redirect to home page after successful authentication
+        navigate('/', { replace: true });
+      }
+
       return {};
     } catch (error: any) {
       return { error: error.message };

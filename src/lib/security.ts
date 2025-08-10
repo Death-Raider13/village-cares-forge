@@ -215,11 +215,11 @@ export const createRateLimiter = (maxAttempts: number, windowMs: number) => {
       const baseDelay = 1000; // 1 second
       const progressiveDelay = Math.min(baseDelay * Math.pow(2, userAttempts.count - maxAttempts), 300000); // Max 5 minutes
       const retryAfter = Math.max(0, userAttempts.resetTime - now + progressiveDelay);
-      
-      return { 
-        allowed: false, 
+
+      return {
+        allowed: false,
         retryAfter: Math.ceil(retryAfter / 1000),
-        attempts: userAttempts.count 
+        attempts: userAttempts.count
       };
     }
 
@@ -277,23 +277,38 @@ export const getStoredSecurityEvents = (): SecurityEvent[] => {
  */
 export const SESSION_TIMEOUT_WARNING = 5 * 60 * 1000; // 5 minutes
 export const SESSION_TIMEOUT_DURATION = 30 * 60 * 1000; // 30 minutes
+export const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 export const createSessionManager = () => {
   let timeoutId: NodeJS.Timeout | null = null;
   let warningId: NodeJS.Timeout | null = null;
-  
+
   const resetTimers = (onWarning: () => void, onTimeout: () => void) => {
     if (timeoutId) clearTimeout(timeoutId);
     if (warningId) clearTimeout(warningId);
-    
+
     warningId = setTimeout(onWarning, SESSION_TIMEOUT_DURATION - SESSION_TIMEOUT_WARNING);
     timeoutId = setTimeout(onTimeout, SESSION_TIMEOUT_DURATION);
   };
-  
+
   const clearTimers = () => {
     if (timeoutId) clearTimeout(timeoutId);
     if (warningId) clearTimeout(warningId);
   };
-  
+
   return { resetTimers, clearTimers };
+};
+
+export const enhancedAdminAuth = {
+  validateAdminSession: () => {
+    const lastActivity = sessionStorage.getItem('adminLastActivity');
+    if (!lastActivity) return false;
+
+    const timePassed = Date.now() - parseInt(lastActivity);
+    return timePassed < ADMIN_SESSION_TIMEOUT;
+  },
+
+  updateAdminActivity: () => {
+    sessionStorage.setItem('adminLastActivity', Date.now().toString());
+  }
 };

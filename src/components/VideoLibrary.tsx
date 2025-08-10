@@ -4,187 +4,103 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import VideoPlayer from './VideoPlayer';
-import { 
-  Search, 
-  Filter, 
-  Clock, 
-  Star, 
+import { useVideoLibrary } from '@/hooks/useVideoLibrary';
+import {
+  Search,
+  Filter,
+  Clock,
+  Star,
   Play,
   BookOpen,
   TrendingUp,
-  Award
+  Award,
+  Upload,
+  X
 } from 'lucide-react';
-
-interface Video {
-  id: string;
-  title: string;
-  instructor: string;
-  category: 'fitness' | 'karate' | 'forex';
-  type: 'course' | 'workout' | 'tutorial' | 'analysis';
-  duration: number; // in minutes
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  rating: number;
-  views: number;
-  thumbnail: string;
-  videoUrl: string;
-  description: string;
-  tags: string[];
-  uploadDate: string;
-}
 
 interface VideoLibraryProps {
   category?: 'fitness' | 'karate' | 'forex' | 'all';
 }
 
 const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
+  const { videos, loading, error, loadVideos, uploadVideo } = useVideoLibrary();
+  const [filteredVideos, setFilteredVideos] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>(category);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('recent');
-  const [loading, setLoading] = useState(true);
-
-  // Mock data - replace with actual API calls
-  const mockVideos: Video[] = [
-    {
-      id: '1',
-      title: 'Full Body HIIT Workout - 30 Minutes',
-      instructor: 'Sarah Mitchell',
-      category: 'fitness',
-      type: 'workout',
-      duration: 30,
-      difficulty: 'intermediate',
-      rating: 4.8,
-      views: 1250,
-      thumbnail: '/placeholder.svg',
-      videoUrl: 'https://example.com/video1',
-      description: 'High-intensity interval training workout targeting all major muscle groups.',
-      tags: ['HIIT', 'Full Body', 'Cardio', 'Strength'],
-      uploadDate: '2024-01-20'
-    },
-    {
-      id: '2',
-      title: 'Karate Kata: Heian Shodan Tutorial',
-      instructor: 'Sensei Kenji Tanaka',
-      category: 'karate',
-      type: 'tutorial',
-      duration: 45,
-      difficulty: 'beginner',
-      rating: 4.9,
-      views: 890,
-      thumbnail: '/placeholder.svg',
-      videoUrl: 'https://example.com/video2',
-      description: 'Step-by-step guide to mastering the first Heian kata.',
-      tags: ['Kata', 'Heian', 'Beginner', 'Technique'],
-      uploadDate: '2024-01-18'
-    },
-    {
-      id: '3',
-      title: 'Forex Trading Psychology Masterclass',
-      instructor: 'Michael Thompson',
-      category: 'forex',
-      type: 'course',
-      duration: 120,
-      difficulty: 'intermediate',
-      rating: 4.7,
-      views: 2150,
-      thumbnail: '/placeholder.svg',
-      videoUrl: 'https://example.com/video3',
-      description: 'Master the psychological aspects of successful forex trading.',
-      tags: ['Psychology', 'Risk Management', 'Trading', 'Mindset'],
-      uploadDate: '2024-01-15'
-    },
-    {
-      id: '4',
-      title: 'Advanced Kumite Techniques',
-      instructor: 'Sensei Aiko Nakamura',
-      category: 'karate',
-      type: 'tutorial',
-      duration: 60,
-      difficulty: 'advanced',
-      rating: 4.8,
-      views: 650,
-      thumbnail: '/placeholder.svg',
-      videoUrl: 'https://example.com/video4',
-      description: 'Advanced sparring techniques and strategies for competition.',
-      tags: ['Kumite', 'Sparring', 'Advanced', 'Competition'],
-      uploadDate: '2024-01-12'
-    },
-    {
-      id: '5',
-      title: 'EUR/USD Technical Analysis - Weekly Review',
-      instructor: 'David Chen',
-      category: 'forex',
-      type: 'analysis',
-      duration: 25,
-      difficulty: 'intermediate',
-      rating: 4.6,
-      views: 1800,
-      thumbnail: '/placeholder.svg',
-      videoUrl: 'https://example.com/video5',
-      description: 'Weekly technical analysis of the EUR/USD currency pair.',
-      tags: ['Technical Analysis', 'EUR/USD', 'Weekly', 'Charts'],
-      uploadDate: '2024-01-22'
-    }
-  ];
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadMetadata, setUploadMetadata] = useState({
+    title: '',
+    description: '',
+    category: 'fitness',
+    type: 'tutorial',
+    difficulty: 'beginner',
+    tags: [] as string[]
+  });
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setVideos(mockVideos);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    loadVideos({
+      category: category !== 'all' ? category : undefined,
+      sortBy
+    });
+  }, [category, sortBy]);
 
   useEffect(() => {
     let filtered = videos;
 
-    // Filter by category
-    if (filterCategory && filterCategory !== 'all') {
+    // Apply filters
+    if (filterCategory !== 'all') {
       filtered = filtered.filter(video => video.category === filterCategory);
     }
 
-    // Filter by type
-    if (filterType && filterType !== 'all') {
+    if (filterType !== 'all') {
       filtered = filtered.filter(video => video.type === filterType);
     }
 
-    // Filter by difficulty
-    if (filterDifficulty && filterDifficulty !== 'all') {
+    if (filterDifficulty !== 'all') {
       filtered = filtered.filter(video => video.difficulty === filterDifficulty);
     }
 
-    // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(video => 
+      filtered = filtered.filter(video =>
         video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        video.instructor_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.tags?.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
 
-    // Sort videos
-    switch (sortBy) {
-      case 'recent':
-        filtered.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
-        break;
-      case 'popular':
-        filtered.sort((a, b) => b.views - a.views);
-        break;
-      case 'rating':
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'duration':
-        filtered.sort((a, b) => a.duration - b.duration);
-        break;
-    }
-
     setFilteredVideos(filtered);
-  }, [videos, filterCategory, filterType, filterDifficulty, searchQuery, sortBy]);
+  }, [videos, filterCategory, filterType, filterDifficulty, searchQuery]);
+
+  const handleUploadVideo = async () => {
+    if (!uploadFile) return;
+
+    try {
+      await uploadVideo(uploadFile, uploadMetadata);
+      setShowUploadModal(false);
+      setUploadFile(null);
+      setUploadMetadata({
+        title: '',
+        description: '',
+        category: 'fitness',
+        type: 'tutorial',
+        difficulty: 'beginner',
+        tags: []
+      });
+      alert('Video uploaded successfully!');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload video');
+    }
+  };
+
+  const playVideo = (video: any) => {
+    // Open video in modal or navigate to video page
+    window.open(`/video/${video.id}`, '_blank');
+  };
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -222,8 +138,141 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
     );
   }
 
+  if (error) {
+    return (
+      <Card className="p-8 text-center">
+        <p className="text-red-600">Error loading videos: {error}</p>
+        <Button onClick={() => loadVideos()} className="mt-4">
+          Try Again
+        </Button>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Header with Upload Button */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-vintage-deep-blue">Video Library</h2>
+        <Button
+          onClick={() => setShowUploadModal(true)}
+          className="bg-vintage-deep-blue hover:bg-vintage-forest-green"
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          Upload Video
+        </Button>
+      </div>
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <Card className="p-6 bg-blue-50 border-blue-200">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Upload New Video</h3>
+            <Button variant="ghost" size="sm" onClick={() => setShowUploadModal(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Video File</label>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Title</label>
+              <Input
+                value={uploadMetadata.title}
+                onChange={(e) => setUploadMetadata(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Video title..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <textarea
+                value={uploadMetadata.description}
+                onChange={(e) => setUploadMetadata(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Video description..."
+                className="w-full p-2 border rounded h-20"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <Select
+                  value={uploadMetadata.category}
+                  onValueChange={(value) => setUploadMetadata(prev => ({ ...prev, category: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fitness">Fitness</SelectItem>
+                    <SelectItem value="karate">Karate</SelectItem>
+                    <SelectItem value="forex">Forex</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Type</label>
+                <Select
+                  value={uploadMetadata.type}
+                  onValueChange={(value) => setUploadMetadata(prev => ({ ...prev, type: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="course">Course</SelectItem>
+                    <SelectItem value="workout">Workout</SelectItem>
+                    <SelectItem value="tutorial">Tutorial</SelectItem>
+                    <SelectItem value="analysis">Analysis</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Difficulty</label>
+                <Select
+                  value={uploadMetadata.difficulty}
+                  onValueChange={(value) => setUploadMetadata(prev => ({ ...prev, difficulty: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleUploadVideo}
+                disabled={!uploadFile || !uploadMetadata.title}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Upload Video
+              </Button>
+              <Button variant="outline" onClick={() => setShowUploadModal(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Filters and Search */}
       <Card className="bg-white/95 backdrop-blur-sm">
         <CardHeader>
@@ -313,9 +362,9 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredVideos.map((video) => (
             <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative aspect-video bg-gray-900">
-                <img 
-                  src={video.thumbnail} 
+              <div className="relative aspect-video bg-gray-900 cursor-pointer" onClick={() => playVideo(video)}>
+                <img
+                  src={video.thumbnail_url || '/placeholder.svg'}
                   alt={video.title}
                   className="w-full h-full object-cover"
                 />
@@ -327,12 +376,14 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
                     <Play className="w-8 h-8 text-white ml-1" />
                   </Button>
                 </div>
-                
+
                 {/* Duration Badge */}
-                <Badge className="absolute bottom-2 right-2 bg-black/80 text-white">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {formatDuration(video.duration)}
-                </Badge>
+                {video.duration && (
+                  <Badge className="absolute bottom-2 right-2 bg-black/80 text-white">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {formatDuration(video.duration)}
+                  </Badge>
+                )}
 
                 {/* Type Badge */}
                 <Badge className="absolute top-2 left-2 bg-vintage-gold text-vintage-deep-blue">
@@ -348,7 +399,7 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
                       {video.title}
                     </h3>
                     <p className="text-vintage-dark-brown/70 text-sm font-crimson">
-                      by {video.instructor}
+                      by {video.instructor_name}
                     </p>
                   </div>
 
@@ -372,14 +423,17 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
                   </p>
 
                   <div className="flex flex-wrap gap-1">
-                    {video.tags.slice(0, 3).map((tag) => (
+                    {video.tags?.slice(0, 3).map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>
                     ))}
                   </div>
 
-                  <Button className="w-full bg-vintage-deep-blue hover:bg-vintage-forest-green">
+                  <Button
+                    className="w-full bg-vintage-deep-blue hover:bg-vintage-forest-green"
+                    onClick={() => playVideo(video)}
+                  >
                     <Play className="w-4 h-4 mr-2" />
                     Watch Now
                   </Button>
@@ -392,5 +446,3 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ category = 'all' }) => {
     </div>
   );
 };
-
-export default VideoLibrary;
