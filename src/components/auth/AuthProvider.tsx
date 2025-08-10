@@ -61,8 +61,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Explicitly update user state
       if (data.user) {
+        // Update user state
         setUser(data.user);
-        // Redirect to home page after successful authentication
+
+        // Navigate to home page
         navigate('/', { replace: true });
       }
 
@@ -94,8 +96,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Explicitly update user state
       if (data.user) {
+        // Update user state
         setUser(data.user);
-        // Redirect to home page after successful authentication
+
+        // Navigate to home page
         navigate('/', { replace: true });
       }
 

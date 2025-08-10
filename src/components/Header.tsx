@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import { User, LogOut, Menu, X, Bell, ShieldAlert } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
@@ -22,6 +23,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
   const { user, signOut } = useAuth();
+  const { checkIfAdminEmail } = useAdminAuth();
   const { unreadCount, toggleNotificationCenter } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -56,6 +58,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
               <NavLink to="/forex-training">Forex Training</NavLink>
               <NavLink to="/fitness-training">Fitness Training</NavLink>
               <NavLink to="/karate-training">Karate Training</NavLink>
+              {user && <NavLink to="/community">Community</NavLink>}
               {user && <NavLink to="/fitness-journey">My Journey</NavLink>}
             </nav>
 
@@ -113,16 +116,14 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                       </Link>
                     </DropdownMenuItem>
                     {/* Admin Access - Only visible to admin emails */}
-                    {user.email &&
-                      (user.email.toLowerCase() === 'lateefedidi4@gmail.com' ||
-                        user.email.toLowerCase() === 'andrewcares556@gmail.com') && (
-                        <DropdownMenuItem>
-                          <Link to="/admin" className="w-full flex items-center">
-                            <ShieldAlert className="h-4 w-4 mr-2 text-vintage-burgundy" />
-                            Admin Panel
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
+                    {user.email && checkIfAdminEmail(user.email.toLowerCase()) && (
+                      <DropdownMenuItem>
+                        <Link to="/admin" className="w-full flex items-center">
+                          <ShieldAlert className="h-4 w-4 mr-2 text-vintage-burgundy" />
+                          Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign Out
@@ -154,6 +155,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             <NavLink to="/forex-training" onClick={closeMobileMenu}>Forex Training</NavLink>
             <NavLink to="/fitness-training" onClick={closeMobileMenu}>Fitness Training</NavLink>
             <NavLink to="/karate-training" onClick={closeMobileMenu}>Karate Training</NavLink>
+            {user && <NavLink to="/community" onClick={closeMobileMenu}>Community</NavLink>}
             {user && <NavLink to="/fitness-journey" onClick={closeMobileMenu}>My Journey</NavLink>}
           </nav>
         </div>
