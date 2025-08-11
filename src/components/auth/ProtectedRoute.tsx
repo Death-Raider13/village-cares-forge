@@ -1,4 +1,3 @@
-// components/auth/ProtectedRoute.tsx
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
@@ -7,12 +6,14 @@ import { Card, CardContent } from '@/components/ui/card';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  adminOnly?: boolean; // New prop to specify admin-only routes
+  adminOnly?: boolean;
+  requireVerification?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  adminOnly = false
+  adminOnly = false,
+  requireVerification = true
 }) => {
   const { user, loading } = useAuth();
   const { isAdminAuthenticated } = useAdminAuth();
@@ -44,6 +45,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Check email verification for regular users (not admins)
+  if (requireVerification && user && !user.email_confirmed_at && !isAdminAuthenticated()) {
+    return <Navigate to="/verify-email" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
