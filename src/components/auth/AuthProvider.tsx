@@ -1,5 +1,3 @@
-
-// Update your AuthProvider.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -12,6 +10,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<{ error?: string }>;
+  checkEmailVerification: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +37,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Handle email verification success
+        if (event === 'TOKEN_REFRESHED' && session?.user) {
+          // Check if user just got verified
+          const { data } = await supabase.auth.getUser();
+          if (data.user?.email_confirmed_at) {
+            setUser(data.user);
+          }
+        }
       }
     );
 
@@ -59,12 +68,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
+      // Check if email is verified
+      if (data.user && !data.user.email_confirmed_at) {
+        // Redirect to email verification page
+        navigate('/verify-email', {
+          state: { email: data.user.email }
+        });
+        return { error: 'Please verify your email before signing in.' };
+      }
+
       // Explicitly update user state
       if (data.user) {
-        // Update user state
         setUser(data.user);
-
-        // Navigate to home page
         navigate('/', { replace: true });
       }
 
@@ -88,24 +103,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             first_name: firstName,
             last_name: lastName,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/verification-success`
         }
       });
 
       if (error) throw error;
 
-      // Explicitly update user state
       if (data.user) {
-        // Update user state
-        setUser(data.user);
-
-        // Navigate to home page
-        navigate('/', { replace: true });
+        // Check if email confirmation is required
+        if (!data.user.email_confirmed_at) {
+          // Redirect to email verification page
+          navigate('/verify-email', {
+            state: { email: data.user.email }
+          });
+          return { error: 'Please check your email to verify your account before signing in.' };
+        } else {
+          // Email is already confirmed (instant confirmation)
+          setUser(data.user);
+          navigate('/', { replace: true });
+        }
       }
 
       return {};
     } catch (error: any) {
       return { error: error.message };
+    }
+  };
+
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/verification-success`
+        }
+      });
+
+      if (error) throw error;
+
+      return {};
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  };
+
+  const checkEmailVerification = async (): Promise<boolean> => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      return !!data.user?.email_confirmed_at;
+    } catch (error) {
+      return false;
     }
   };
 
@@ -119,6 +168,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signUp,
     signOut,
+    resendVerificationEmail,
+    checkEmailVerification,
   };
 
   return (

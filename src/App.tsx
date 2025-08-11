@@ -1,7 +1,7 @@
-// App.tsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SearchProvider } from '@/contexts/SearchContext';
@@ -17,6 +17,8 @@ import Auth from '@/pages/Auth';
 import AdminPage from '@/pages/AdminPage';
 import AdminLogin from '@/pages/AdminLogin';
 import Community from '@/pages/Community';
+import EmailVerification from '@/components/auth/EmailVerification';
+import VerificationSuccess from '@/components/auth/VerificationSuccess';
 import { SessionManager } from '@/components/auth/SessionManager';
 
 function App() {
@@ -29,42 +31,51 @@ function App() {
               <SearchProvider>
                 <div className="min-h-screen bg-vintage-warm-cream">
                   <Routes>
+                    {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/forex-training" element={<ForexTraining />} />
                     <Route path="/forex-trading" element={<ForexTraining />} />
                     <Route path="/fitness-training" element={<FitnessTraining />} />
                     <Route path="/karate-training" element={<KarateTraining />} />
+
+                    {/* Auth routes */}
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/admin-login" element={<AdminLogin />} />
+                    <Route path="/verify-email" element={<EmailVerification />} />
+                    <Route path="/verification-success" element={<VerificationSuccess />} />
+
+                    {/* Protected routes - require authentication and email verification */}
                     <Route
                       path="/fitness-journey"
                       element={
-                        <ProtectedRoute>
+                        <AuthGuard requireVerification={true}>
                           <FitnessJourney />
-                        </ProtectedRoute>
+                        </AuthGuard>
                       }
                     />
                     <Route
                       path="/karate-journey"
                       element={
-                        <ProtectedRoute>
+                        <AuthGuard requireVerification={true}>
                           <KarateJourney />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/admin-login" element={<AdminLogin />} />
-                    <Route
-                      path="/admin"
-                      element={
-                        <ProtectedRoute adminOnly={true}>
-                          <AdminPage />
-                        </ProtectedRoute>
+                        </AuthGuard>
                       }
                     />
                     <Route
                       path="/community"
                       element={
-                        <ProtectedRoute>
+                        <AuthGuard requireVerification={true}>
                           <Community />
+                        </AuthGuard>
+                      }
+                    />
+
+                    {/* Admin routes */}
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute adminOnly={true}>
+                          <AdminPage />
                         </ProtectedRoute>
                       }
                     />
