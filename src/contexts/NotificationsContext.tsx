@@ -15,11 +15,14 @@ export interface Notification {
   read: boolean;
   userId?: string;
   isGlobal?: boolean;
+  priority?: number; // 1=normal, 2=important, 3=urgent
+  category?: string; // 'post', 'lesson', 'announcement', 'general'
 }
 
 interface NotificationsContextType {
   notifications: Notification[];
   unreadCount: number;
+  urgentCount: number;
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
@@ -27,6 +30,7 @@ interface NotificationsContextType {
   clearAllNotifications: () => void;
   showNotificationCenter: boolean;
   toggleNotificationCenter: () => void;
+  isLoading: boolean;
 }
 
 const NotificationsContext = createContext<NotificationsContextType | undefined>(undefined);
@@ -43,13 +47,6 @@ interface NotificationsProviderProps {
   children: React.ReactNode;
 }
 
-// Local storage key for notifications (fallback when Supabase table is not available)
-const STORAGE_KEY = 'andrew-cares-notifications';
-
-// Flag to indicate if we should use Supabase for notifications
-// Set to true now that the notifications table has been created
-const USE_SUPABASE = true;
-
 export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
@@ -57,6 +54,21 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
   const { user } = useAuth();
   const { toast } = useToast();
   const realtimeChannel = useRef<RealtimeChannel | null>(null);
+
+  // Transform Supabase data to match our Notification interface
+  const transformNotification = (dbNotification: any): Notification => ({
+    id: dbNotification.id,
+    title: dbNotification.title,
+    message: dbNotification.message,
+    type: dbNotification.type,
+    link: dbNotification.link,
+    createdAt: dbNotification.created_at,
+    read: dbNotification.read,
+    userId: dbNotification.user_id,
+    isGlobal: dbNotification.is_global,
+    priority: dbNotification.priority || 1,
+    category: dbNotification.category || 'general'
+  });
 
   // Load notifications on mount
   useEffect(() => {
@@ -69,88 +81,75 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
     const fetchNotifications = async () => {
       setIsLoading(true);
 
-      if (USE_SUPABASE) {
-        try {
-          // Fetch user-specific and global notifications from Supabase
-          // Note: This requires a 'notifications' table to be created in Supabase
-          // with columns: id, title, message, type, link, created_at, read, user_id, is_global
-          const { data, error } = await supabase
-            .from('notifications')
-            .select('*')
-            .or(`user_id.eq.${user.id},is_global.eq.true`)
-            .order('created_at', { ascending: false });
+      try {
+        // Fetch user-specific and global notifications from Supabase
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .or(`user_id.eq.${user.id},is_global.eq.true`)
+          .order('priority', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(100); // Limit to prevent too many notifications
 
-          if (error) throw error;
+        if (error) throw error;
 
-          // Transform Supabase data to match our Notification interface
-          const formattedNotifications = data.map((notification: any) => ({
-            id: notification.id,
-            title: notification.title,
-            message: notification.message,
-            type: notification.type,
-            link: notification.link,
-            createdAt: notification.created_at,
-            read: notification.read,
-            userId: notification.user_id,
-            isGlobal: notification.is_global
-          }));
-
-          setNotifications(formattedNotifications);
-        } catch (error) {
-          console.error('Error fetching notifications from Supabase:', error);
-          // Fall back to localStorage if Supabase fails
-          loadFromLocalStorage();
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        // Use localStorage as fallback
-        loadFromLocalStorage();
+        const formattedNotifications = data.map(transformNotification);
+        setNotifications(formattedNotifications);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+        toast({
+          title: 'Error loading notifications',
+          description: 'Failed to load notifications. Please refresh the page.',
+          variant: 'destructive',
+        });
+      } finally {
         setIsLoading(false);
       }
     };
 
-    const loadFromLocalStorage = () => {
-      const storedNotifications = localStorage.getItem(`${STORAGE_KEY}-${user.id}`);
-      if (storedNotifications) {
-        try {
-          const parsedNotifications = JSON.parse(storedNotifications);
-          setNotifications(parsedNotifications);
-        } catch (error) {
-          console.error('Error parsing stored notifications:', error);
-          setNotifications([]);
-        }
-      }
-    };
-
     fetchNotifications();
-  }, [user]);
+  }, [user, toast]);
 
   // Set up real-time subscription for new notifications
   useEffect(() => {
-    if (!user || !USE_SUPABASE) return;
+    if (!user) return;
 
-    // Subscribe to notifications channel
     const setupRealtimeSubscription = async () => {
-      // Subscribe to notifications for this user and global notifications
+      // Clean up existing subscription
+      if (realtimeChannel.current) {
+        supabase.removeChannel(realtimeChannel.current);
+      }
+
+      // Subscribe to notifications channel
       realtimeChannel.current = supabase
-        .channel('notifications')
+        .channel(`notifications:${user.id}`)
         .on('postgres_changes', {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
           filter: `user_id=eq.${user.id}`,
         }, (payload) => {
-          // Handle new notification for this user
-          const newNotification = payload.new as Notification;
+          const newNotification = transformNotification(payload.new);
           setNotifications(prev => [newNotification, ...prev]);
 
-          // Show toast for new notification
+          // Show toast for new notification with priority styling
           toast({
             title: newNotification.title,
             description: newNotification.message,
             variant: newNotification.type === 'error' ? 'destructive' : 'default',
+            className: newNotification.priority && newNotification.priority >= 3
+              ? 'border-orange-500 bg-orange-50'
+              : undefined,
           });
+
+          // Play sound for urgent notifications (optional)
+          if (newNotification.priority && newNotification.priority >= 3) {
+            try {
+              new Audio('/notification-urgent.mp3').play().catch(() => { });
+            } catch (e) {
+              // Ignore audio errors
+            }
+          }
         })
         .on('postgres_changes', {
           event: 'INSERT',
@@ -158,24 +157,31 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
           table: 'notifications',
           filter: 'is_global=eq.true',
         }, (payload) => {
-          // Handle new global notification
-          const newNotification = payload.new as Notification;
+          const newNotification = transformNotification(payload.new);
           setNotifications(prev => [newNotification, ...prev]);
 
-          // Show toast for new notification
+          // Global notifications are always important
           toast({
-            title: newNotification.title,
+            title: `📢 ${newNotification.title}`,
             description: newNotification.message,
-            variant: newNotification.type === 'error' ? 'destructive' : 'default',
+            variant: 'default',
+            className: 'border-blue-500 bg-blue-50',
+            duration: newNotification.priority && newNotification.priority >= 3 ? 10000 : 5000,
           });
+
+          // Play sound for global notifications
+          try {
+            new Audio('/notification-global.mp3').play().catch(() => { });
+          } catch (e) {
+            // Ignore audio errors
+          }
         })
         .on('postgres_changes', {
           event: 'UPDATE',
           schema: 'public',
           table: 'notifications',
         }, (payload) => {
-          // Handle updated notification (e.g., marked as read)
-          const updatedNotification = payload.new as Notification;
+          const updatedNotification = transformNotification(payload.new);
           setNotifications(prev =>
             prev.map(notification =>
               notification.id === updatedNotification.id ? updatedNotification : notification
@@ -187,13 +193,18 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
           schema: 'public',
           table: 'notifications',
         }, (payload) => {
-          // Handle deleted notification
-          const deletedNotification = payload.old as Notification;
+          const deletedId = payload.old.id;
           setNotifications(prev =>
-            prev.filter(notification => notification.id !== deletedNotification.id)
+            prev.filter(notification => notification.id !== deletedId)
           );
         })
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('✅ Real-time notifications connected');
+          } else if (status === 'CHANNEL_ERROR') {
+            console.error('❌ Real-time notifications error');
+          }
+        });
     };
 
     setupRealtimeSubscription();
@@ -206,85 +217,51 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
     };
   }, [user, toast]);
 
-  // Save notifications to localStorage as fallback
-  useEffect(() => {
-    if (user && notifications.length > 0 && !USE_SUPABASE) {
-      localStorage.setItem(`${STORAGE_KEY}-${user.id}`, JSON.stringify(notifications));
-    }
-  }, [notifications, user]);
-
-  // Add a new notification
+  // Add a new notification (for manual notifications)
   const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-      read: false,
-      userId: user?.id,
-    };
+    if (!user) return;
 
-    if (USE_SUPABASE && user) {
-      try {
-        // Add notification to Supabase
-        const { error } = await supabase
-          .from('notifications')
-          .insert({
-            id: newNotification.id,
-            title: newNotification.title,
-            message: newNotification.message,
-            type: newNotification.type,
-            link: newNotification.link,
-            created_at: newNotification.createdAt,
-            read: newNotification.read,
-            user_id: user.id,
-            is_global: notification.isGlobal || false,
-          });
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          title: notification.title,
+          message: notification.message,
+          type: notification.type,
+          link: notification.link,
+          user_id: user.id,
+          is_global: notification.isGlobal || false,
+          priority: notification.priority || 1,
+          category: notification.category || 'general',
+        });
 
-        if (error) throw error;
-
-        // The notification will be added via the real-time subscription
-      } catch (error) {
-        console.error('Error adding notification to Supabase:', error);
-        // Fall back to local state if Supabase fails
-        setNotifications(prev => [newNotification, ...prev]);
-      }
-    } else {
-      // Use local state
-      setNotifications(prev => [newNotification, ...prev]);
-
-      // Show toast for new notification
+      if (error) throw error;
+      // The notification will be added via the real-time subscription
+    } catch (error) {
+      console.error('Error adding notification:', error);
       toast({
-        title: newNotification.title,
-        description: newNotification.message,
-        variant: newNotification.type === 'error' ? 'destructive' : 'default',
+        title: 'Error',
+        description: 'Failed to create notification.',
+        variant: 'destructive',
       });
     }
-  }, [toast, user]);
+  }, [user, toast]);
 
   // Mark a notification as read
   const markAsRead = useCallback(async (id: string) => {
-    if (USE_SUPABASE && user) {
-      try {
-        // Update notification in Supabase
-        const { error } = await supabase
-          .from('notifications')
-          .update({ read: true })
-          .eq('id', id);
+    if (!user) return;
 
-        if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
 
-        // The notification will be updated via the real-time subscription
-      } catch (error) {
-        console.error('Error marking notification as read in Supabase:', error);
-        // Fall back to local state if Supabase fails
-        setNotifications(prev =>
-          prev.map(notification =>
-            notification.id === id ? { ...notification, read: true } : notification
-          )
-        );
-      }
-    } else {
-      // Use local state
+      if (error) throw error;
+      // The notification will be updated via the real-time subscription
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      // Fall back to local state update
       setNotifications(prev =>
         prev.map(notification =>
           notification.id === id ? { ...notification, read: true } : notification
@@ -295,26 +272,20 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
 
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
-    if (USE_SUPABASE && user) {
-      try {
-        // Update all user's notifications in Supabase
-        const { error } = await supabase
-          .from('notifications')
-          .update({ read: true })
-          .or(`user_id.eq.${user.id},is_global.eq.true`);
+    if (!user) return;
 
-        if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .or(`user_id.eq.${user.id},is_global.eq.true`)
+        .eq('read', false);
 
-        // The notifications will be updated via the real-time subscription
-      } catch (error) {
-        console.error('Error marking all notifications as read in Supabase:', error);
-        // Fall back to local state if Supabase fails
-        setNotifications(prev =>
-          prev.map(notification => ({ ...notification, read: true }))
-        );
-      }
-    } else {
-      // Use local state
+      if (error) throw error;
+      // The notifications will be updated via the real-time subscription
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      // Fall back to local state update
       setNotifications(prev =>
         prev.map(notification => ({ ...notification, read: true }))
       );
@@ -323,26 +294,20 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
 
   // Delete a notification
   const deleteNotification = useCallback(async (id: string) => {
-    if (USE_SUPABASE && user) {
-      try {
-        // Delete notification from Supabase
-        const { error } = await supabase
-          .from('notifications')
-          .delete()
-          .eq('id', id);
+    if (!user) return;
 
-        if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id); // Ensure user can only delete their own notifications
 
-        // The notification will be removed via the real-time subscription
-      } catch (error) {
-        console.error('Error deleting notification from Supabase:', error);
-        // Fall back to local state if Supabase fails
-        setNotifications(prev =>
-          prev.filter(notification => notification.id !== id)
-        );
-      }
-    } else {
-      // Use local state
+      if (error) throw error;
+      // The notification will be removed via the real-time subscription
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      // Fall back to local state update
       setNotifications(prev =>
         prev.filter(notification => notification.id !== id)
       );
@@ -351,29 +316,20 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
 
   // Clear all notifications
   const clearAllNotifications = useCallback(async () => {
-    if (USE_SUPABASE && user) {
-      try {
-        // Delete all user's notifications from Supabase
-        const { error } = await supabase
-          .from('notifications')
-          .delete()
-          .eq('user_id', user.id);
+    if (!user) return;
 
-        if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id);
 
-        // The notifications will be removed via the real-time subscription
-      } catch (error) {
-        console.error('Error clearing all notifications from Supabase:', error);
-        // Fall back to local state if Supabase fails
-        setNotifications([]);
-        localStorage.removeItem(`${STORAGE_KEY}-${user.id}`);
-      }
-    } else {
-      // Use local state
+      if (error) throw error;
+      // The notifications will be removed via the real-time subscription
+    } catch (error) {
+      console.error('Error clearing all notifications:', error);
+      // Fall back to local state update
       setNotifications([]);
-      if (user) {
-        localStorage.removeItem(`${STORAGE_KEY}-${user.id}`);
-      }
     }
   }, [user]);
 
@@ -382,34 +338,16 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
     setShowNotificationCenter(prev => !prev);
   }, []);
 
-  // Calculate unread count
+  // Calculate counts
   const unreadCount = notifications.filter(notification => !notification.read).length;
-
-  // Add demo notifications for new users
-  useEffect(() => {
-    if (user && notifications.length === 0 && !isLoading) {
-      // Add welcome notification
-      addNotification({
-        title: 'Welcome to Andrew Cares Village',
-        message: 'Thank you for joining our community. Explore our services to start your journey.',
-        type: 'info',
-        link: '/',
-      });
-
-      // Add feature notification
-      setTimeout(() => {
-        addNotification({
-          title: 'New Features Available',
-          message: 'We\'ve added dark mode and search functionality to enhance your experience.',
-          type: 'success',
-        });
-      }, 3000);
-    }
-  }, [user, notifications.length, addNotification, isLoading]);
+  const urgentCount = notifications.filter(
+    notification => !notification.read && notification.priority && notification.priority >= 3
+  ).length;
 
   const value = {
     notifications,
     unreadCount,
+    urgentCount,
     addNotification,
     markAsRead,
     markAllAsRead,
@@ -417,6 +355,7 @@ export const NotificationsProvider: React.FC<NotificationsProviderProps> = ({ ch
     clearAllNotifications,
     showNotificationCenter,
     toggleNotificationCenter,
+    isLoading,
   };
 
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
