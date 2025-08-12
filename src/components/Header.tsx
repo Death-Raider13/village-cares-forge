@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useNotifications } from '@/contexts/NotificationsContext';
-import { User, LogOut, Menu, X, Bell, ShieldAlert } from 'lucide-react';
+import { User, LogOut, Menu, X, Bell, ShieldAlert, Zap } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import NotificationCenter from '@/components/NotificationCenter';
 import { Link } from 'react-router-dom';
 import NavLink from '@/components/ui/nav-link';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,13 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
   const { user, signOut } = useAuth();
   const { checkIfAdminEmail } = useAdminAuth();
-  const { unreadCount, toggleNotificationCenter } = useNotifications();
+  const {
+    unreadCount,
+    urgentCount,
+    toggleNotificationCenter,
+    showNotificationCenter,
+    isLoading
+  } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -41,6 +47,89 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
+  };
+
+  // Enhanced notification button with your existing styling
+  const EnhancedNotificationButton = () => {
+    const hasNotifications = unreadCount > 0;
+    const hasUrgent = urgentCount > 0;
+
+    return (
+      <div className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleNotificationCenter}
+          aria-label={
+            isLoading
+              ? "Loading notifications..."
+              : hasNotifications
+                ? `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}${hasUrgent ? ` (${urgentCount} urgent)` : ''}`
+                : "No new notifications"
+          }
+          className={cn(
+            "rounded-full relative overflow-hidden group transition-all duration-200",
+            showNotificationCenter && "bg-vintage-gold/20",
+            hasUrgent && "animate-pulse"
+          )}
+        >
+          <div className="relative">
+            {hasUrgent ? (
+              <Zap className="h-5 w-5 text-orange-500 group-hover:scale-110 transition-transform" />
+            ) : (
+              <Bell className="h-5 w-5 text-vintage-deep-blue group-hover:scale-110 transition-transform" />
+            )}
+          </div>
+
+          {/* Your existing hover effect */}
+          <span className="absolute inset-0 rounded-full bg-vintage-gold/10 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
+
+          {/* Enhanced notification badge */}
+          {hasNotifications && !isLoading && (
+            <>
+              <span className={cn(
+                "absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium",
+                hasUrgent
+                  ? "bg-orange-500 animate-pulse shadow-lg shadow-orange-500/50"
+                  : "bg-vintage-burgundy animate-pulse"
+              )}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+
+              {/* Additional urgent indicator */}
+              {hasUrgent && (
+                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-orange-500/20 animate-ping"></div>
+              )}
+            </>
+          )}
+
+          {/* Loading indicator */}
+          {isLoading && (
+            <div className="absolute -top-1 -right-1">
+              <div className="h-2 w-2 bg-vintage-deep-blue rounded-full animate-pulse"></div>
+            </div>
+          )}
+
+          {/* Connection indicator */}
+          {!isLoading && (
+            <div className="absolute -bottom-1 -right-1">
+              <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+            </div>
+          )}
+        </Button>
+
+        {/* Urgent pulsing ring for extra attention */}
+        {hasUrgent && !isLoading && (
+          <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
+            <div className="h-3 w-3 bg-orange-500 rounded-full animate-bounce shadow-lg">
+              <div className="h-full w-full bg-orange-400 rounded-full animate-ping opacity-75"></div>
+            </div>
+          </div>
+        )}
+
+        <NotificationCenter />
+      </div>
+    );
   };
 
   return (
@@ -68,27 +157,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                 <SearchBar />
               </div>
 
-              {/* Notification Bell */}
-              {user && (
-                <div className="relative">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleNotificationCenter}
-                    aria-label="Notifications"
-                    className="rounded-full relative overflow-hidden group"
-                  >
-                    <Bell className="h-5 w-5 text-vintage-deep-blue group-hover:scale-110 transition-transform" />
-                    <span className="absolute inset-0 rounded-full bg-vintage-gold/10 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-vintage-burgundy text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </span>
-                    )}
-                  </Button>
-                  <NotificationCenter />
-                </div>
-              )}
+              {/* Enhanced Notification Bell */}
+              {user && <EnhancedNotificationButton />}
 
               {/* Mobile Menu Button */}
               <Button
@@ -149,6 +219,38 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
           <div className="mb-4">
             <SearchBar />
           </div>
+
+          {/* Mobile Notification Summary (optional) */}
+          {user && (unreadCount > 0 || urgentCount > 0) && (
+            <div className="mb-4 p-3 bg-vintage-gold/10 rounded-lg border border-vintage-gold/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {urgentCount > 0 ? (
+                    <Zap className="h-4 w-4 text-orange-500" />
+                  ) : (
+                    <Bell className="h-4 w-4 text-vintage-deep-blue" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {urgentCount > 0
+                      ? `${urgentCount} urgent notification${urgentCount === 1 ? '' : 's'}`
+                      : `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`
+                    }
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    toggleNotificationCenter();
+                    closeMobileMenu();
+                  }}
+                  className="text-xs"
+                >
+                  View All
+                </Button>
+              </div>
+            </div>
+          )}
 
           <nav className="flex flex-col space-y-4" role="navigation" aria-label="Mobile navigation">
             <NavLink to="/" onClick={closeMobileMenu}>Home</NavLink>
