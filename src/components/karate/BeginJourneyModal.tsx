@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +31,7 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
   });
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const experienceLevels = [
     { value: 'complete_beginner', label: 'Complete Beginner' },
@@ -88,7 +87,7 @@ const BeginJourneyModal: React.FC<BeginJourneyModalProps> = ({ isOpen, onClose }
 
       toast.success('Your karate journey has begun! Welcome to the dojo.');
       onClose();
-      navigate('/karate-journey');
+      router.push('/karate-journey');
     } catch (error) {
       console.error('Error starting journey:', error);
       toast.error('Failed to start your karate journey. Please try again.');

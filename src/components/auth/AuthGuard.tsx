@@ -1,5 +1,5 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from './AuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -17,7 +17,21 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     requireVerification = true
 }) => {
     const { user, loading } = useAuth();
-    const location = useLocation();
+    const router = useRouter();
+
+    useEffect(() => {
+        // Redirect to login if not authenticated
+        if (!loading && !user) {
+            router.replace('/auth');
+            return;
+        }
+
+        // Check email verification if required
+        if (!loading && user && requireVerification && !user.email_confirmed_at) {
+            router.replace('/verify-email');
+            return;
+        }
+    }, [user, loading, requireVerification, router]);
 
     // Show loading spinner while checking auth state
     if (loading) {
@@ -35,12 +49,12 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 
     // Redirect to login if not authenticated
     if (!user) {
-        return <Navigate to="/auth" state={{ from: location }} replace />;
+        return null; // Will redirect via useEffect
     }
 
     // Check email verification if required
     if (requireVerification && !user.email_confirmed_at) {
-        return <Navigate to="/verify-email" state={{ from: location }} replace />;
+        return null; // Will redirect via useEffect
     }
 
     // User is authenticated and verified (if required)

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,9 +13,8 @@ const EmailVerification: React.FC = () => {
     const [email, setEmail] = useState('');
     const [isResending, setIsResending] = useState(false);
     const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending');
-    const [searchParams] = useSearchParams();
+    const router = useRouter();
     const { user, resendVerificationEmail } = useAuth();
-    const navigate = useNavigate();
     const { toast } = useToast();
 
     useEffect(() => {
@@ -23,7 +22,7 @@ const EmailVerification: React.FC = () => {
         if (user?.email_confirmed_at) {
             setVerificationStatus('success');
             setTimeout(() => {
-                navigate('/', { replace: true });
+                router.replace('/');
             }, 3000);
         }
 
@@ -31,12 +30,12 @@ const EmailVerification: React.FC = () => {
         if (user?.email) {
             setEmail(user.email);
         } else {
-            const emailParam = searchParams.get('email');
-            if (emailParam) {
+            const emailParam = router.query.email;
+            if (emailParam && typeof emailParam === 'string') {
                 setEmail(emailParam);
             }
         }
-    }, [user, searchParams, navigate]);
+    }, [user, router]);
 
     const handleResendVerification = async () => {
         if (!email) {
@@ -76,7 +75,7 @@ const EmailVerification: React.FC = () => {
     };
 
     const handleGoToLogin = () => {
-        navigate('/auth');
+        router.push('/auth');
     };
 
     if (verificationStatus === 'success') {

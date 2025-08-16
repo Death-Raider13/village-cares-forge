@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { cn } from '@/lib/utils';
 
 interface NavLinkProps {
-  to: string;
+  href: string;
   children: React.ReactNode;
   className?: string;
   activeClassName?: string;
@@ -16,30 +18,30 @@ interface NavLinkProps {
  * based on the current route.
  */
 const NavLink: React.FC<NavLinkProps> = ({
-  to,
+  href,
   children,
   className = '',
-  activeClassName = 'text-vintage-forest-green',
-  inactiveClassName = 'text-vintage-forest-green/70',
+  activeClassName = 'text-vintage-deep-blue',
+  inactiveClassName = 'text-vintage-deep-blue/70',
   exact = true,
   onClick,
 }) => {
-  const location = useLocation();
+  const router = useRouter();
   
   // Determine if the link is active
   const isActive = exact 
-    ? location.pathname === to 
-    : location.pathname.startsWith(to);
+    ? router.pathname === href 
+    : router.pathname.startsWith(href);
 
   // Combine classes
-  const linkClassName = `
-    text-lg font-medium transition-colors hover:text-vintage-forest-green
-    ${isActive ? activeClassName : inactiveClassName}
-    ${className}
-  `.trim();
+  const linkClassName = cn(
+    "text-lg font-medium transition-colors hover:text-vintage-deep-blue",
+    isActive ? activeClassName : inactiveClassName,
+    className
+  );
 
   return (
-    <Link to={to} className={linkClassName} onClick={onClick}>
+    <Link href={href} className={linkClassName} onClick={onClick}>
       {children}
     </Link>
   );

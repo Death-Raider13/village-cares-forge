@@ -1,5 +1,5 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from './AuthProvider';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,7 +17,33 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, loading } = useAuth();
   const { isAdminAuthenticated } = useAdminAuth();
-  const location = useLocation();
+  const router = useRouter();
+
+  useEffect(() => {
+    // For admin-only routes
+    if (adminOnly && !loading) {
+      if (!isAdminAuthenticated()) {
+        router.replace('/admin-login');
+        return;
+      }
+    }
+
+    // For regular protected routes
+    if (!adminOnly && !loading) {
+      const isAuthenticated = user || isAdminAuthenticated();
+
+      if (!isAuthenticated) {
+        router.replace('/auth');
+        return;
+      }
+
+      // Check email verification for regular users (not admins)
+      if (requireVerification && user && !user.email_confirmed_at && !isAdminAuthenticated()) {
+        router.replace('/verify-email');
+        return;
+      }
+    }
+  }, [user, loading, adminOnly, requireVerification, isAdminAuthenticated, router]);
 
   if (loading) {
     return (
@@ -35,7 +61,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // For admin-only routes
   if (adminOnly) {
     if (!isAdminAuthenticated()) {
-      return <Navigate to="/admin-login" state={{ from: location }} replace />;
+      return null; // Will redirect via useEffect
     }
     return <>{children}</>;
   }
@@ -44,12 +70,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const isAuthenticated = user || isAdminAuthenticated();
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return null; // Will redirect via useEffect
   }
 
   // Check email verification for regular users (not admins)
   if (requireVerification && user && !user.email_confirmed_at && !isAdminAuthenticated()) {
-    return <Navigate to="/verify-email" state={{ from: location }} replace />;
+    return null; // Will redirect via useEffect
   }
 
   return <>{children}</>;

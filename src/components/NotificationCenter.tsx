@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, CheckCircle, Trash2, X, Info, AlertTriangle, MessageSquare, BookOpen, Megaphone, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 const NotificationCenter: React.FC = () => {
   const {
@@ -20,7 +20,7 @@ const NotificationCenter: React.FC = () => {
     urgentCount
   } = useNotifications();
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
   if (!showNotificationCenter) {
     return null;
@@ -113,7 +113,7 @@ const NotificationCenter: React.FC = () => {
 
       // Navigate to the link
       if (notification.link.startsWith('/')) {
-        navigate(notification.link);
+        router.push(notification.link);
       } else {
         window.open(notification.link, '_blank');
       }

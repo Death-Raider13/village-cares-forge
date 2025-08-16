@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -24,8 +24,7 @@ const Auth: React.FC = () => {
 
   const { signIn, signUp, user } = useAuth();
   const { checkIfAdminEmail } = useAdminAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
   const { toast } = useToast();
 
   const signInForm = useForm<SignInFormData>({
@@ -49,10 +48,11 @@ const Auth: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      const redirectTo = (location.state as any)?.from?.pathname || '/';
-      navigate(redirectTo, { replace: true });
+      // Get the redirect URL from query parameters or default to '/'
+      const redirectTo = router.query.redirect || '/';
+      router.replace(redirectTo as string);
     }
-  }, [user, navigate, location]);
+  }, [user, router]);
 
   // Function to check if email is admin and redirect
   const checkAndRedirectIfAdmin = (email: string) => {
@@ -68,8 +68,8 @@ const Auth: React.FC = () => {
         duration: 2000,
       });
 
-      // Use React Router navigation instead of window.location
-      navigate('/admin-login');
+      // Use Next.js router navigation instead of window.location
+      router.push('/admin-login');
       return true;
     }
 

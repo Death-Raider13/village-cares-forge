@@ -6,7 +6,7 @@ import { useNotifications } from '@/contexts/NotificationsContext';
 import { User, LogOut, Menu, X, Bell, ShieldAlert, Zap } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import NotificationCenter from '@/components/NotificationCenter';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import NavLink from '@/components/ui/nav-link';
 import { cn } from '@/lib/utils';
 import {
@@ -137,18 +137,18 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-vintage-warm-cream/95 backdrop-blur-sm border-b border-vintage-gold/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="text-2xl font-bold text-vintage-forest-green hover:text-vintage-burgundy transition-colors">
+            <Link href="/" className="text-2xl font-bold text-vintage-deep-blue hover:text-vintage-burgundy transition-colors">
               Andrew Cares Village
             </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <NavLink to="/">Home</NavLink>
-              <NavLink to="/forex-training">Forex Training</NavLink>
-              <NavLink to="/fitness-training">Fitness Training</NavLink>
-              <NavLink to="/karate-training">Karate Training</NavLink>
-              {user && <NavLink to="/community">Community</NavLink>}
-              {user && <NavLink to="/fitness-journey">My Journey</NavLink>}
+              <NavLink href="/">Home</NavLink>
+              <NavLink href="/forex-training">Forex Training</NavLink>
+              <NavLink href="/fitness-training">Fitness Training</NavLink>
+              <NavLink href="/karate-training">Karate Training</NavLink>
+              {user && <NavLink href="/community">Community</NavLink>}
+              {user && <NavLink href="/fitness-journey">My Journey</NavLink>}
             </nav>
 
             <div className="flex items-center space-x-4">
@@ -181,14 +181,14 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>
-                      <Link to="/fitness-journey" className="w-full">
+                      <Link href="/fitness-journey" className="w-full">
                         My Journey
                       </Link>
                     </DropdownMenuItem>
                     {/* Admin Access - Only visible to admin emails */}
                     {user.email && checkIfAdminEmail(user.email.toLowerCase()) && (
                       <DropdownMenuItem>
-                        <Link to="/admin" className="w-full flex items-center">
+                        <Link href="/admin" className="w-full flex items-center">
                           <ShieldAlert className="h-4 w-4 mr-2 text-vintage-burgundy" />
                           Admin Panel
                         </Link>
@@ -201,7 +201,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link to="/auth">
+                <Link href="/auth">
                   <Button>
                     Sign In
                   </Button>
@@ -253,12 +253,12 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
           )}
 
           <nav className="flex flex-col space-y-4" role="navigation" aria-label="Mobile navigation">
-            <NavLink to="/" onClick={closeMobileMenu}>Home</NavLink>
-            <NavLink to="/forex-training" onClick={closeMobileMenu}>Forex Training</NavLink>
-            <NavLink to="/fitness-training" onClick={closeMobileMenu}>Fitness Training</NavLink>
-            <NavLink to="/karate-training" onClick={closeMobileMenu}>Karate Training</NavLink>
-            {user && <NavLink to="/community" onClick={closeMobileMenu}>Community</NavLink>}
-            {user && <NavLink to="/fitness-journey" onClick={closeMobileMenu}>My Journey</NavLink>}
+            <NavLink href="/" onClick={closeMobileMenu}>Home</NavLink>
+            <NavLink href="/forex-training" onClick={closeMobileMenu}>Forex Training</NavLink>
+            <NavLink href="/fitness-training" onClick={closeMobileMenu}>Fitness Training</NavLink>
+            <NavLink href="/karate-training" onClick={closeMobileMenu}>Karate Training</NavLink>
+            {user && <NavLink href="/community" onClick={closeMobileMenu}>Community</NavLink>}
+            {user && <NavLink href="/fitness-journey" onClick={closeMobileMenu}>My Journey</NavLink>}
           </nav>
         </div>
       </div>

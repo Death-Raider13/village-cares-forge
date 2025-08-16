@@ -1,659 +1,321 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
-
-export type Database = {
-  // Allows to automatically instanciate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
-  }
+// src/types/supabase.ts
+export interface Database {
   public: {
     Tables: {
-      academy_content: {
-        Row: {
-          content: string | null
-          content_type: string
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          discipline: string
-          id: string
-          is_active: boolean | null
-          order_index: number | null
-          parent_id: string | null
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          content?: string | null
-          content_type: string
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          discipline: string
-          id?: string
-          is_active?: boolean | null
-          order_index?: number | null
-          parent_id?: string | null
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string | null
-          content_type?: string
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          discipline?: string
-          id?: string
-          is_active?: boolean | null
-          order_index?: number | null
-          parent_id?: string | null
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "academy_content_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "academy_content"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      admin: {
-        Row: {
-          created_at: string
-          id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
-        }
-        Relationships: []
-      }
-      admin_users: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          is_active: boolean | null
-          password_hash: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          is_active?: boolean | null
-          password_hash: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          is_active?: boolean | null
-          password_hash?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      auth: {
-        Row: {
-          created_at: string
-          id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
-        }
-        Relationships: []
-      }
-      bookings: {
-        Row: {
-          booking_date: string
-          created_at: string
-          id: string
-          notes: string | null
-          service_id: string
-          status: string
-          user_id: string
-        }
-        Insert: {
-          booking_date: string
-          created_at?: string
-          id?: string
-          notes?: string | null
-          service_id: string
-          status?: string
-          user_id: string
-        }
-        Update: {
-          booking_date?: string
-          created_at?: string
-          id?: string
-          notes?: string | null
-          service_id?: string
-          status?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      content_notifications: {
-        Row: {
-          content_id: string | null
-          created_at: string | null
-          created_by: string | null
-          id: string
-          notification_message: string
-          notification_title: string
-          scheduled_at: string | null
-          sent_at: string | null
-          target_discipline: string | null
-        }
-        Insert: {
-          content_id?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          notification_message: string
-          notification_title: string
-          scheduled_at?: string | null
-          sent_at?: string | null
-          target_discipline?: string | null
-        }
-        Update: {
-          content_id?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          notification_message?: string
-          notification_title?: string
-          scheduled_at?: string | null
-          sent_at?: string | null
-          target_discipline?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_notifications_content_id_fkey"
-            columns: ["content_id"]
-            isOneToOne: false
-            referencedRelation: "academy_content"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      fitness_programs: {
-        Row: {
-          created_at: string
-          description: string | null
-          duration_weeks: number | null
-          id: string
-          level: string
-          name: string
-          program_type: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          duration_weeks?: number | null
-          id?: string
-          level: string
-          name: string
-          program_type: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          duration_weeks?: number | null
-          id?: string
-          level?: string
-          name?: string
-          program_type?: string
-        }
-        Relationships: []
-      }
-      forex_signals: {
-        Row: {
-          confidence_level: number | null
-          created_at: string
-          currency_pair: string
-          description: string | null
-          entry_price: number | null
-          id: string
-          signal_type: string
-          status: string
-          stop_loss: number | null
-          take_profit: number | null
-        }
-        Insert: {
-          confidence_level?: number | null
-          created_at?: string
-          currency_pair: string
-          description?: string | null
-          entry_price?: number | null
-          id?: string
-          signal_type: string
-          status?: string
-          stop_loss?: number | null
-          take_profit?: number | null
-        }
-        Update: {
-          confidence_level?: number | null
-          created_at?: string
-          currency_pair?: string
-          description?: string | null
-          entry_price?: number | null
-          id?: string
-          signal_type?: string
-          status?: string
-          stop_loss?: number | null
-          take_profit?: number | null
-        }
-        Relationships: []
-      }
-      martial_arts_ranks: {
-        Row: {
-          created_at: string
-          date_achieved: string | null
-          discipline: string
-          id: string
-          instructor: string | null
-          rank_level: number | null
-          rank_name: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          date_achieved?: string | null
-          discipline: string
-          id?: string
-          instructor?: string | null
-          rank_level?: number | null
-          rank_name: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          date_achieved?: string | null
-          discipline?: string
-          id?: string
-          instructor?: string | null
-          rank_level?: number | null
-          rank_name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          created_at: string
-          id: string
-          message: string
-          read: boolean
-          title: string
-          type: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message: string
-          read?: boolean
-          title: string
-          type?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message?: string
-          read?: boolean
-          title?: string
-          type?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
-          avatar_url: string | null
-          created_at: string
-          first_name: string | null
-          id: string
-          last_name: string | null
-          phone: string | null
-          role: string | null
-          updated_at: string
-        }
+          id: string;
+          first_name: string | null;
+          last_name: string | null;
+          phone: string | null;
+          avatar_url: string | null;
+          created_at: string;
+          updated_at: string;
+          role: string | null;
+        };
         Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          first_name?: string | null
-          id: string
-          last_name?: string | null
-          phone?: string | null
-          role?: string | null
-          updated_at?: string
-        }
+          id: string;
+          first_name?: string | null;
+          last_name?: string | null;
+          phone?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          role?: string | null;
+        };
         Update: {
-          avatar_url?: string | null
-          created_at?: string
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          phone?: string | null
-          role?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      services: {
+          id?: string;
+          first_name?: string | null;
+          last_name?: string | null;
+          phone?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          role?: string | null;
+        };
+      };
+      community_posts: {
         Row: {
-          category: string
-          created_at: string
-          description: string | null
-          duration_minutes: number | null
-          id: string
-          max_participants: number | null
-          name: string
-          price: number | null
-        }
+          id: string;
+          user_id: string;
+          title: string;
+          content: string;
+          discipline: string;
+          category: string;
+          tags: string[] | null;
+          likes_count: number | null;
+          comments_count: number | null;
+          is_pinned: boolean | null;
+          created_at: string;
+          updated_at: string;
+          is_published: boolean | null;
+        };
         Insert: {
-          category: string
-          created_at?: string
-          description?: string | null
-          duration_minutes?: number | null
-          id?: string
-          max_participants?: number | null
-          name: string
-          price?: number | null
-        }
+          id?: string;
+          user_id: string;
+          title: string;
+          content: string;
+          discipline: string;
+          category?: string;
+          tags?: string[] | null;
+          likes_count?: number | null;
+          comments_count?: number | null;
+          is_pinned?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+          is_published?: boolean | null;
+        };
         Update: {
-          category?: string
-          created_at?: string
-          description?: string | null
-          duration_minutes?: number | null
-          id?: string
-          max_participants?: number | null
-          name?: string
-          price?: number | null
-        }
-        Relationships: []
-      }
-      training_sessions: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          content?: string;
+          discipline?: string;
+          category?: string;
+          tags?: string[] | null;
+          likes_count?: number | null;
+          comments_count?: number | null;
+          is_pinned?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+          is_published?: boolean | null;
+        };
+      };
+      academy_content: {
         Row: {
-          completed: boolean | null
-          created_at: string
-          description: string | null
-          duration_minutes: number | null
-          id: string
-          session_date: string
-          session_type: string
-          title: string
-          user_id: string
-        }
+          id: string;
+          discipline: string;
+          content_type: string;
+          title: string;
+          description: string | null;
+          content: string | null;
+          parent_id: string | null;
+          order_index: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+          created_by: string | null;
+        };
         Insert: {
-          completed?: boolean | null
-          created_at?: string
-          description?: string | null
-          duration_minutes?: number | null
-          id?: string
-          session_date?: string
-          session_type: string
-          title: string
-          user_id: string
-        }
+          id?: string;
+          discipline: string;
+          content_type: string;
+          title: string;
+          description?: string | null;
+          content?: string | null;
+          parent_id?: string | null;
+          order_index?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          created_by?: string | null;
+        };
         Update: {
-          completed?: boolean | null
-          created_at?: string
-          description?: string | null
-          duration_minutes?: number | null
-          id?: string
-          session_date?: string
-          session_type?: string
-          title?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          id?: string;
+          discipline?: string;
+          content_type?: string;
+          title?: string;
+          description?: string | null;
+          content?: string | null;
+          parent_id?: string | null;
+          order_index?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          created_by?: string | null;
+        };
+      };
+      content_notifications: {
+        Row: {
+          id: string;
+          content_id: string | null;
+          notification_title: string;
+          notification_message: string;
+          target_discipline: string | null;
+          scheduled_at: string | null;
+          sent_at: string | null;
+          created_at: string | null;
+          created_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          content_id?: string | null;
+          notification_title: string;
+          notification_message: string;
+          target_discipline?: string | null;
+          scheduled_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          content_id?: string | null;
+          notification_title?: string;
+          notification_message?: string;
+          target_discipline?: string | null;
+          scheduled_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+        };
+      };
       videos: {
         Row: {
-          id: string
-          title: string
-          description: string
-          category: 'forex' | 'fitness' | 'karate'
-          type: 'course' | 'workout' | 'tutorial' | 'analysis'
-          difficulty: 'beginner' | 'intermediate' | 'advanced'
-          instructor: string
-          duration: number
-          url: string
-          thumbnail: string | null
-          tags: string[] | null
-          is_featured: boolean
-          is_premium: boolean
-          user_id: string | null
-          created_at: string
-          updated_at: string | null
-        }
+          id: string;
+          user_id: string | null;
+          title: string;
+          description: string | null;
+          category: string | null;
+          type: string | null;
+          duration: number | null;
+          difficulty: string | null;
+          rating: number | null;
+          views: number | null;
+          thumbnail_url: string | null;
+          video_url: string | null;
+          storage_path: string | null;
+          instructor_name: string | null;
+          tags: string[] | null;
+          upload_date: string | null;
+        };
         Insert: {
-          id?: string
-          title: string
-          description: string
-          category: 'forex' | 'fitness' | 'karate'
-          type: 'course' | 'workout' | 'tutorial' | 'analysis'
-          difficulty: 'beginner' | 'intermediate' | 'advanced'
-          instructor: string
-          duration: number
-          url: string
-          thumbnail?: string | null
-          tags?: string[] | null
-          is_featured?: boolean
-          is_premium?: boolean
-          user_id?: string | null
-          created_at?: string
-          updated_at?: string | null
-        }
+          id?: string;
+          user_id?: string | null;
+          title: string;
+          description?: string | null;
+          category?: string | null;
+          type?: string | null;
+          duration?: number | null;
+          difficulty?: string | null;
+          rating?: number | null;
+          views?: number | null;
+          thumbnail_url?: string | null;
+          video_url?: string | null;
+          storage_path?: string | null;
+          instructor_name?: string | null;
+          tags?: string[] | null;
+          upload_date?: string | null;
+        };
         Update: {
-          id?: string
-          title?: string
-          description?: string
-          category?: 'forex' | 'fitness' | 'karate'
-          type?: 'course' | 'workout' | 'tutorial' | 'analysis'
-          difficulty?: 'beginner' | 'intermediate' | 'advanced'
-          instructor?: string
-          duration?: number
-          url?: string
-          thumbnail?: string | null
-          tags?: string[] | null
-          is_featured?: boolean
-          is_premium?: boolean
-          user_id?: string | null
-          created_at?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "videos_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      get_user_role: {
-        Args: { user_uuid: string }
-        Returns: string
-      }
-      verify_admin_login: {
-        Args: { admin_email: string; admin_password: string }
-        Returns: {
-          id: string
-          email: string
-          is_valid: boolean
-        }[]
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
+          id?: string;
+          user_id?: string | null;
+          title?: string;
+          description?: string | null;
+          category?: string | null;
+          type?: string | null;
+          duration?: number | null;
+          difficulty?: string | null;
+          rating?: number | null;
+          views?: number | null;
+          thumbnail_url?: string | null;
+          video_url?: string | null;
+          storage_path?: string | null;
+          instructor_name?: string | null;
+          tags?: string[] | null;
+          upload_date?: string | null;
+        };
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          title: string;
+          message: string;
+          type: string | null;
+          read: boolean | null;
+          link: string | null;
+          is_global: boolean | null;
+          priority: number | null;
+          category: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          title?: string;
+          message?: string;
+          type?: string | null;
+          read?: boolean | null;
+          link?: string | null;
+          is_global?: boolean | null;
+          priority?: number | null;
+          category?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          title?: string;
+          message?: string;
+          type?: string | null;
+          read?: boolean | null;
+          link?: string | null;
+          is_global?: boolean | null;
+          priority?: number | null;
+          category?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      bookings: {
+        Row: {
+          id: string;
+          user_id: string;
+          service_id: string;
+          booking_date: string;
+          status: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          service_id: string;
+          booking_date: string;
+          status?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          service_id?: string;
+          booking_date?: string;
+          status?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+      };
+    };
+  };
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+// Type definitions for your components
+export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type CommunityPost = Database['public']['Tables']['community_posts']['Row'];
+export type AcademyContent = Database['public']['Tables']['academy_content']['Row'];
+export type ContentNotification = Database['public']['Tables']['content_notifications']['Row'];
+export type VideoData = Database['public']['Tables']['videos']['Row'];
+export type NotificationData = Database['public']['Tables']['notifications']['Row'];
+export type Booking = Database['public']['Tables']['bookings']['Row'];
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+// Insert types
+export type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
+export type CommunityPostInsert = Database['public']['Tables']['community_posts']['Insert'];
+export type AcademyContentInsert = Database['public']['Tables']['academy_content']['Insert'];
+export type ContentNotificationInsert = Database['public']['Tables']['content_notifications']['Insert'];
+export type VideoInsert = Database['public']['Tables']['videos']['Insert'];
+export type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
+export type BookingInsert = Database['public']['Tables']['bookings']['Insert'];
 
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-  : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-  ? R
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R
-    }
-  ? R
-  : never
-  : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
-  : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U
-  }
-  ? U
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Update: infer U
-  }
-  ? U
-  : never
-  : never
-
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-  | keyof DefaultSchema["Enums"]
-  | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-  : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-  | keyof DefaultSchema["CompositeTypes"]
-  | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-  : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
+// Update types
+export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
+export type CommunityPostUpdate = Database['public']['Tables']['community_posts']['Update'];
+export type AcademyContentUpdate = Database['public']['Tables']['academy_content']['Update'];
+export type ContentNotificationUpdate = Database['public']['Tables']['content_notifications']['Update'];
+export type VideoUpdate = Database['public']['Tables']['videos']['Update'];
+export type NotificationUpdate = Database['public']['Tables']['notifications']['Update'];
+export type BookingUpdate = Database['public']['Tables']['bookings']['Update'];

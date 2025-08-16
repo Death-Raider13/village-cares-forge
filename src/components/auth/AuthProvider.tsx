@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface AuthContextType {
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const router = useRouter();
   const { checkIfAdminEmail } = useAdminAuth();
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check if this is an admin email
       if (checkIfAdminEmail(email)) {
         // Redirect to admin login page instead of regular auth
-        navigate('/admin-login');
+        router.push('/admin-login');
         return { error: 'Please use the admin login page for admin access.' };
       }
 
@@ -71,16 +71,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check if email is verified
       if (data.user && !data.user.email_confirmed_at) {
         // Redirect to email verification page
-        navigate('/verify-email', {
-          state: { email: data.user.email }
-        });
+        router.push('/verify-email');
         return { error: 'Please verify your email before signing in.' };
       }
 
       // Explicitly update user state
       if (data.user) {
         setUser(data.user);
-        navigate('/', { replace: true });
+        router.replace('/');
       }
 
       return {};
@@ -114,14 +112,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Check if email confirmation is required
         if (!data.user.email_confirmed_at) {
           // Redirect to email verification page
-          navigate('/verify-email', {
-            state: { email: data.user.email }
-          });
+          router.push('/verify-email');
           return { error: 'Please check your email to verify your account before signing in.' };
         } else {
           // Email is already confirmed (instant confirmation)
           setUser(data.user);
-          navigate('/', { replace: true });
+          router.replace('/');
         }
       }
 

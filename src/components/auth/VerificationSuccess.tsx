@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -11,8 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 const VerificationSuccess: React.FC = () => {
     const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error' | 'expired'>('loading');
     const [countdown, setCountdown] = useState(5);
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+    const router = useRouter();
     const { user } = useAuth();
     const { toast } = useToast();
 
@@ -20,8 +19,8 @@ const VerificationSuccess: React.FC = () => {
         const handleEmailVerification = async () => {
             try {
                 // Get token from URL params
-                const token = searchParams.get('token');
-                const type = searchParams.get('type');
+                const token = router.query.token;
+                const type = router.query.type;
 
                 if (!token || type !== 'email') {
                     setVerificationStatus('error');
@@ -30,7 +29,7 @@ const VerificationSuccess: React.FC = () => {
 
                 // Verify the email with Supabase
                 const { data, error } = await supabase.auth.verifyOtp({
-                    token_hash: token,
+                    token_hash: token as string,
                     type: 'email'
                 });
 
@@ -57,7 +56,7 @@ const VerificationSuccess: React.FC = () => {
                         setCountdown((prev) => {
                             if (prev <= 1) {
                                 clearInterval(timer);
-                                navigate('/', { replace: true });
+                                router.replace('/');
                                 return 0;
                             }
                             return prev - 1;
@@ -72,15 +71,18 @@ const VerificationSuccess: React.FC = () => {
             }
         };
 
-        handleEmailVerification();
-    }, [searchParams, navigate, toast]);
+        // Only run when router is ready and has query params
+        if (router.isReady) {
+            handleEmailVerification();
+        }
+    }, [router, toast]);
 
     const handleGoHome = () => {
-        navigate('/', { replace: true });
+        router.replace('/');
     };
 
     const handleResendVerification = () => {
-        navigate('/verify-email');
+        router.push('/verify-email');
     };
 
     const renderContent = () => {
@@ -175,7 +177,7 @@ const VerificationSuccess: React.FC = () => {
                                 </Button>
 
                                 <Button
-                                    onClick={() => navigate('/auth')}
+                                    onClick={() => router.push('/auth')}
                                     variant="outline"
                                     className="w-full border-vintage-deep-blue text-vintage-deep-blue hover:bg-vintage-deep-blue hover:text-white"
                                 >
@@ -218,7 +220,7 @@ const VerificationSuccess: React.FC = () => {
                                 </Button>
 
                                 <Button
-                                    onClick={() => navigate('/auth')}
+                                    onClick={() => router.push('/auth')}
                                     variant="outline"
                                     className="w-full border-vintage-deep-blue text-vintage-deep-blue hover:bg-vintage-deep-blue hover:text-white"
                                 >

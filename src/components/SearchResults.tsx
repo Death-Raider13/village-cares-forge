@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useSearch } from '@/contexts/SearchContext';
 import { Loader2, Dumbbell, TrendingUp, Award, AlertCircle } from 'lucide-react';
 
@@ -54,7 +54,7 @@ const SearchResults: React.FC = () => {
               {fitnessResults.map(result => (
                 <Link
                   key={`fitness-${result.id}`}
-                  to={result.url}
+                  href={result.url}
                   className="flex items-start gap-3 px-4 py-3 hover:bg-vintage-warm-cream/30 transition-colors"
                 >
                   <div className="flex-shrink-0 mt-0.5">
@@ -80,7 +80,7 @@ const SearchResults: React.FC = () => {
               {forexResults.map(result => (
                 <Link
                   key={`forex-${result.id}`}
-                  to={result.url}
+                  href={result.url}
                   className="flex items-start gap-3 px-4 py-3 hover:bg-vintage-warm-cream/30 transition-colors"
                 >
                   <div className="flex-shrink-0 mt-0.5">
@@ -106,7 +106,7 @@ const SearchResults: React.FC = () => {
               {karateResults.map(result => (
                 <Link
                   key={`karate-${result.id}`}
-                  to={result.url}
+                  href={result.url}
                   className="flex items-start gap-3 px-4 py-3 hover:bg-vintage-warm-cream/30 transition-colors"
                 >
                   <div className="flex-shrink-0 mt-0.5">
@@ -127,7 +127,7 @@ const SearchResults: React.FC = () => {
           {searchResults.length > 5 && (
             <div className="px-4 py-3 text-center border-t border-vintage-gold/10">
               <Link
-                to={`/search?q=${encodeURIComponent(searchQuery)}`}
+                href={`/search?q=${encodeURIComponent(searchQuery)}`}
                 className="text-sm text-vintage-burgundy hover:text-vintage-deep-blue transition-colors"
               >
                 View all {searchResults.length} results

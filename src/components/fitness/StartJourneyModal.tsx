@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { Dumbbell, Heart, Target, Zap, Clock, Trophy } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 interface StartJourneyModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
     health_conditions: '',
   });
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const fitnessGoals = [
     { id: 'weight_loss', label: 'Weight Loss', icon: Target },
@@ -87,9 +87,7 @@ const StartJourneyModal: React.FC<StartJourneyModalProps> = ({ isOpen, onClose }
       onClose();
 
       // Redirect to fitness journey page
-      setTimeout(() => {
-        navigate('/fitness-journey');
-      }, 1000);
+      router.push('/fitness-journey');
 
     } catch (error) {
       console.error('Error starting journey:', error);
